@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "kubejs",
+  "version": "${version}",
+  "name": "KubeJS",
+  "description": "Allows you to tweak and customize modpack with JavaScript",
+  "authors": [
+    "LatvianModder",
+    "shedaniel"
+  ],
+  "license": "LGPL-2.1-or-later",
+  "icon": "kubejs_logo.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "dev.latvian.kubejs.KubeJS",
+      "dev.latvian.kubejs.server.KubeJSServerEventHandler",
+      "dev.latvian.kubejs.docs.KubeJSDocs"
+    ]
+  },
+  "accessWidener": "kubejs.accessWidener",
+  "mixins": [
+    "kubejs.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.9.0",
+    "fabric": "*"
+  }
+}
