@@ -21,124 +21,103 @@ import java.util.Set;
 /**
  * @author LatvianModder
  */
-public class TagIngredientJS implements IngredientJS
-{
+public class TagIngredientJS implements IngredientJS {
 	private final Identifier tag;
-
-	public TagIngredientJS(Identifier t)
-	{
+	
+	public TagIngredientJS(Identifier t) {
 		tag = t;
 	}
-
-	public Identifier getTag()
-	{
+	
+	public Identifier getTag() {
 		return tag;
 	}
-
+	
 	@Override
-	public boolean test(ItemStackJS stack)
-	{
+	public boolean test(ItemStackJS stack) {
 		return !stack.isEmpty() && stack.getItem().isIn(TagRegistry.item(tag));
 	}
-
+	
 	@Override
-	public boolean testVanilla(ItemStack stack)
-	{
+	public boolean testVanilla(ItemStack stack) {
 		return !stack.isEmpty() && stack.getItem().isIn(TagRegistry.item(tag));
 	}
-
+	
 	@Override
-	public Set<ItemStackJS> getStacks()
-	{
+	public Set<ItemStackJS> getStacks() {
 		Tag<Item> t = ItemTags.getContainer().get(tag);
-
-		if (t != null && t.values().size() > 0)
-		{
+		
+		if (t != null && t.values().size() > 0) {
 			DefaultedList<ItemStack> list = DefaultedList.of();
-
-			for (Item item : t.values())
-			{
+			
+			for (Item item : t.values()) {
 				item.appendStacks(ItemGroup.SEARCH, list);
 			}
-
+			
 			Set<ItemStackJS> set = new LinkedHashSet<>();
-
-			for (ItemStack stack1 : list)
-			{
-				if (!stack1.isEmpty())
-				{
+			
+			for (ItemStack stack1 : list) {
+				if (!stack1.isEmpty()) {
 					set.add(new BoundItemStackJS(stack1));
 				}
 			}
-
+			
 			return set;
 		}
-
+		
 		return Collections.emptySet();
 	}
-
+	
 	@Override
-	public ItemStackJS getFirst()
-	{
+	public ItemStackJS getFirst() {
 		Tag<Item> t = ItemTags.getContainer().get(tag);
-
-		if (t != null && t.values().size() > 0)
-		{
+		
+		if (t != null && t.values().size() > 0) {
 			DefaultedList<ItemStack> list = DefaultedList.of();
-
-			for (Item item : t.values())
-			{
+			
+			for (Item item : t.values()) {
 				item.appendStacks(ItemGroup.SEARCH, list);
-
-				for (ItemStack stack : list)
-				{
-					if (!stack.isEmpty())
-					{
+				
+				for (ItemStack stack : list) {
+					if (!stack.isEmpty()) {
 						return new BoundItemStackJS(stack);
 					}
 				}
-
+				
 				list.clear();
 			}
 		}
-
+		
 		return EmptyItemStackJS.INSTANCE;
 	}
-
+	
 	@Override
-	public boolean isEmpty()
-	{
-		if (ItemTags.getContainer().getEntries().isEmpty())
-		{
+	public boolean isEmpty() {
+		if (ItemTags.getContainer().getEntries().isEmpty()) {
 			return false;
 		}
-
+		
 		Tag<Item> t = ItemTags.getContainer().get(tag);
 		return t != null && t.values().isEmpty();
 	}
-
+	
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return "'#" + tag + "'";
 	}
-
+	
 	@Override
-	public JsonElement toJson()
-	{
+	public JsonElement toJson() {
 		JsonObject json = new JsonObject();
 		json.addProperty("tag", tag.toString());
 		return json;
 	}
-
+	
 	@Override
-	public boolean anyStackMatches(IngredientJS ingredient)
-	{
-		if (ingredient instanceof TagIngredientJS && tag.equals(((TagIngredientJS) ingredient).tag))
-		{
+	public boolean anyStackMatches(IngredientJS ingredient) {
+		if (ingredient instanceof TagIngredientJS && tag.equals(((TagIngredientJS) ingredient).tag)) {
 			return true;
 		}
-
+		
 		return IngredientJS.super.anyStackMatches(ingredient);
 	}
 }

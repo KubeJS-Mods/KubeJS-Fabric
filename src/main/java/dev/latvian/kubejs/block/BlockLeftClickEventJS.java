@@ -15,48 +15,41 @@ import javax.annotation.Nullable;
 /**
  * @author LatvianModder
  */
-public class BlockLeftClickEventJS extends PlayerEventJS
-{
+public class BlockLeftClickEventJS extends PlayerEventJS {
 	public final PlayerEntity player;
 	public final World world;
 	public final BlockPos pos;
 	public final Hand hand;
 	public final Direction direction;
-
-	public BlockLeftClickEventJS(PlayerEntity player, World world, Hand hand, BlockPos pos, Direction direction)
-	{
+	
+	public BlockLeftClickEventJS(PlayerEntity player, World world, Hand hand, BlockPos pos, Direction direction) {
 		this.player = player;
 		this.world = world;
 		this.pos = pos;
 		this.hand = hand;
 		this.direction = direction;
 	}
-
+	
 	@Override
-	public boolean canCancel()
-	{
+	public boolean canCancel() {
 		return true;
 	}
-
+	
 	@Override
-	public EntityJS getEntity()
-	{
+	public EntityJS getEntity() {
 		return entityOf(player);
 	}
-
-	public BlockContainerJS getBlock()
-	{
+	
+	public BlockContainerJS getBlock() {
 		return new BlockContainerJS(world, pos);
 	}
-
-	public ItemStackJS getItem()
-	{
+	
+	public ItemStackJS getItem() {
 		return ItemStackJS.of(player.getStackInHand(hand));
 	}
-
+	
 	@Nullable
-	public Direction getFacing()
-	{
+	public Direction getFacing() {
 		return direction;
 	}
 }

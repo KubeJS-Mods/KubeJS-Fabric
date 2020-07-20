@@ -29,182 +29,139 @@ import java.util.function.Predicate;
 /**
  * @author LatvianModder
  */
-public class KubeJSResourcePack implements ResourcePack
-{
+public class KubeJSResourcePack implements ResourcePack {
 	private final File folder;
 	private final ResourceType packType;
-
-	public KubeJSResourcePack(File f, ResourceType t)
-	{
+	
+	public KubeJSResourcePack(File f, ResourceType t) {
 		folder = f;
 		packType = t;
 	}
-
-	private static String getFullPath(ResourceType type, Identifier location)
-	{
+	
+	private static String getFullPath(ResourceType type, Identifier location) {
 		return String.format("%s/%s/%s", type.getDirectory(), location.getNamespace(), location.getPath());
 	}
-
+	
 	@Override
 	@Environment(EnvType.CLIENT)
-	public InputStream openRoot(String fileName) throws IOException
-	{
-		if (fileName.equals("pack.png"))
-		{
+	public InputStream openRoot(String fileName) throws IOException {
+		if (fileName.equals("pack.png")) {
 			return KubeJSResourcePack.class.getResourceAsStream("/kubejs_logo.png");
 		}
-
+		
 		throw new ResourceNotFoundException(folder, fileName);
 	}
-
+	
 	@Override
-	public InputStream open(ResourceType type, Identifier location) throws IOException
-	{
+	public InputStream open(ResourceType type, Identifier location) throws IOException {
 		String resourcePath = getFullPath(type, location);
-
-		if (type != packType)
-		{
+		
+		if (type != packType) {
 			throw new IllegalStateException(packType.getDirectory() + " KubeJS pack can't load " + resourcePath + "!");
 		}
-
+		
 		File file = new File(folder, resourcePath);
-
-		if (file.exists())
-		{
+		
+		if (file.exists()) {
 			return new BufferedInputStream(new FileInputStream(file));
-		}
-		else
-		{
-			if (location.getPath().endsWith(".json"))
-			{
+		} else {
+			if (location.getPath().endsWith(".json")) {
 				JsonObject json = new JsonObject();
 				String p = location.getPath().substring(0, location.getPath().length() - 5);
-
-				if (packType == ResourceType.CLIENT_RESOURCES ? generateClientJsonFile(location.getNamespace(), p, json, true) : generateServerJsonFile(location.getNamespace(), p, json, true))
-				{
+				
+				if (packType == ResourceType.CLIENT_RESOURCES ? generateClientJsonFile(location.getNamespace(), p, json, true) : generateServerJsonFile(location.getNamespace(), p, json, true)) {
 					return new ByteArrayInputStream(json.toString().getBytes(StandardCharsets.UTF_8));
 				}
 			}
 		}
-
+		
 		throw new ResourceNotFoundException(folder, resourcePath);
 	}
-
+	
 	@Override
-	public boolean contains(ResourceType type, Identifier location)
-	{
-		if (location.getPath().endsWith(".json"))
-		{
+	public boolean contains(ResourceType type, Identifier location) {
+		if (location.getPath().endsWith(".json")) {
 			String p = location.getPath().substring(0, location.getPath().length() - 5);
-
-			if (packType == ResourceType.CLIENT_RESOURCES ? generateClientJsonFile(location.getNamespace(), p, new JsonObject(), false) : generateServerJsonFile(location.getNamespace(), p, new JsonObject(), false))
-			{
+			
+			if (packType == ResourceType.CLIENT_RESOURCES ? generateClientJsonFile(location.getNamespace(), p, new JsonObject(), false) : generateServerJsonFile(location.getNamespace(), p, new JsonObject(), false)) {
 				return true;
 			}
 		}
-
+		
 		return type == packType && new File(folder, getFullPath(type, location)).exists();
 	}
-
-	private boolean generateClientJsonFile(String namespace, String path, JsonObject json, boolean real)
-	{
-		if (namespace.equals(KubeJS.MOD_ID) && path.equals("lang/en_us"))
-		{
-			if (real)
-			{
-				for (BuilderBase builder : KubeJSObjects.ALL)
-				{
-					if (!builder.displayName.isEmpty())
-					{
+	
+	private boolean generateClientJsonFile(String namespace, String path, JsonObject json, boolean real) {
+		if (namespace.equals(KubeJS.MOD_ID) && path.equals("lang/en_us")) {
+			if (real) {
+				for (BuilderBase builder : KubeJSObjects.ALL) {
+					if (!builder.displayName.isEmpty()) {
 						json.addProperty(builder.translationKey, builder.displayName);
 					}
 				}
-
-				for (FluidBuilder builder : KubeJSObjects.FLUIDS.values())
-				{
-					if (!builder.displayName.isEmpty())
-					{
+				
+				for (FluidBuilder builder : KubeJSObjects.FLUIDS.values()) {
+					if (!builder.displayName.isEmpty()) {
 						json.addProperty(builder.bucketItem.getTranslationKey(), builder.displayName + " Bucket");
 					}
 				}
 			}
-
+			
 			return true;
-		}
-		else if (path.startsWith("models/item/"))
-		{
+		} else if (path.startsWith("models/item/")) {
 			Identifier id = new Identifier(namespace, path.substring(12));
 			ItemBuilder builder = KubeJSObjects.ITEMS.get(id);
-
-			if (builder == null)
-			{
+			
+			if (builder == null) {
 				BlockBuilder blockBuilder = KubeJSObjects.BLOCKS.get(id);
-
-				if (blockBuilder == null)
-				{
-					if (path.endsWith("_bucket"))
-					{
+				
+				if (blockBuilder == null) {
+					if (path.endsWith("_bucket")) {
 						FluidBuilder fluidBuilder = KubeJSObjects.FLUIDS.get(new Identifier(namespace, path.substring(12, path.length() - 7)));
-
-						if (fluidBuilder != null)
-						{
+						
+						if (fluidBuilder != null) {
 							json.addProperty("parent", "kubejs:item/generated_bucket");
 							return true;
 						}
 					}
-				}
-				else if (blockBuilder.itemBuilder != null)
-				{
-					if (real)
-					{
+				} else if (blockBuilder.itemBuilder != null) {
+					if (real) {
 						json.addProperty("parent", blockBuilder.itemBuilder.parentModel);
 					}
-
+					
 					return true;
 				}
-			}
-			else
-			{
-				if (real)
-				{
+			} else {
+				if (real) {
 					json.addProperty("parent", builder.parentModel);
-
-					if (builder.parentModel.equals("item/generated"))
-					{
+					
+					if (builder.parentModel.equals("item/generated")) {
 						JsonObject textures = new JsonObject();
 						textures.addProperty("layer0", builder.texture);
 						json.add("textures", textures);
 					}
 				}
-
+				
 				return true;
 			}
-		}
-		else if (path.startsWith("models/block/"))
-		{
+		} else if (path.startsWith("models/block/")) {
 			BlockBuilder builder = KubeJSObjects.BLOCKS.get(new Identifier(namespace, path.substring(13)));
-
-			if (builder != null)
-			{
-				if (real)
-				{
+			
+			if (builder != null) {
+				if (real) {
 					String particle = builder.textures.get("particle").getAsString();
-
-					if (areAllTexturesEqual(builder.textures, particle))
-					{
+					
+					if (areAllTexturesEqual(builder.textures, particle)) {
 						json.addProperty("parent", "block/cube_all");
 						JsonObject textures = new JsonObject();
 						textures.addProperty("all", particle);
 						json.add("textures", textures);
-					}
-					else
-					{
+					} else {
 						json.addProperty("parent", "block/cube");
 						json.add("textures", builder.textures);
 					}
-
-					if (!builder.color.isEmpty())
-					{
+					
+					if (!builder.color.isEmpty()) {
 						JsonObject cube = new JsonObject();
 						JsonArray from = new JsonArray();
 						from.add(0);
@@ -217,63 +174,52 @@ public class KubeJSResourcePack implements ResourcePack
 						to.add(16);
 						cube.add("to", to);
 						JsonObject faces = new JsonObject();
-
-						for (Direction direction : Direction.values())
-						{
+						
+						for (Direction direction : Direction.values()) {
 							JsonObject f = new JsonObject();
 							f.addProperty("texture", "#" + direction.getName());
 							f.addProperty("cullface", direction.getName());
 							f.addProperty("tintindex", 0);
 							faces.add(direction.getName(), f);
 						}
-
+						
 						cube.add("faces", faces);
-
+						
 						JsonArray elements = new JsonArray();
 						elements.add(cube);
 						json.add("elements", elements);
 					}
 				}
-
+				
 				return true;
-			}
-			else
-			{
+			} else {
 				FluidBuilder fluidBuilder = KubeJSObjects.FLUIDS.get(new Identifier(namespace, path.substring(13)));
-
-				if (fluidBuilder != null)
-				{
+				
+				if (fluidBuilder != null) {
 					JsonObject textures = new JsonObject();
 					textures.addProperty("particle", fluidBuilder.stillTexture);
 					json.add("textures", textures);
 					return true;
 				}
 			}
-		}
-		else if (path.startsWith("blockstates/"))
-		{
+		} else if (path.startsWith("blockstates/")) {
 			Identifier id = new Identifier(namespace, path.substring(12));
 			BlockBuilder builder = KubeJSObjects.BLOCKS.get(id);
-
-			if (builder != null)
-			{
-				if (real)
-				{
+			
+			if (builder != null) {
+				if (real) {
 					JsonObject variants = new JsonObject();
 					JsonObject model = new JsonObject();
 					model.addProperty("model", builder.model);
 					variants.add("", model);
 					json.add("variants", variants);
 				}
-
+				
 				return true;
-			}
-			else
-			{
+			} else {
 				FluidBuilder fluidBuilder = KubeJSObjects.FLUIDS.get(id);
-
-				if (fluidBuilder != null)
-				{
+				
+				if (fluidBuilder != null) {
 					JsonObject variants = new JsonObject();
 					JsonObject model = new JsonObject();
 					model.addProperty("model", namespace + ":block/" + fluidBuilder.id.getPath());
@@ -283,34 +229,27 @@ public class KubeJSResourcePack implements ResourcePack
 				}
 			}
 		}
-
+		
 		return false;
 	}
-
-	private boolean areAllTexturesEqual(JsonObject tex, String t)
-	{
-		for (Direction direction : Direction.values())
-		{
-			if (!tex.get(direction.getName()).getAsString().equals(t))
-			{
+	
+	private boolean areAllTexturesEqual(JsonObject tex, String t) {
+		for (Direction direction : Direction.values()) {
+			if (!tex.get(direction.getName()).getAsString().equals(t)) {
 				return false;
 			}
 		}
-
+		
 		return true;
 	}
-
-	private boolean generateServerJsonFile(String namespace, String path, JsonObject json, boolean real)
-	{
-		if (path.startsWith("loot_tables/blocks/"))
-		{
+	
+	private boolean generateServerJsonFile(String namespace, String path, JsonObject json, boolean real) {
+		if (path.startsWith("loot_tables/blocks/")) {
 			String blockId = path.substring(19);
 			BlockBuilder builder = KubeJSObjects.BLOCKS.get(new Identifier(namespace, blockId));
-
-			if (builder != null)
-			{
-				if (real)
-				{
+			
+			if (builder != null) {
+				if (real) {
 					json.addProperty("type", "minecraft:block");
 					JsonArray pools = new JsonArray();
 					JsonObject pool = new JsonObject();
@@ -329,132 +268,104 @@ public class KubeJSResourcePack implements ResourcePack
 					pools.add(pool);
 					json.add("pools", pools);
 				}
-
+				
 				return true;
 			}
 		}
-
+		
 		return false;
 	}
-
+	
 	@Override
-	public Collection<Identifier> findResources(ResourceType type, String namespace, String path, int maxDepth, Predicate<String> filter)
-	{
-		if (type != packType)
-		{
+	public Collection<Identifier> findResources(ResourceType type, String namespace, String path, int maxDepth, Predicate<String> filter) {
+		if (type != packType) {
 			return Collections.emptySet();
 		}
-
+		
 		File file1 = new File(folder, type.getDirectory());
 		List<Identifier> list = Lists.newArrayList();
-
-		if (type == ResourceType.CLIENT_RESOURCES)
-		{
-			if (path.equals("lang"))
-			{
+		
+		if (type == ResourceType.CLIENT_RESOURCES) {
+			if (path.equals("lang")) {
 				list.add(new Identifier(KubeJS.MOD_ID, "lang/en_us.json"));
 			}
-		}
-		else
-		{
-			if (path.equals("loot_tables"))
-			{
-				for (Identifier id : KubeJSObjects.BLOCKS.keySet())
-				{
+		} else {
+			if (path.equals("loot_tables")) {
+				for (Identifier id : KubeJSObjects.BLOCKS.keySet()) {
 					list.add(new Identifier(id.getNamespace(), "loot_tables/blocks/" + id.getPath() + ".json"));
 				}
 			}
 		}
-
+		
 		findResources0(new File(new File(file1, namespace), path), maxDepth, namespace, list, path.endsWith("/") ? path : (path + "/"), filter);
-
+		
 		return list;
 	}
-
-	private void findResources0(File file, int maxDepth, String namespace, List<Identifier> list, String path, Predicate<String> filter)
-	{
+	
+	private void findResources0(File file, int maxDepth, String namespace, List<Identifier> list, String path, Predicate<String> filter) {
 		File[] files = file.listFiles();
-
-		if (files == null || files.length == 0)
-		{
+		
+		if (files == null || files.length == 0) {
 			return;
 		}
-
-		for (File f : files)
-		{
-			if (f.isDirectory())
-			{
-				if (maxDepth > 0)
-				{
+		
+		for (File f : files) {
+			if (f.isDirectory()) {
+				if (maxDepth > 0) {
 					findResources0(f, maxDepth - 1, namespace, list, path + f.getName() + "/", filter);
 				}
-			}
-			else if (!f.getName().endsWith(".mcmeta") && filter.test(f.getName()))
-			{
-				try
-				{
+			} else if (!f.getName().endsWith(".mcmeta") && filter.test(f.getName())) {
+				try {
 					list.add(new Identifier(namespace, path + f.getName()));
-				}
-				catch (InvalidIdentifierException ex)
-				{
+				} catch (InvalidIdentifierException ex) {
 					(packType == ResourceType.CLIENT_RESOURCES ? ScriptType.CLIENT : ScriptType.SERVER).console.error(ex.getMessage());
 				}
 			}
 		}
 	}
-
+	
 	@Override
-	public Set<String> getNamespaces(ResourceType type)
-	{
-		if (type != packType)
-		{
+	public Set<String> getNamespaces(ResourceType type) {
+		if (type != packType) {
 			return Collections.emptySet();
 		}
-
+		
 		HashSet<String> namespaces = new HashSet<>();
 		namespaces.add(KubeJS.MOD_ID);
-
-		for (BuilderBase builder : KubeJSObjects.ALL)
-		{
+		
+		for (BuilderBase builder : KubeJSObjects.ALL) {
 			namespaces.add(builder.id.getNamespace());
 		}
-
+		
 		File file = new File(folder, type.getDirectory());
-
-		if (file.exists() && file.isDirectory())
-		{
+		
+		if (file.exists() && file.isDirectory()) {
 			File[] list = file.listFiles();
-
-			if (list != null && list.length > 0)
-			{
-				for (File f : list)
-				{
-					if (f.isDirectory())
-					{
+			
+			if (list != null && list.length > 0) {
+				for (File f : list) {
+					if (f.isDirectory()) {
 						namespaces.add(f.getName().toLowerCase());
 					}
 				}
 			}
 		}
-
+		
 		return namespaces;
 	}
-
+	
 	@Nullable
 	@Override
-	public <T> T parseMetadata(ResourceMetadataReader<T> serializer)
-	{
+	public <T> T parseMetadata(ResourceMetadataReader<T> serializer) {
 		return null;
 	}
-
+	
 	@Override
-	public String getName()
-	{
+	public String getName() {
 		return "KubeJS Resource Pack";
 	}
-
+	
 	@Override
-	public void close()
-	{
+	public void close() {
 	}
 }

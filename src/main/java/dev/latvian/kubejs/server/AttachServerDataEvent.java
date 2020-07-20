@@ -6,10 +6,8 @@ import dev.latvian.kubejs.script.DataType;
 /**
  * @author LatvianModder
  */
-public class AttachServerDataEvent extends AttachDataEvent<ServerJS>
-{
-	public AttachServerDataEvent(ServerJS s)
-	{
+public class AttachServerDataEvent extends AttachDataEvent<ServerJS> {
+	public AttachServerDataEvent(ServerJS s) {
 		super(DataType.SERVER, s);
 	}
 }

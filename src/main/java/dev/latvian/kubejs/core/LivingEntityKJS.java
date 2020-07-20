@@ -11,25 +11,20 @@ import net.minecraft.server.network.ServerPlayerEntity;
 /**
  * @author LatvianModder
  */
-public interface LivingEntityKJS
-{
-	default void foodEatenKJS(ItemStack is)
-	{
-		if (this instanceof ServerPlayerEntity)
-		{
+public interface LivingEntityKJS {
+	default void foodEatenKJS(ItemStack is) {
+		if (this instanceof ServerPlayerEntity) {
 			ItemFoodEatenEventJS event = new ItemFoodEatenEventJS((ServerPlayerEntity) this, is);
 			Item i = is.getItem();
-
-			if (i instanceof ItemJS)
-			{
+			
+			if (i instanceof ItemJS) {
 				ItemJS j = (ItemJS) i;
-
-				if (j.properties.foodBuilder != null && j.properties.foodBuilder.eaten != null)
-				{
+				
+				if (j.properties.foodBuilder != null && j.properties.foodBuilder.eaten != null) {
 					j.properties.foodBuilder.eaten.accept(event);
 				}
 			}
-
+			
 			event.post(ScriptType.SERVER, KubeJSEvents.ITEM_FOOD_EATEN);
 		}
 	}

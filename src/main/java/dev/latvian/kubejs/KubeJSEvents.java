@@ -3,34 +3,34 @@ package dev.latvian.kubejs;
 /**
  * @author LatvianModder
  */
-public class KubeJSEvents
-{
+public class KubeJSEvents {
 	public static final String INIT = "init";
 	public static final String POSTINIT = "postinit";
 	public static final String LOADED = "loaded";
 	public static final String COMMAND_REGISTRY = "command.registry";
 	public static final String COMMAND_RUN = "command.run";
-
+	
 	public static final String CLIENT_INIT = "client.init";
-	public static final String CLIENT_DEBUG_INFO = "client.debug_info";
+	public static final String CLIENT_DEBUG_INFO_LEFT = "client.debug_info.left";
+	public static final String CLIENT_DEBUG_INFO_RIGHT = "client.debug_info.right";
 	public static final String CLIENT_LOGGED_IN = "client.logged_in";
 	public static final String CLIENT_LOGGED_OUT = "client.logged_out";
 	public static final String CLIENT_TICK = "client.tick";
 	public static final String CLIENT_ITEM_TOOLTIP = "client.item_tooltip";
-
+	
 	public static final String SERVER_LOAD = "server.load";
 	public static final String SERVER_UNLOAD = "server.unload";
 	public static final String SERVER_TICK = "server.tick";
 	public static final String SERVER_DATAPACK_FIRST = "server.datapack.first";
 	public static final String SERVER_DATAPACK_LAST = "server.datapack.last";
 	public static final String RECIPES = "recipes";
-
+	
 	public static final String WORLD_LOAD = "world.load";
 	public static final String WORLD_UNLOAD = "world.unload";
 	public static final String WORLD_TICK = "world.tick";
 	public static final String WORLD_EXPLOSION_PRE = "world.explosion.pre";
 	public static final String WORLD_EXPLOSION_POST = "world.explosion.post";
-
+	
 	public static final String PLAYER_LOGGED_IN = "player.logged_in";
 	public static final String PLAYER_LOGGED_OUT = "player.logged_out";
 	public static final String PLAYER_TICK = "player.tick";
@@ -43,13 +43,13 @@ public class KubeJSEvents
 	public static final String PLAYER_INVENTORY_CHANGED = "player.inventory.changed";
 	public static final String PLAYER_CHEST_OPENED = "player.chest.opened";
 	public static final String PLAYER_CHEST_CLOSED = "player.chest.closed";
-
+	
 	public static final String ENTITY_DEATH = "entity.death";
 	public static final String ENTITY_ATTACK = "entity.attack";
 	public static final String ENTITY_DROPS = "entity.drops";
 	public static final String ENTITY_CHECK_SPAWN = "entity.check_spawn";
 	public static final String ENTITY_SPAWNED = "entity.spawned";
-
+	
 	public static final String BLOCK_REGISTRY = "block.registry";
 	public static final String BLOCK_MISSING_MAPPINGS = "block.missing_mappings";
 	public static final String BLOCK_TAGS = "block.tags";
@@ -58,7 +58,7 @@ public class KubeJSEvents
 	public static final String BLOCK_PLACE = "block.place";
 	public static final String BLOCK_BREAK = "block.break";
 	public static final String BLOCK_DROPS = "block.drops";
-
+	
 	public static final String ITEM_REGISTRY = "item.registry";
 	public static final String ITEM_MISSING_MAPPINGS = "item.missing_mappings";
 	public static final String ITEM_TAGS = "item.tags";
@@ -72,11 +72,11 @@ public class KubeJSEvents
 	public static final String ITEM_SMELTED = "item.smelted";
 	public static final String ITEM_DESTROYED = "item.destroyed";
 	public static final String ITEM_FOOD_EATEN = "item.food_eaten";
-
+	
 	public static final String FLUID_REGISTRY = "fluid.registry";
 	public static final String FLUID_TAGS = "fluid.tags";
-
+	
 	public static final String ENTITY_TYPE_TAGS = "entity_type.tags";
-
+	
 	public static final String SOUND_REGISTRY = "sound.registry";
 }

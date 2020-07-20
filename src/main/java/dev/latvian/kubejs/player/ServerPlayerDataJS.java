@@ -12,75 +12,64 @@ import java.util.UUID;
 /**
  * @author LatvianModder
  */
-public class ServerPlayerDataJS extends PlayerDataJS<ServerPlayerEntity, ServerPlayerJS>
-{
+public class ServerPlayerDataJS extends PlayerDataJS<ServerPlayerEntity, ServerPlayerJS> {
 	private final ServerJS server;
 	private final UUID id;
 	private final String name;
 	private final GameProfile profile;
 	private final boolean hasClientMod;
-
-	public ServerPlayerDataJS(ServerJS s, UUID i, String n, boolean h)
-	{
+	
+	public ServerPlayerDataJS(ServerJS s, UUID i, String n, boolean h) {
 		server = s;
 		id = i;
 		name = n;
 		profile = new GameProfile(id, name);
 		hasClientMod = h;
 	}
-
-	public ServerJS getServer()
-	{
+	
+	public ServerJS getServer() {
 		return server;
 	}
-
+	
 	@Override
-	public UUID getId()
-	{
+	public UUID getId() {
 		return id;
 	}
-
+	
 	@Override
-	public String getName()
-	{
+	public String getName() {
 		return name;
 	}
-
+	
 	@Override
-	public GameProfile getProfile()
-	{
+	public GameProfile getProfile() {
 		return profile;
 	}
-
+	
 	@Override
-	public WorldJS getOverworld()
-	{
+	public WorldJS getOverworld() {
 		return server.getOverworld();
 	}
-
+	
 	@Override
 	@Nullable
-	public ServerPlayerEntity getMinecraftPlayer()
-	{
+	public ServerPlayerEntity getMinecraftPlayer() {
 		return server.minecraftServer.getPlayerManager().getPlayer(getId());
 	}
-
+	
 	@Override
-	public ServerPlayerJS getPlayer()
-	{
+	public ServerPlayerJS getPlayer() {
 		ServerPlayerEntity p = getMinecraftPlayer();
-
-		if (p == null)
-		{
+		
+		if (p == null) {
 			throw new NullPointerException("Player entity for " + getName() + " not found!");
 		}
-
+		
 		return new ServerPlayerJS(this, (ServerWorldJS) server.getWorld(p.world), p);
 	}
-
+	
 	@Override
-	public boolean hasClientMod()
-	{
+	public boolean hasClientMod() {
 		return hasClientMod;
 	}
 }

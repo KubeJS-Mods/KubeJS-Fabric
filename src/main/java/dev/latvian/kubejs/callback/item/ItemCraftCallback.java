@@ -14,6 +14,6 @@ public interface ItemCraftCallback {
 			}
 		};
 	});
-
+	
 	void craft(PlayerEntity player, Inventory inventory, ItemStack result);
 }

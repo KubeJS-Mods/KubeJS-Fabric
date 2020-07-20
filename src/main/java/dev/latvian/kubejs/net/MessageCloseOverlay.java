@@ -9,27 +9,22 @@ import java.util.function.Supplier;
 /**
  * @author LatvianModder
  */
-public class MessageCloseOverlay
-{
+public class MessageCloseOverlay {
 	private final String overlay;
-
-	public MessageCloseOverlay(String o)
-	{
+	
+	public MessageCloseOverlay(String o) {
 		overlay = o;
 	}
-
-	public MessageCloseOverlay(PacketByteBuf buf)
-	{
+	
+	public MessageCloseOverlay(PacketByteBuf buf) {
 		overlay = buf.readString(5000);
 	}
-
-	public void write(PacketByteBuf buf)
-	{
+	
+	public void write(PacketByteBuf buf) {
 		buf.writeString(overlay, 5000);
 	}
-
-	public void handle(Supplier<PacketContext> context)
-	{
+	
+	public void handle(Supplier<PacketContext> context) {
 		context.get().getTaskQueue().execute(() -> KubeJS.instance.proxy.closeOverlay(overlay));
 	}
 }

@@ -15,6 +15,6 @@ public interface ItemRightClickEntityCallback {
 			}
 		};
 	});
-
+	
 	void interact(PlayerEntity player, Entity entity, Hand hand, BlockPos position);
 }

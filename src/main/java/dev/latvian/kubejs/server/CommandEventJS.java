@@ -3,7 +3,7 @@ package dev.latvian.kubejs.server;
 /**
  * @author LatvianModder
  */
-public class CommandEventJS{}
+public class CommandEventJS {}
 //public class CommandEventJS extends ServerEventJS
 //{
 //	public final CommandEvent event;

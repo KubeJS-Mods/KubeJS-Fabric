@@ -21,8 +21,7 @@ import java.util.function.Consumer;
 /**
  * @author LatvianModder
  */
-public class ItemBuilder extends BuilderBase
-{
+public class ItemBuilder extends BuilderBase {
 	public int maxStackSize;
 	public int maxDamage;
 	public String containerItem;
@@ -39,11 +38,10 @@ public class ItemBuilder extends BuilderBase
 	public String texture;
 	public String parentModel;
 	public FoodBuilder foodBuilder;
-
+	
 	public ItemJS item;
-
-	public ItemBuilder(String i)
-	{
+	
+	public ItemBuilder(String i) {
 		super(i);
 		maxStackSize = 64;
 		maxDamage = 0;
@@ -61,158 +59,132 @@ public class ItemBuilder extends BuilderBase
 		foodBuilder = null;
 		displayName = "";
 	}
-
+	
 	@Override
-	public String getType()
-	{
+	public String getType() {
 		return "item";
 	}
-
-	public ItemBuilder maxStackSize(int v)
-	{
+	
+	public ItemBuilder maxStackSize(int v) {
 		maxStackSize = v;
 		return this;
 	}
-
-	public ItemBuilder unstackable()
-	{
+	
+	public ItemBuilder unstackable() {
 		return maxStackSize(1);
 	}
-
-	public ItemBuilder maxDamage(int v)
-	{
+	
+	public ItemBuilder maxDamage(int v) {
 		maxDamage = v;
 		return this;
 	}
-
-	public ItemBuilder containerItem(@ID String id)
-	{
+	
+	public ItemBuilder containerItem(@ID String id) {
 		containerItem = UtilsJS.getID(id);
 		return this;
 	}
-
-	public ItemBuilder tool(String type, int level)
-	{
+	
+	public ItemBuilder tool(String type, int level) {
 		tools.put(UtilsJS.getMCID(type), level);
 		return this;
 	}
-
-	public ItemBuilder miningSpeed(float miningSpeed)
-	{
+	
+	public ItemBuilder miningSpeed(float miningSpeed) {
 		this.miningSpeed = miningSpeed;
 		return this;
 	}
-
-	public ItemBuilder attackDamage(float attackDamage)
-	{
+	
+	public ItemBuilder attackDamage(float attackDamage) {
 		this.attackDamage = attackDamage;
 		return this;
 	}
-
-	public ItemBuilder attackSpeed(float attackSpeed)
-	{
+	
+	public ItemBuilder attackSpeed(float attackSpeed) {
 		this.attackSpeed = attackSpeed;
 		return this;
 	}
-
-	public ItemBuilder rarity(Rarity v)
-	{
+	
+	public ItemBuilder rarity(Rarity v) {
 		rarity = v;
 		return this;
 	}
-
-	public ItemBuilder glow(boolean v)
-	{
+	
+	public ItemBuilder glow(boolean v) {
 		glow = v;
 		return this;
 	}
-
-	public ItemBuilder tooltip(Object text)
-	{
+	
+	public ItemBuilder tooltip(Object text) {
 		tooltip.add(Text.of(text));
 		return this;
 	}
-
-	public ItemBuilder group(String g)
-	{
-		for (ItemGroup ig : ItemGroup.GROUPS)
-		{
-			if (ig.getName().equals(g))
-			{
+	
+	public ItemBuilder group(String g) {
+		for (ItemGroup ig : ItemGroup.GROUPS) {
+			if (ig.getName().equals(g)) {
 				group = ig;
 				return this;
 			}
 		}
-
+		
 		return this;
 	}
-
-	public ItemBuilder color(int index, int c)
-	{
+	
+	public ItemBuilder color(int index, int c) {
 		color.put(index, 0xFF000000 | c);
 		return this;
 	}
-
-	public ItemBuilder texture(String tex)
-	{
+	
+	public ItemBuilder texture(String tex) {
 		texture = tex;
 		return this;
 	}
-
-	public ItemBuilder parentModel(String m)
-	{
+	
+	public ItemBuilder parentModel(String m) {
 		parentModel = m;
 		return this;
 	}
-
-	public ItemBuilder food(Consumer<FoodBuilder> b)
-	{
+	
+	public ItemBuilder food(Consumer<FoodBuilder> b) {
 		foodBuilder = new FoodBuilder();
 		b.accept(foodBuilder);
 		return this;
 	}
-
-	public Map<Identifier, Integer> getToolsMap()
-	{
+	
+	public Map<Identifier, Integer> getToolsMap() {
 		return tools;
 	}
-
-	public float getMiningSpeed()
-	{
+	
+	public float getMiningSpeed() {
 		return miningSpeed;
 	}
-
-	public Float getAttackDamage()
-	{
+	
+	public Float getAttackDamage() {
 		return attackDamage;
 	}
-
-	public Float getAttackSpeed()
-	{
+	
+	public Float getAttackSpeed() {
 		return attackSpeed;
 	}
-
-	public Item.Settings createItemProperties()
-	{
+	
+	public Item.Settings createItemProperties() {
 		Item.Settings properties = new Item.Settings();
-
+		
 		properties.group(group);
 		properties.maxDamage(maxDamage);
 		properties.maxCount(maxStackSize);
 		properties.rarity(rarity);
-
+		
 		Item item = Registry.ITEM.get(UtilsJS.getMCID(containerItem));
-
-		if (item != null && item != Items.AIR)
-		{
+		
+		if (item != null && item != Items.AIR) {
 			properties.recipeRemainder(item);
 		}
-
-		if (foodBuilder != null)
-		{
+		
+		if (foodBuilder != null) {
 			properties.food(foodBuilder.build());
 		}
-
+		
 		return properties;
 	}
 }

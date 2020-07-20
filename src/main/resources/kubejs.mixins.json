@@ -4,16 +4,17 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "kubejs.refmap.json",
   "mixins": [
-	"AbstractBlockMixin", "AbstractBlockStateMixin", "AbstractFurnaceBlockEntityMixin", "ClientPlayNetworkHandlerMixin",
-	"CompoundNBTMixin", "CraftingResultSlotMixin", "DataPackRegistriesMixin", "EntityMixin",
-	"FireworkRocketEntityMixin", "ImageButtonMixin", "ItemStackMixin", "LivingEntityMixin", "MainWindowMixin",
-	"MinecraftClientMixin", "MinecraftMixin", "NetworkTagCollectionMixin", "PlayerInteractionManagerMixin",
-	"RecipeManagerMixin", "ResourceLoadProgressGuiMixin", "ResourcePackManagerMixin",
-	"ServerPlayerInteractionManagerMixin", "SimpleReloadableResourceManagerMixin", "TagBuilderMixin",
-	"TagCollectionMixin"
+    "AbstractBlockMixin", "AbstractBlockStateMixin", "AbstractFurnaceBlockEntityMixin", "CompoundNBTMixin",
+    "CraftingResultSlotMixin", "DataPackRegistriesMixin", "EntityMixin", "FireworkRocketEntityMixin", "ItemStackMixin",
+    "LivingEntityMixin", "NetworkTagCollectionMixin", "PlayerInteractionManagerMixin",
+    "RecipeManagerMixin", "ResourcePackManagerMixin", "ServerPlayerInteractionManagerMixin",
+    "SimpleReloadableResourceManagerMixin", "TagBuilderMixin", "TagCollectionMixin"
+  ],
+  "client": [
+    "ClientPlayNetworkHandlerMixin", "DebugHudMixin", "ImageButtonMixin", "MainWindowMixin", "MinecraftClientMixin", "SplashScreenMixin"
   ],
   "injectors": {
-	"defaultRequire": 1
+    "defaultRequire": 1
   },
   "minVersion": "0.8"
 }

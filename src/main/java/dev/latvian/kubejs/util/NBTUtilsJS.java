@@ -12,84 +12,62 @@ import java.io.IOException;
 /**
  * @author LatvianModder
  */
-public class NBTUtilsJS
-{
+public class NBTUtilsJS {
 	@Nullable
-	public static MapJS read(File file) throws IOException
-	{
+	public static MapJS read(File file) throws IOException {
 		KubeJS.verifyFilePath(file);
-
-		if (!file.exists())
-		{
+		
+		if (!file.exists()) {
 			return null;
 		}
-
+		
 		return MapJS.of(NbtIo.readCompressed(new FileInputStream(file)));
 	}
-
-	public static void write(File file, @Nullable MapJS nbt) throws IOException
-	{
+	
+	public static void write(File file, @Nullable MapJS nbt) throws IOException {
 		KubeJS.verifyFilePath(file);
-
-		if (nbt == null)
-		{
+		
+		if (nbt == null) {
 			file.delete();
 			return;
 		}
-
+		
 		NbtIo.writeCompressed(nbt.toNBT(), new FileOutputStream(file));
 	}
-
+	
 	@Nullable
-	public static MapJS read(String file) throws IOException
-	{
+	public static MapJS read(String file) throws IOException {
 		return read(KubeJS.getGameDirectory().resolve(file).toFile());
 	}
-
-	public static void write(String file, @Nullable MapJS nbt) throws IOException
-	{
+	
+	public static void write(String file, @Nullable MapJS nbt) throws IOException {
 		write(KubeJS.getGameDirectory().resolve(file).toFile(), nbt);
 	}
-
+	
 	@Nullable
-	public static Tag toNBT(@Nullable Object o)
-	{
-		if (o instanceof NBTSerializable)
-		{
+	public static Tag toNBT(@Nullable Object o) {
+		if (o instanceof NBTSerializable) {
 			return ((NBTSerializable) o).toNBT();
-		}
-		else if (o instanceof String || o instanceof Character)
-		{
+		} else if (o instanceof String || o instanceof Character) {
 			return StringTag.of(o.toString());
-		}
-		else if (o instanceof Boolean)
-		{
+		} else if (o instanceof Boolean) {
 			return ByteTag.of((Boolean) o ? (byte) 1 : (byte) 0);
-		}
-		else if (o instanceof Number)
-		{
+		} else if (o instanceof Number) {
 			Number number = (Number) o;
-
-			if (number instanceof Byte)
-			{
+			
+			if (number instanceof Byte) {
 				return ByteTag.of(number.byteValue());
-			}
-			else if (number instanceof Short)
-			{
+			} else if (number instanceof Short) {
 				return ShortTag.of(number.shortValue());
-			}
-			else if (number instanceof Integer)
-			{
+			} else if (number instanceof Integer) {
 				return IntTag.of(number.intValue());
-			}
-			else if (number instanceof Float)
-			{
+			} else if (number instanceof Float) {
 				return FloatTag.of(number.floatValue());
 			}
-
+			
 			return DoubleTag.of(number.doubleValue());
 		}
-
+		
 		return null;
 	}
 }

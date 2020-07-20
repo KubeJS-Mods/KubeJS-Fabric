@@ -41,60 +41,61 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
  * @author LatvianModder
  */
 @Environment(EnvType.CLIENT)
-public class KubeJSClientEventHandler
-{
+public class KubeJSClientEventHandler {
 	public static final Event<Runnable> ON_JOIN = EventFactory.createArrayBacked(Runnable.class, callbacks -> () -> {
-		for (Runnable callback : callbacks)
-		{
+		for (Runnable callback : callbacks) {
 			callback.run();
 		}
 	});
 	public static final Event<Runnable> ON_LOGOUT = EventFactory.createArrayBacked(Runnable.class, callbacks -> () -> {
-		for (Runnable callback : callbacks)
-		{
+		for (Runnable callback : callbacks) {
 			callback.run();
 		}
 	});
 	public static final Event<Consumer<ClientPlayerEntity>> ON_RESPAWN = EventFactory.createArrayBacked(Consumer.class, callbacks -> (player) -> {
-		for (Consumer<ClientPlayerEntity> callback : callbacks)
-		{
+		for (Consumer<ClientPlayerEntity> callback : callbacks) {
 			callback.accept(player);
+		}
+	});
+	
+	public static final Event<BiConsumer<Boolean, List<String>>> ON_DEBUG_TEXT = EventFactory.createArrayBacked(BiConsumer.class, callbacks -> (left, lines) -> {
+		for (BiConsumer<Boolean, List<String>> callback : callbacks) {
+			callback.accept(left, lines);
 		}
 	});
 	private static FieldJS<List<AbstractButtonWidget>> buttons;
 	private static final Identifier RECIPE_BUTTON_TEXTURE = new Identifier("textures/gui/recipe_button.png");
-
+	
 	// TODO
-	public void init()
-	{
+	public void init() {
 		AfterScriptLoadCallback.EVENT.register(this::setup);
-//		MinecraftForge.EVENT_BUS.addListener(this::debugInfo);
 		ItemTooltipCallback.EVENT.register(this::itemTooltip);
 		ClientTickEvents.START_CLIENT_TICK.register(this::clientTick);
 		ON_JOIN.register(this::loggedIn);
 		ON_LOGOUT.register(this::loggedOut);
 		ON_RESPAWN.register(this::respawn);
 		HudRenderCallback.EVENT.register(this::inGameScreenDraw);
+		ON_DEBUG_TEXT.register((left, lines) -> {
+			if (left) debugLeftInfo(lines);
+			else debugRightInfo(lines);
+		});
 //		MinecraftForge.EVENT_BUS.addListener(this::guiScreenDraw);
 //		MinecraftForge.EVENT_BUS.addListener(this::guiPostInit);
 		AfterScriptLoadCallback.EVENT.register(this::itemColors);
 		AfterScriptLoadCallback.EVENT.register(this::blockColors);
 //		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::postAtlasStitch);
 	}
-
-	public void setup()
-	{
-		// TODO This probably need to change to right after client finishes loading
-		for (BlockBuilder builder : KubeJSObjects.BLOCKS.values())
-		{
-			switch (builder.renderType)
-			{
+	
+	public void setup() {
+		for (BlockBuilder builder : KubeJSObjects.BLOCKS.values()) {
+			switch (builder.renderType) {
 				case "cutout":
 					BlockRenderLayerMap.INSTANCE.putBlock(builder.block, RenderLayer.getCutout());
 					break;
@@ -109,167 +110,150 @@ public class KubeJSClientEventHandler
 			}
 		}
 	}
-
-//	private void debugInfo(RenderGameOverlayEvent.Text event)
-//	{
-//		if (MinecraftClient.getInstance().player != null)
-//		{
-//			new DebugInfoEventJS(event).post(ScriptType.CLIENT, KubeJSEvents.CLIENT_DEBUG_INFO);
-//		}
-//	}
-
-	private void itemTooltip(ItemStack stack, TooltipContext context, List<net.minecraft.text.Text> lines)
-	{
+	
+	private void debugLeftInfo(List<String> left) {
+		if (MinecraftClient.getInstance().player != null) {
+			new DebugInfoEventJS(left).post(ScriptType.CLIENT, KubeJSEvents.CLIENT_DEBUG_INFO_LEFT);
+		}
+	}
+	
+	private void debugRightInfo(List<String> right) {
+		if (MinecraftClient.getInstance().player != null) {
+			new DebugInfoEventJS(right).post(ScriptType.CLIENT, KubeJSEvents.CLIENT_DEBUG_INFO_RIGHT);
+		}
+	}
+	
+	private void itemTooltip(ItemStack stack, TooltipContext context, List<net.minecraft.text.Text> lines) {
 		if (ClientProperties.get().showTagNames && MinecraftClient.getInstance().options.advancedItemTooltips && Screen.hasShiftDown()) //hasShiftDown
 		{
-			for (Identifier tag : MinecraftClient.getInstance().world.getTagManager().items().getTagsFor(stack.getItem()))
-			{
+			for (Identifier tag : MinecraftClient.getInstance().world.getTagManager().items().getTagsFor(stack.getItem())) {
 				lines.add(new LiteralText(" #" + tag).formatted(Formatting.DARK_GRAY));
 			}
 		}
-
+		
 		new ClientItemTooltipEventJS(stack, context, lines).post(ScriptType.CLIENT, KubeJSEvents.CLIENT_ITEM_TOOLTIP);
 	}
-
-	private void clientTick(MinecraftClient client)
-	{
-		if (client.player != null)
-		{
+	
+	private void clientTick(MinecraftClient client) {
+		if (client.player != null) {
 			new ClientTickEventJS(ClientWorldJS.instance.clientPlayerData.getPlayer()).post(KubeJSEvents.CLIENT_TICK);
 		}
 	}
-
-	private void loggedIn()
-	{
+	
+	private void loggedIn() {
 		ClientWorldJS.instance = new ClientWorldJS(MinecraftClient.getInstance(), MinecraftClient.getInstance().player);
 		AttachWorldDataEvent.EVENT.invoker().accept(new AttachWorldDataEvent(ClientWorldJS.instance));
 		AttachPlayerDataEvent.EVENT.invoker().accept(new AttachPlayerDataEvent(ClientWorldJS.instance.clientPlayerData));
 		new ClientLoggedInEventJS(ClientWorldJS.instance.clientPlayerData.getPlayer()).post(KubeJSEvents.CLIENT_LOGGED_IN);
 	}
-
-	private void loggedOut()
-	{
-		if (ClientWorldJS.instance != null)
-		{
+	
+	private void loggedOut() {
+		if (ClientWorldJS.instance != null) {
 			new ClientLoggedInEventJS(ClientWorldJS.instance.clientPlayerData.getPlayer()).post(KubeJSEvents.CLIENT_LOGGED_OUT);
 		}
-
+		
 		ClientWorldJS.instance = null;
 		KubeJSClient.activeOverlays.clear();
 	}
-
-	private void respawn(ClientPlayerEntity entity)
-	{
+	
+	private void respawn(ClientPlayerEntity entity) {
 		ClientWorldJS.instance = new ClientWorldJS(MinecraftClient.getInstance(), entity);
 		AttachWorldDataEvent.EVENT.invoker().accept(new AttachWorldDataEvent(ClientWorldJS.instance));
 		AttachPlayerDataEvent.EVENT.invoker().accept(new AttachPlayerDataEvent(ClientWorldJS.instance.clientPlayerData));
 	}
-
-	private int drawOverlay(MinecraftClient mc, MatrixStack matrixStack, int maxWidth, int x, int y, int p, Overlay o, boolean inv)
-	{
+	
+	private int drawOverlay(MinecraftClient mc, MatrixStack matrixStack, int maxWidth, int x, int y, int p, Overlay o, boolean inv) {
 		List<StringRenderable> list = new ArrayList<>();
 		int l = 10;
-
-		for (Text t : o.text)
-		{
+		
+		for (Text t : o.text) {
 			list.addAll(mc.textRenderer.wrapLines(t.component(), maxWidth));
 		}
-
+		
 		int mw = 0;
-
-		for (StringRenderable s : list)
-		{
+		
+		for (StringRenderable s : list) {
 			mw = Math.max(mw, mc.textRenderer.getWidth(s.getString()));
 		}
-
-		if (mw == 0)
-		{
+		
+		if (mw == 0) {
 			return 0;
 		}
-
+		
 		int w = mw + p * 2;
 		int h = list.size() * l + p * 2 - 2;
 		int col = 0xFF000000 | o.color;
 		int r = (col >> 16) & 0xFF;
 		int g = (col >> 8) & 0xFF;
 		int b = col & 0xFF;
-
+		
 		RenderSystem.disableTexture();
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder buffer = tessellator.getBuffer();
 		buffer.begin(GL11.GL_QUADS, VertexFormats.POSITION_COLOR);
-
+		
 		//o.color.withAlpha(200).draw(spx, spy, mw + p * 2, list.size() * l + p * 2 - 2);
-
-		if (inv)
-		{
+		
+		if (inv) {
 			addRectToBuffer(buffer, x, y, w, h, r, g, b, 255);
 			addRectToBuffer(buffer, x, y + 1, 1, h - 2, 0, 0, 0, 80);
 			addRectToBuffer(buffer, x + w - 1, y + 1, 1, h - 2, 0, 0, 0, 80);
 			addRectToBuffer(buffer, x, y, w, 1, 0, 0, 0, 80);
 			addRectToBuffer(buffer, x, y + h - 1, w, 1, 0, 0, 0, 80);
-		}
-		else
-		{
+		} else {
 			addRectToBuffer(buffer, x, y, w, h, r, g, b, 200);
 			addRectToBuffer(buffer, x, y + 1, 1, h - 2, r, g, b, 255);
 			addRectToBuffer(buffer, x + w - 1, y + 1, 1, h - 2, r, g, b, 255);
 			addRectToBuffer(buffer, x, y, w, 1, r, g, b, 255);
 			addRectToBuffer(buffer, x, y + h - 1, w, 1, r, g, b, 255);
 		}
-
+		
 		tessellator.draw();
 		RenderSystem.enableTexture();
-
-		for (int i = 0; i < list.size(); i++)
-		{
+		
+		for (int i = 0; i < list.size(); i++) {
 			mc.textRenderer.drawWithShadow(matrixStack, list.get(i), x + p, y + i * l + p, 0xFFFFFFFF);
 		}
-
+		
 		return list.size() * l + p * 2 + (p - 2);
 	}
-
-
-	private void addRectToBuffer(BufferBuilder buffer, int x, int y, int w, int h, int r, int g, int b, int a)
-	{
+	
+	
+	private void addRectToBuffer(BufferBuilder buffer, int x, int y, int w, int h, int r, int g, int b, int a) {
 		buffer.vertex(x, y + h, 0D).color(r, g, b, a).next();
 		buffer.vertex(x + w, y + h, 0D).color(r, g, b, a).next();
 		buffer.vertex(x + w, y, 0D).color(r, g, b, a).next();
 		buffer.vertex(x, y, 0D).color(r, g, b, a).next();
 	}
-
-	private void inGameScreenDraw(MatrixStack matrices, float delta)
-	{
-		if (KubeJSClient.activeOverlays.isEmpty())
-		{
+	
+	private void inGameScreenDraw(MatrixStack matrices, float delta) {
+		if (KubeJSClient.activeOverlays.isEmpty()) {
 			return;
 		}
-
+		
 		MinecraftClient mc = MinecraftClient.getInstance();
-
-		if (mc.options.debugEnabled || mc.currentScreen != null)
-		{
+		
+		if (mc.options.debugEnabled || mc.currentScreen != null) {
 			return;
 		}
-
+		
 		matrices.push();
 		matrices.translate(0, 0, 800);
-
+		
 		RenderSystem.enableBlend();
 		RenderSystem.disableLighting();
-
+		
 		int maxWidth = mc.getWindow().getScaledWidth() / 4;
 		int p = 4;
 		int spx = p;
 		int spy = p;
-
-		for (Overlay o : KubeJSClient.activeOverlays.values())
-		{
+		
+		for (Overlay o : KubeJSClient.activeOverlays.values()) {
 			spy += drawOverlay(mc, matrices, maxWidth, spx, spy, p, o, false);
 		}
 		matrices.pop();
 	}
-
+	
 	//
 //	private void guiScreenDraw(GuiScreenEvent.DrawScreenEvent.Post event)
 //	{
@@ -337,20 +321,15 @@ public class KubeJSClientEventHandler
 //		}
 //	}
 //
-	private void itemColors()
-	{
-		for (ItemBuilder builder : KubeJSObjects.ITEMS.values())
-		{
-			if (!builder.color.isEmpty())
-			{
+	private void itemColors() {
+		for (ItemBuilder builder : KubeJSObjects.ITEMS.values()) {
+			if (!builder.color.isEmpty()) {
 				ColorProviderRegistry.ITEM.register((stack, index) -> builder.color.get(index), builder.item);
 			}
 		}
-
-		for (BlockBuilder builder : KubeJSObjects.BLOCKS.values())
-		{
-			if (builder.itemBuilder != null && !builder.color.isEmpty())
-			{
+		
+		for (BlockBuilder builder : KubeJSObjects.BLOCKS.values()) {
+			if (builder.itemBuilder != null && !builder.color.isEmpty()) {
 				ColorProviderRegistry.ITEM.register((stack, index) -> builder.color.get(index), builder.itemBuilder.blockItem);
 			}
 		}
@@ -363,13 +342,10 @@ public class KubeJSClientEventHandler
 //			}
 //		}
 	}
-
-	private void blockColors()
-	{
-		for (BlockBuilder builder : KubeJSObjects.BLOCKS.values())
-		{
-			if (!builder.color.isEmpty())
-			{
+	
+	private void blockColors() {
+		for (BlockBuilder builder : KubeJSObjects.BLOCKS.values()) {
+			if (!builder.color.isEmpty()) {
 				ColorProviderRegistry.BLOCK.register((state, world, pos, index) -> builder.color.get(index), builder.block);
 			}
 		}

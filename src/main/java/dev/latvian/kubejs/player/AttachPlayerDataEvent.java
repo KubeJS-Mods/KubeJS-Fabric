@@ -6,10 +6,8 @@ import dev.latvian.kubejs.script.DataType;
 /**
  * @author LatvianModder
  */
-public class AttachPlayerDataEvent extends AttachDataEvent<PlayerDataJS>
-{
-	public AttachPlayerDataEvent(PlayerDataJS p)
-	{
+public class AttachPlayerDataEvent extends AttachDataEvent<PlayerDataJS> {
+	public AttachPlayerDataEvent(PlayerDataJS p) {
 		super(DataType.PLAYER, p);
 	}
 }

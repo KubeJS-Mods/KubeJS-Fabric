@@ -8,36 +8,30 @@ import net.minecraft.entity.player.PlayerEntity;
 /**
  * @author LatvianModder
  */
-public class ItemTossEventJS extends PlayerEventJS
-{
+public class ItemTossEventJS extends PlayerEventJS {
 	public final PlayerEntity player;
 	public final ItemEntity entity;
-
-	public ItemTossEventJS(PlayerEntity player, ItemEntity entity)
-	{
+	
+	public ItemTossEventJS(PlayerEntity player, ItemEntity entity) {
 		this.player = player;
 		this.entity = entity;
 	}
-
+	
 	@Override
-	public boolean canCancel()
-	{
+	public boolean canCancel() {
 		return true;
 	}
-
+	
 	@Override
-	public EntityJS getEntity()
-	{
+	public EntityJS getEntity() {
 		return entityOf(player);
 	}
-
-	public EntityJS getItemEntity()
-	{
+	
+	public EntityJS getItemEntity() {
 		return getWorld().getEntity(entity);
 	}
-
-	public ItemStackJS getItem()
-	{
+	
+	public ItemStackJS getItem() {
 		return ItemStackJS.of(entity.getStack());
 	}
 }

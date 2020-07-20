@@ -12,36 +12,28 @@ import java.io.File;
 /**
  * @author LatvianModder
  */
-public class KubeJSCommon
-{
-	public void init(File folder)
-	{
+public class KubeJSCommon {
+	public void init(File folder) {
 	}
-
-	public void clientBindings(BindingsEvent event)
-	{
+	
+	public void clientBindings(BindingsEvent event) {
 	}
-
-	public void handleDataToClientPacket(String channel, @Nullable CompoundTag data)
-	{
+	
+	public void handleDataToClientPacket(String channel, @Nullable CompoundTag data) {
 	}
-
+	
 	@Nullable
-	public PlayerEntity getClientPlayer()
-	{
+	public PlayerEntity getClientPlayer() {
 		return null;
 	}
-
-	public void openOverlay(Overlay o)
-	{
+	
+	public void openOverlay(Overlay o) {
 	}
-
-	public void closeOverlay(String id)
-	{
+	
+	public void closeOverlay(String id) {
 	}
-
-	public WorldJS getClientWorld()
-	{
+	
+	public WorldJS getClientWorld() {
 		throw new IllegalStateException("Can't access client world from server side!");
 	}
 }

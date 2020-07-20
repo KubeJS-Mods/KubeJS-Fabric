@@ -9,32 +9,27 @@ import net.minecraft.item.ItemStack;
 /**
  * @author LatvianModder
  */
-public class ItemCraftedEventJS extends PlayerEventJS
-{
+public class ItemCraftedEventJS extends PlayerEventJS {
 	public final PlayerEntity player;
 	public final Inventory inventory;
 	public final ItemStack result;
-
-	public ItemCraftedEventJS(PlayerEntity player, Inventory inventory, ItemStack result)
-	{
+	
+	public ItemCraftedEventJS(PlayerEntity player, Inventory inventory, ItemStack result) {
 		this.player = player;
 		this.inventory = inventory;
 		this.result = result;
 	}
-
+	
 	@Override
-	public EntityJS getEntity()
-	{
+	public EntityJS getEntity() {
 		return entityOf(player);
 	}
-
-	public ItemStackJS getItem()
-	{
+	
+	public ItemStackJS getItem() {
 		return ItemStackJS.of(result);
 	}
-
-	public InventoryJS getInventory()
-	{
+	
+	public InventoryJS getInventory() {
 		return new InventoryJS(inventory);
 	}
 }

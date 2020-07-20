@@ -10,17 +10,14 @@ import java.util.function.Consumer;
 /**
  * @author LatvianModder
  */
-public class AttachWorldDataEvent extends AttachDataEvent<WorldJS>
-{
+public class AttachWorldDataEvent extends AttachDataEvent<WorldJS> {
 	public static final Event<Consumer<AttachWorldDataEvent>> EVENT = EventFactory.createArrayBacked(Consumer.class, consumers -> event -> {
-		for (Consumer<AttachWorldDataEvent> consumer : consumers)
-		{
+		for (Consumer<AttachWorldDataEvent> consumer : consumers) {
 			consumer.accept(event);
 		}
 	});
-
-	public AttachWorldDataEvent(WorldJS w)
-	{
+	
+	public AttachWorldDataEvent(WorldJS w) {
 		super(DataType.WORLD, w);
 	}
 }

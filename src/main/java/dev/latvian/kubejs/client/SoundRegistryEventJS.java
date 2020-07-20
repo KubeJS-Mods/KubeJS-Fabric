@@ -11,17 +11,14 @@ import net.minecraft.util.registry.Registry;
 /**
  * @author LatvianModder
  */
-public class SoundRegistryEventJS extends EventJS
-{
+public class SoundRegistryEventJS extends EventJS {
 	public final Registry<SoundEvent> registry;
-
-	public SoundRegistryEventJS(Registry<SoundEvent> r)
-	{
+	
+	public SoundRegistryEventJS(Registry<SoundEvent> r) {
 		registry = r;
 	}
-
-	public void register(@ID String id)
-	{
+	
+	public void register(@ID String id) {
 		Identifier r = UtilsJS.getMCID(KubeJS.appendModId(id));
 		Registry.register(registry, r, new SoundEvent(r));
 	}

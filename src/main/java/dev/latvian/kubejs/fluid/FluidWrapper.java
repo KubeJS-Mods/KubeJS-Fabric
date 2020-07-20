@@ -14,8 +14,7 @@ import java.util.List;
 /**
  * @author LatvianModder
  */
-public class FluidWrapper
-{
+public class FluidWrapper {
 //	public FluidStackJS of(@ID Object o)
 //	{
 //		return FluidStackJS.of(o);
@@ -30,23 +29,20 @@ public class FluidWrapper
 //	{
 //		return FluidStackJS.of(o, amount, nbt);
 //	}
-
+	
 	@MinecraftClass
-	public Fluid getType(@ID String id)
-	{
+	public Fluid getType(@ID String id) {
 		Fluid f = Registry.FLUID.get(UtilsJS.getMCID(id));
 		return f == null ? Fluids.EMPTY : f;
 	}
-
-	public List<String> getTypes()
-	{
+	
+	public List<String> getTypes() {
 		List<String> set = new ArrayList<>();
-
-		for (Identifier id : Registry.FLUID.getIds())
-		{
+		
+		for (Identifier id : Registry.FLUID.getIds()) {
 			set.add(id.toString());
 		}
-
+		
 		return set;
 	}
 }

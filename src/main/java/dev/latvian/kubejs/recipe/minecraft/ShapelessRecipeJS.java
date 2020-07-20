@@ -11,89 +11,71 @@ import dev.latvian.kubejs.util.ListJS;
 /**
  * @author LatvianModder
  */
-public class ShapelessRecipeJS extends RecipeJS
-{
+public class ShapelessRecipeJS extends RecipeJS {
 	@Override
-	public void create(ListJS args)
-	{
+	public void create(ListJS args) {
 		ItemStackJS result = ItemStackJS.of(args.get(0));
-
-		if (result.isEmpty())
-		{
+		
+		if (result.isEmpty()) {
 			throw new RecipeExceptionJS("Shapeless recipe result " + args.get(0) + " is not a valid item!");
 		}
-
+		
 		outputItems.add(result);
-
+		
 		ListJS ingredients1 = ListJS.orSelf(args.get(1));
-
-		if (ingredients1.isEmpty())
-		{
+		
+		if (ingredients1.isEmpty()) {
 			throw new RecipeExceptionJS("Shapeless recipe ingredient list is empty!");
 		}
-
-		for (Object o : ingredients1)
-		{
+		
+		for (Object o : ingredients1) {
 			IngredientJS in = IngredientJS.of(o);
-
-			if (!in.isEmpty())
-			{
+			
+			if (!in.isEmpty()) {
 				inputItems.add(in);
-			}
-			else
-			{
+			} else {
 				throw new RecipeExceptionJS("Shapeless recipe ingredient " + o + " is not a valid ingredient!");
 			}
 		}
-
-		if (inputItems.isEmpty())
-		{
+		
+		if (inputItems.isEmpty()) {
 			throw new RecipeExceptionJS("Shapeless recipe ingredient list is empty!");
 		}
 	}
-
+	
 	@Override
-	public void deserialize()
-	{
+	public void deserialize() {
 		ItemStackJS result = ItemStackJS.resultFromRecipeJson(json.get("result"));
-
-		if (result.isEmpty())
-		{
+		
+		if (result.isEmpty()) {
 			throw new RecipeExceptionJS("Shapeless recipe result " + json.get("result") + " is not a valid item!");
 		}
-
+		
 		outputItems.add(result);
-
-		for (JsonElement e : json.get("ingredients").getAsJsonArray())
-		{
+		
+		for (JsonElement e : json.get("ingredients").getAsJsonArray()) {
 			IngredientJS in = IngredientJS.ingredientFromRecipeJson(e);
-
-			if (!in.isEmpty())
-			{
+			
+			if (!in.isEmpty()) {
 				inputItems.add(in);
-			}
-			else
-			{
+			} else {
 				throw new RecipeExceptionJS("Shapeless recipe ingredient " + e + " is not a valid ingredient!");
 			}
 		}
-
-		if (inputItems.isEmpty())
-		{
+		
+		if (inputItems.isEmpty()) {
 			throw new RecipeExceptionJS("Shapeless recipe ingredient list is empty!");
 		}
 	}
-
+	
 	@Override
-	public void serialize()
-	{
+	public void serialize() {
 		JsonArray ingredientsJson = new JsonArray();
-
-		for (IngredientJS in : inputItems)
-		{
+		
+		for (IngredientJS in : inputItems) {
 			ingredientsJson.add(in.toJson());
 		}
-
+		
 		json.add("ingredients", ingredientsJson);
 		json.add("result", outputItems.get(0).toResultJson());
 	}

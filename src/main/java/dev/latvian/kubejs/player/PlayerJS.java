@@ -21,30 +21,26 @@ import javax.annotation.Nullable;
 /**
  * @author LatvianModder
  */
-public abstract class PlayerJS<E extends PlayerEntity> extends LivingEntityJS implements WithAttachedData
-{
+public abstract class PlayerJS<E extends PlayerEntity> extends LivingEntityJS implements WithAttachedData {
 	@MinecraftClass
 	public final E minecraftPlayer;
-
+	
 	private final PlayerDataJS playerData;
 	private InventoryJS inventory;
-
-	public PlayerJS(PlayerDataJS d, WorldJS w, E p)
-	{
+	
+	public PlayerJS(PlayerDataJS d, WorldJS w, E p) {
 		super(w, p);
 		playerData = d;
 		minecraftPlayer = p;
 	}
-
+	
 	@Override
-	public AttachedData getData()
-	{
+	public AttachedData getData() {
 		return playerData.getData();
 	}
-
+	
 	@Override
-	public boolean isPlayer()
-	{
+	public boolean isPlayer() {
 		return true;
 	}
 
@@ -52,106 +48,87 @@ public abstract class PlayerJS<E extends PlayerEntity> extends LivingEntityJS im
 //	{
 //		return minecraftPlayer instanceof FakePlayer;
 //	}
-
-	public String toString()
-	{
+	
+	public String toString() {
 		return minecraftPlayer.getGameProfile().getName();
 	}
-
+	
 	@Override
-	public GameProfile getProfile()
-	{
+	public GameProfile getProfile() {
 		return minecraftPlayer.getGameProfile();
 	}
-
-	public InventoryJS getInventory()
-	{
-		if (inventory == null)
-		{
-			inventory = new InventoryJS(minecraftPlayer.inventory)
-			{
+	
+	public InventoryJS getInventory() {
+		if (inventory == null) {
+			inventory = new InventoryJS(minecraftPlayer.inventory) {
 				@Override
-				public void markDirty()
-				{
+				public void markDirty() {
 					sendInventoryUpdate();
 				}
 			};
 		}
-
+		
 		return inventory;
 	}
-
-	public void sendInventoryUpdate()
-	{
+	
+	public void sendInventoryUpdate() {
 		minecraftPlayer.inventory.markDirty();
 		minecraftPlayer.playerScreenHandler.sendContentUpdates();
 	}
-
-	public void give(Object item)
-	{
+	
+	public void give(Object item) {
 		minecraftPlayer.inventory.insertStack(ItemStackJS.of(item).getItemStack());
 //		ItemHandlerHelper.giveItemToPlayer(minecraftPlayer, ItemStackJS.of(item).getItemStack());
 	}
-
-	public void giveInHand(Object item)
-	{
+	
+	public void giveInHand(Object item) {
 		give(item);
 		// TODO implement this
 //		ItemHandlerHelper.giveItemToPlayer(minecraftPlayer, ItemStackJS.of(item).getItemStack(), getSelectedSlot());
 	}
-
-	public int getSelectedSlot()
-	{
+	
+	public int getSelectedSlot() {
 		return minecraftPlayer.inventory.selectedSlot;
 	}
-
-	public void setSelectedSlot(int index)
-	{
+	
+	public void setSelectedSlot(int index) {
 		minecraftPlayer.inventory.selectedSlot = MathHelper.clamp(index, 0, 8);
 	}
-
-	public ItemStackJS getMouseItem()
-	{
+	
+	public ItemStackJS getMouseItem() {
 		return ItemStackJS.of(minecraftPlayer.inventory.getCursorStack());
 	}
-
-	public void setMouseItem(Object item)
-	{
+	
+	public void setMouseItem(Object item) {
 		minecraftPlayer.inventory.setCursorStack(ItemStackJS.of(item).getItemStack());
 	}
-
+	
 	@Override
-	public void setPositionAndRotation(double x, double y, double z, float yaw, float pitch)
-	{
+	public void setPositionAndRotation(double x, double y, double z, float yaw, float pitch) {
 		super.setPositionAndRotation(x, y, z, yaw, pitch);
-
-		if (minecraftPlayer instanceof ServerPlayerEntity)
-		{
+		
+		if (minecraftPlayer instanceof ServerPlayerEntity) {
 			((ServerPlayerEntity) minecraftPlayer).networkHandler.requestTeleport(x, y, z, yaw, pitch);
 		}
 	}
-
+	
 	@Override
-	public void setStatusMessage(Object message)
-	{
+	public void setStatusMessage(Object message) {
 		minecraftPlayer.sendMessage(Text.of(message).component(), true);
 	}
-
-	public boolean isCreativeMode()
-	{
+	
+	public boolean isCreativeMode() {
 		return minecraftPlayer.isCreative();
 	}
-
-	public boolean isSpectator()
-	{
+	
+	public boolean isSpectator() {
 		return minecraftPlayer.isSpectator();
 	}
-
+	
 	public abstract PlayerStatsJS getStats();
-
+	
 	@Override
-	public void spawn()
-	{
+	public void spawn() {
 	}
 
 	/*
@@ -180,80 +157,66 @@ public abstract class PlayerJS<E extends PlayerEntity> extends LivingEntityJS im
 
 		return map;
 	}*/
-
-	public void sendData(String channel, @Nullable Object data)
-	{
+	
+	public void sendData(String channel, @Nullable Object data) {
 	}
-
-	public void addFood(int f, float m)
-	{
+	
+	public void addFood(int f, float m) {
 		minecraftPlayer.getHungerManager().add(f, m);
 	}
-
-	public int getFoodLevel()
-	{
+	
+	public int getFoodLevel() {
 		return minecraftPlayer.getHungerManager().getFoodLevel();
 	}
-
-	public void setFoodLevel(int foodLevel)
-	{
+	
+	public void setFoodLevel(int foodLevel) {
 		minecraftPlayer.getHungerManager().setFoodLevel(foodLevel);
 	}
-
-	public void addExhaustion(float exhaustion)
-	{
+	
+	public void addExhaustion(float exhaustion) {
 		minecraftPlayer.addExhaustion(exhaustion);
 	}
-
-	public void addXP(int xp)
-	{
+	
+	public void addXP(int xp) {
 		minecraftPlayer.addExperience(xp);
 	}
-
-	public void addXPLevels(int l)
-	{
+	
+	public void addXPLevels(int l) {
 		minecraftPlayer.addExperienceLevels(l);
 	}
-
-	public void setXp(int xp)
-	{
+	
+	public void setXp(int xp) {
 		minecraftPlayer.totalExperience = 0;
 		minecraftPlayer.experienceProgress = 0F;
 		minecraftPlayer.experienceLevel = 0;
 		minecraftPlayer.addExperience(xp);
 	}
-
-	public int getXp()
-	{
+	
+	public int getXp() {
 		return minecraftPlayer.totalExperience;
 	}
-
-	public void setXpLevel(int l)
-	{
+	
+	public void setXpLevel(int l) {
 		minecraftPlayer.totalExperience = 0;
 		minecraftPlayer.experienceProgress = 0F;
 		minecraftPlayer.experienceLevel = 0;
 		minecraftPlayer.addExperienceLevels(l);
 	}
-
-	public int getXpLevel()
-	{
+	
+	public int getXpLevel() {
 		return minecraftPlayer.experienceLevel;
 	}
-
+	
 	public abstract void openOverlay(Overlay overlay);
-
+	
 	public abstract void closeOverlay(String overlay);
-
-	public void closeOverlay(Overlay overlay)
-	{
+	
+	public void closeOverlay(Overlay overlay) {
 		closeOverlay(overlay.id);
 	}
-
-	public void boostElytraFlight()
-	{
-		if (minecraftPlayer.isFallFlying())
-		{
+	
+	public void boostElytraFlight() {
+		if (minecraftPlayer.isFallFlying()) {
 			Vec3d v = minecraftPlayer.getRotationVector();
 			double d0 = 1.5D;
 			double d1 = 0.1D;
@@ -261,17 +224,15 @@ public abstract class PlayerJS<E extends PlayerEntity> extends LivingEntityJS im
 			minecraftPlayer.setVelocity(m.add(v.x * 0.1D + (v.x * 1.5D - m.x) * 0.5D, v.y * 0.1D + (v.y * 1.5D - m.y) * 0.5D, v.z * 0.1D + (v.z * 1.5D - m.z) * 0.5D));
 		}
 	}
-
-	public void closeInventory()
-	{
+	
+	public void closeInventory() {
 		minecraftPlayer.currentScreenHandler = minecraftPlayer.playerScreenHandler;
 	}
-
+	
 	@MinecraftClass
-	public ScreenHandler getOpenInventory()
-	{
+	public ScreenHandler getOpenInventory() {
 		return minecraftPlayer.currentScreenHandler;
 	}
-
+	
 	public abstract boolean isMiningBlock();
 }

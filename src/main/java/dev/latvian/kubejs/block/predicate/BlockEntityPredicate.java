@@ -10,32 +10,27 @@ import net.minecraft.util.registry.Registry;
 /**
  * @author LatvianModder
  */
-public class BlockEntityPredicate implements BlockPredicate
-{
+public class BlockEntityPredicate implements BlockPredicate {
 	private final Identifier id;
 	private BlockEntityPredicateDataCheck checkData;
-
-	public BlockEntityPredicate(@ID String i)
-	{
+	
+	public BlockEntityPredicate(@ID String i) {
 		id = UtilsJS.getMCID(i);
 	}
-
-	public BlockEntityPredicate data(BlockEntityPredicateDataCheck cd)
-	{
+	
+	public BlockEntityPredicate data(BlockEntityPredicateDataCheck cd) {
 		checkData = cd;
 		return this;
 	}
-
+	
 	@Override
-	public boolean check(BlockContainerJS block)
-	{
+	public boolean check(BlockContainerJS block) {
 		BlockEntity blockEntity = block.getEntity();
 		return blockEntity != null && id.equals(Registry.BLOCK_ENTITY_TYPE.getId(blockEntity.getType())) && (checkData == null || checkData.checkData(block.getEntityData()));
 	}
-
+	
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return "{entity=" + id + "}";
 	}
 }

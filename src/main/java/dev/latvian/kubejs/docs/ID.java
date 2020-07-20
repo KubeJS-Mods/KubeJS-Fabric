@@ -13,7 +13,6 @@ import java.lang.annotation.RetentionPolicy;
 @Documented
 @TypeQualifierDefault({ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ID
-{
+public @interface ID {
 	String value() default "minecraft";
 }

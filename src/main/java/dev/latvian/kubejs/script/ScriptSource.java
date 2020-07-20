@@ -7,7 +7,6 @@ import java.io.Reader;
  * @author LatvianModder
  */
 @FunctionalInterface
-public interface ScriptSource
-{
+public interface ScriptSource {
 	Reader createReader(ScriptFileInfo info) throws IOException;
 }

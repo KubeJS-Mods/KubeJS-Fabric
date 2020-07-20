@@ -9,8 +9,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
  * @author LatvianModder
  */
 @Mixin(ServerPlayerInteractionManager.class)
-public abstract class PlayerInteractionManagerMixin implements PlayerInteractionManagerKJS
-{
+public abstract class PlayerInteractionManagerMixin implements PlayerInteractionManagerKJS {
 	@Override
 	@Accessor("mining")
 	public abstract boolean isDestroyingBlockKJS();

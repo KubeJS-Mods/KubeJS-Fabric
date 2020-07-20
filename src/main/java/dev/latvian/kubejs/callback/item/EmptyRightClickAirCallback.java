@@ -14,6 +14,6 @@ public interface EmptyRightClickAirCallback {
 			}
 		};
 	});
-
+	
 	void rightClickEmpty(PlayerEntity player, Hand hand, BlockPos position);
 }

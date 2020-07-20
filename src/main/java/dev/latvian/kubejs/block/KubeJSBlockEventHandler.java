@@ -17,10 +17,8 @@ import net.minecraft.world.World;
 /**
  * @author LatvianModder
  */
-public class KubeJSBlockEventHandler
-{
-	public void init()
-	{
+public class KubeJSBlockEventHandler {
+	public void init() {
 		AfterScriptLoadCallback.EVENT.register(this::registry);
 		UseBlockCallback.EVENT.register(this::rightClick);
 		AttackBlockCallback.EVENT.register(this::leftClick);
@@ -28,18 +26,16 @@ public class KubeJSBlockEventHandler
 //		MinecraftForge.EVENT_BUS.addListener(this::blockPlace);
 //		MinecraftForge.EVENT_BUS.addListener(this::blockDrops);
 	}
-
-	private void registry()
-	{
-		for (BlockBuilder builder : KubeJSObjects.BLOCKS.values())
-		{
+	
+	private void registry() {
+		for (BlockBuilder builder : KubeJSObjects.BLOCKS.values()) {
 			BlockBuilder.current = builder;
 			builder.block = new BlockJS(builder);
 			Registry.register(Registry.BLOCK, builder.id, builder.block);
 		}
-
+		
 		BlockBuilder.current = null;
-
+		
 		// TODO Fix fluids
 //		for (FluidBuilder builder : KubeJSObjects.FLUIDS.values())
 //		{
@@ -48,20 +44,16 @@ public class KubeJSBlockEventHandler
 //			event.getRegistry().register(builder.block);
 //		}
 	}
-
-	private ActionResult rightClick(PlayerEntity player, World world, Hand hand, BlockHitResult hitResult)
-	{
-		if (new BlockRightClickEventJS(player, world, hand, hitResult).post(KubeJSEvents.BLOCK_RIGHT_CLICK))
-		{
+	
+	private ActionResult rightClick(PlayerEntity player, World world, Hand hand, BlockHitResult hitResult) {
+		if (new BlockRightClickEventJS(player, world, hand, hitResult).post(KubeJSEvents.BLOCK_RIGHT_CLICK)) {
 			return ActionResult.SUCCESS;
 		}
 		return ActionResult.PASS;
 	}
-
-	private ActionResult leftClick(PlayerEntity player, World world, Hand hand, BlockPos pos, Direction direction)
-	{
-		if (new BlockLeftClickEventJS(player, world, hand, pos, direction).post(KubeJSEvents.BLOCK_LEFT_CLICK))
-		{
+	
+	private ActionResult leftClick(PlayerEntity player, World world, Hand hand, BlockPos pos, Direction direction) {
+		if (new BlockLeftClickEventJS(player, world, hand, pos, direction).post(KubeJSEvents.BLOCK_LEFT_CLICK)) {
 			return ActionResult.SUCCESS;
 		}
 		return ActionResult.PASS;

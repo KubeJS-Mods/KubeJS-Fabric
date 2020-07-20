@@ -8,8 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
  * @author LatvianModder
  */
 @Mixin(AbstractBlock.class)
-public abstract class AbstractBlockMixin implements BlockKJS
-{
+public abstract class AbstractBlockMixin implements BlockKJS {
 	/* FIXME
 	@Override
 	@Accessor("blockHardness")

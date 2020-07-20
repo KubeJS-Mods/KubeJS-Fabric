@@ -13,62 +13,52 @@ import net.minecraft.world.World;
 /**
  * @author LatvianModder
  */
-public class BlockRightClickEventJS extends PlayerEventJS
-{
+public class BlockRightClickEventJS extends PlayerEventJS {
 	public final PlayerEntity player;
 	public final World world;
 	public final Hand hand;
 	public final BlockHitResult blockHitResult;
 	private BlockContainerJS block;
 	private ItemStackJS item;
-
-	public BlockRightClickEventJS(PlayerEntity player, World world, Hand hand, BlockHitResult hitResult)
-	{
+	
+	public BlockRightClickEventJS(PlayerEntity player, World world, Hand hand, BlockHitResult hitResult) {
 		this.player = player;
 		this.world = world;
 		this.hand = hand;
 		this.blockHitResult = hitResult;
 	}
-
+	
 	@Override
-	public boolean canCancel()
-	{
+	public boolean canCancel() {
 		return true;
 	}
-
+	
 	@Override
-	public EntityJS getEntity()
-	{
+	public EntityJS getEntity() {
 		return entityOf(player);
 	}
-
-	public BlockContainerJS getBlock()
-	{
-		if (block == null)
-		{
+	
+	public BlockContainerJS getBlock() {
+		if (block == null) {
 			block = new BlockContainerJS(world, blockHitResult.getBlockPos());
 		}
-
+		
 		return block;
 	}
-
-	public Hand getHand()
-	{
+	
+	public Hand getHand() {
 		return hand;
 	}
-
-	public ItemStackJS getItem()
-	{
-		if (item == null)
-		{
+	
+	public ItemStackJS getItem() {
+		if (item == null) {
 			item = ItemStackJS.of(player.getStackInHand(hand));
 		}
-
+		
 		return item;
 	}
-
-	public Direction getFacing()
-	{
+	
+	public Direction getFacing() {
 		return blockHitResult.getSide();
 	}
 }

@@ -3,10 +3,8 @@ package dev.latvian.kubejs.player;
 /**
  * @author LatvianModder
  */
-public class KubeJSPlayerEventHandler
-{
-	public void init()
-	{
+public class KubeJSPlayerEventHandler {
+	public void init() {
 //		MinecraftForge.EVENT_BUS.addListener(this::loggedIn);
 //		MinecraftForge.EVENT_BUS.addListener(this::loggedOut);
 //		MinecraftForge.EVENT_BUS.addListener(this::cloned);
@@ -16,7 +14,7 @@ public class KubeJSPlayerEventHandler
 //		MinecraftForge.EVENT_BUS.addListener(this::inventoryOpened);
 //		MinecraftForge.EVENT_BUS.addListener(this::inventoryClosed);
 	}
-
+	
 	// TODO
 //	public void loggedIn(PlayerEvent.PlayerLoggedInEvent event)
 //	{

@@ -10,26 +10,20 @@ import java.util.List;
 /**
  * @author LatvianModder
  */
-public interface DataPackRegistriesKJS
-{
-	default void initKJS()
-	{
-		try
-		{
+public interface DataPackRegistriesKJS {
+	default void initKJS() {
+		try {
 			ServerScriptManager.instance = new ServerScriptManager();
 			SimpleReloadableResourceManagerKJS manager = (SimpleReloadableResourceManagerKJS) (((ServerResourceManager) this).getResourceManager());
 			ResourceReloadListener reloadListener = ServerScriptManager.instance.createReloadListener();
 			manager.getReloadListenersKJS().add(0, reloadListener);
 			manager.getInitTaskQueueKJS().add(0, reloadListener);
-		}
-		catch (Exception ex)
-		{
+		} catch (Exception ex) {
 			throw new RuntimeException("KubeJS failed to register it's script loader!");
 		}
 	}
-
-	static List<ResourcePack> getResourcePackListKJS(List<ResourcePack> list)
-	{
+	
+	static List<ResourcePack> getResourcePackListKJS(List<ResourcePack> list) {
 		// ...
 		return list;
 	}

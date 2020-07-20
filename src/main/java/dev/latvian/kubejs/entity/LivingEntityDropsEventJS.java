@@ -5,8 +5,7 @@ import java.util.List;
 /**
  * @author LatvianModder
  */
-public class LivingEntityDropsEventJS extends LivingEntityEventJS
-{
+public class LivingEntityDropsEventJS extends LivingEntityEventJS {
 	//	public final LivingDropsEvent event;
 	public List<ItemEntityJS> drops;
 
@@ -14,16 +13,14 @@ public class LivingEntityDropsEventJS extends LivingEntityEventJS
 //	{
 //		event = e;
 //	}
-
+	
 	@Override
-	public boolean canCancel()
-	{
+	public boolean canCancel() {
 		return true;
 	}
-
+	
 	@Override
-	public EntityJS getEntity()
-	{
+	public EntityJS getEntity() {
 //		return entityOf(event);
 		return entityOf(null);
 	}

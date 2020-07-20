@@ -16,18 +16,16 @@ import java.util.Map;
  * @author LatvianModder
  */
 @Mixin(TagContainer.class)
-public abstract class TagCollectionMixin<T> implements TagCollectionKJS
-{
+public abstract class TagCollectionMixin<T> implements TagCollectionKJS {
 	@Inject(method = "applyReload", at = @At("HEAD"))
-	private void customTags(Map<Identifier, Tag.Builder> map, CallbackInfo ci)
-	{
+	private void customTags(Map<Identifier, Tag.Builder> map, CallbackInfo ci) {
 		customTagsKJS(map);
 	}
-
+	
 	@Override
 	@Accessor("dataType")
 	public abstract String getResourceLocationPrefixKJS();
-
+	
 	@Override
 	@Accessor("entryType")
 	public abstract String getItemTypeNameKJS();

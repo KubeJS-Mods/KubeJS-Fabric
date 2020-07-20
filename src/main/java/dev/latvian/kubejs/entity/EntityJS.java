@@ -40,130 +40,107 @@ import java.util.UUID;
 /**
  * @author LatvianModder
  */
-public class EntityJS implements MessageSender, WrappedJS
-{
+public class EntityJS implements MessageSender, WrappedJS {
 	private static Map<String, DamageSource> damageSourceMap;
-
+	
 	private final WorldJS world;
-
+	
 	@MinecraftClass
 	public final Entity minecraftEntity;
-
-	public EntityJS(WorldJS w, Entity e)
-	{
+	
+	public EntityJS(WorldJS w, Entity e) {
 		world = w;
 		minecraftEntity = e;
 	}
-
-	public WorldJS getWorld()
-	{
+	
+	public WorldJS getWorld() {
 		return world;
 	}
-
+	
 	@Nullable
-	public ServerJS getServer()
-	{
+	public ServerJS getServer() {
 		return getWorld().getServer();
 	}
-
-	public UUID getId()
-	{
+	
+	public UUID getId() {
 		return minecraftEntity.getUuid();
 	}
-
+	
 	@ID
-	public String getType()
-	{
+	public String getType() {
 		return Registry.ENTITY_TYPE.getId(minecraftEntity.getType()).toString();
 	}
-
+	
 	@Override
-	public Text getName()
-	{
+	public Text getName() {
 		return Text.of(minecraftEntity.getName());
 	}
-
+	
 	@MinecraftClass
-	public GameProfile getProfile()
-	{
+	public GameProfile getProfile() {
 		return new GameProfile(getId(), minecraftEntity.getEntityName());
 	}
-
+	
 	@Override
-	public Text getDisplayName()
-	{
+	public Text getDisplayName() {
 		return Text.of(minecraftEntity.getDisplayName());
 	}
-
+	
 	@Override
-	public void tell(Object message)
-	{
+	public void tell(Object message) {
 		minecraftEntity.sendSystemMessage(Text.of(message).component(), Util.NIL_UUID);
 	}
-
-	public String toString()
-	{
+	
+	public String toString() {
 		return minecraftEntity.getName().getString() + "-" + getId();
 	}
-
+	
 	@Nullable
-	public ItemStackJS getItem()
-	{
+	public ItemStackJS getItem() {
 		return null;
 	}
-
-	public boolean isFrame()
-	{
+	
+	public boolean isFrame() {
 		return false;
 	}
-
-	public Set<String> getTags()
-	{
+	
+	public Set<String> getTags() {
 		return minecraftEntity.getScoreboardTags();
 	}
-
-	public boolean isAlive()
-	{
+	
+	public boolean isAlive() {
 		return minecraftEntity.isAlive();
 	}
-
-	public boolean isLiving()
-	{
+	
+	public boolean isLiving() {
 		return false;
 	}
-
-	public boolean isPlayer()
-	{
+	
+	public boolean isPlayer() {
 		return false;
 	}
-
-	public boolean isCrouching()
-	{
+	
+	public boolean isCrouching() {
 		return minecraftEntity.isSneaking();
 	}
-
-	public boolean isSprinting()
-	{
+	
+	public boolean isSprinting() {
 		return minecraftEntity.isSprinting();
 	}
-
-	public boolean isGlowing()
-	{
+	
+	public boolean isGlowing() {
 		return minecraftEntity.isGlowing();
 	}
-
-	public void setGlowing(boolean glowing)
-	{
+	
+	public void setGlowing(boolean glowing) {
 		minecraftEntity.setGlowing(glowing);
 	}
-
-	public boolean isInvisible()
-	{
+	
+	public boolean isInvisible() {
 		return minecraftEntity.isInvisible();
 	}
-
-	public void setInvisible(boolean invisible)
-	{
+	
+	public void setInvisible(boolean invisible) {
 		minecraftEntity.setInvisible(invisible);
 	}
 
@@ -171,238 +148,192 @@ public class EntityJS implements MessageSender, WrappedJS
 //	{
 //		return !minecraftEntity.isNonBoss();
 //	}
-
-	public boolean isMonster()
-	{
+	
+	public boolean isMonster() {
 		return !minecraftEntity.getType().getSpawnGroup().isPeaceful();
 	}
-
-	public boolean isAnimal()
-	{
+	
+	public boolean isAnimal() {
 		return minecraftEntity.getType().getSpawnGroup().isAnimal();
 	}
-
-	public boolean isAmbientCreature()
-	{
+	
+	public boolean isAmbientCreature() {
 		return minecraftEntity.getType().getSpawnGroup() == SpawnGroup.AMBIENT;
 	}
-
-	public boolean isWaterCreature()
-	{
+	
+	public boolean isWaterCreature() {
 		return minecraftEntity.getType().getSpawnGroup() == SpawnGroup.WATER_CREATURE;
 	}
-
-	public boolean isPeacefulCreature()
-	{
+	
+	public boolean isPeacefulCreature() {
 		return minecraftEntity.getType().getSpawnGroup().isPeaceful();
 	}
-
-	public boolean isOnGround()
-	{
+	
+	public boolean isOnGround() {
 		return minecraftEntity.isOnGround();
 	}
-
-	public float getFallDistance()
-	{
+	
+	public float getFallDistance() {
 		return minecraftEntity.fallDistance;
 	}
-
-	public void setFallDistance(float fallDistance)
-	{
+	
+	public void setFallDistance(float fallDistance) {
 		minecraftEntity.fallDistance = fallDistance;
 	}
-
-	public float getStepHeight()
-	{
+	
+	public float getStepHeight() {
 		return minecraftEntity.stepHeight;
 	}
-
-	public void setStepHeight(float stepHeight)
-	{
+	
+	public void setStepHeight(float stepHeight) {
 		minecraftEntity.stepHeight = stepHeight;
 	}
-
-	public boolean getNoClip()
-	{
+	
+	public boolean getNoClip() {
 		return minecraftEntity.noClip;
 	}
-
-	public void setNoClip(boolean noClip)
-	{
+	
+	public void setNoClip(boolean noClip) {
 		minecraftEntity.noClip = noClip;
 	}
-
-	public boolean isSilent()
-	{
+	
+	public boolean isSilent() {
 		return minecraftEntity.isSilent();
 	}
-
-	public void setSilent(boolean isSilent)
-	{
+	
+	public void setSilent(boolean isSilent) {
 		minecraftEntity.setSilent(isSilent);
 	}
-
-	public boolean getNoGravity()
-	{
+	
+	public boolean getNoGravity() {
 		return minecraftEntity.hasNoGravity();
 	}
-
-	public void setNoGravity(boolean noGravity)
-	{
+	
+	public void setNoGravity(boolean noGravity) {
 		minecraftEntity.setNoGravity(noGravity);
 	}
-
-	public double getX()
-	{
+	
+	public double getX() {
 		return minecraftEntity.getX();
 	}
-
-	public void setX(double x)
-	{
+	
+	public void setX(double x) {
 		minecraftEntity.setPos(x, getY(), getZ());
 	}
-
-	public double getY()
-	{
+	
+	public double getY() {
 		return minecraftEntity.getY();
 	}
-
-	public void setY(double y)
-	{
+	
+	public void setY(double y) {
 		minecraftEntity.setPos(getX(), y, getZ());
 	}
-
-	public double getZ()
-	{
+	
+	public double getZ() {
 		return minecraftEntity.getZ();
 	}
-
-	public void setZ(double z)
-	{
+	
+	public void setZ(double z) {
 		minecraftEntity.setPos(getX(), getY(), z);
 	}
-
-	public float getYaw()
-	{
+	
+	public float getYaw() {
 		return minecraftEntity.yaw;
 	}
-
-	public void setYaw(float yaw)
-	{
+	
+	public void setYaw(float yaw) {
 		minecraftEntity.yaw = yaw;
 	}
-
-	public float getPitch()
-	{
+	
+	public float getPitch() {
 		return minecraftEntity.pitch;
 	}
-
-	public void setPitch(float pitch)
-	{
+	
+	public void setPitch(float pitch) {
 		minecraftEntity.pitch = pitch;
 	}
-
-	public double getMotionX()
-	{
+	
+	public double getMotionX() {
 		return minecraftEntity.getVelocity().x;
 	}
-
-	public void setMotionX(double x)
-	{
+	
+	public void setMotionX(double x) {
 		Vec3d m = minecraftEntity.getVelocity();
 		minecraftEntity.setVelocity(x, m.y, m.z);
 	}
-
-	public double getMotionY()
-	{
+	
+	public double getMotionY() {
 		return minecraftEntity.getVelocity().y;
 	}
-
-	public void setMotionY(double y)
-	{
+	
+	public void setMotionY(double y) {
 		Vec3d m = minecraftEntity.getVelocity();
 		minecraftEntity.setVelocity(m.x, y, m.z);
 	}
-
-	public double getMotionZ()
-	{
+	
+	public double getMotionZ() {
 		return minecraftEntity.getVelocity().z;
 	}
-
-	public void setMotionZ(double z)
-	{
+	
+	public void setMotionZ(double z) {
 		Vec3d m = minecraftEntity.getVelocity();
 		minecraftEntity.setVelocity(m.x, m.y, z);
 	}
-
-	public void setMotion(double x, double y, double z)
-	{
+	
+	public void setMotion(double x, double y, double z) {
 		minecraftEntity.setVelocity(x, y, z);
 	}
-
-	public int getTicksExisted()
-	{
+	
+	public int getTicksExisted() {
 		return minecraftEntity.age;
 	}
-
-	public void setPosition(BlockContainerJS block)
-	{
+	
+	public void setPosition(BlockContainerJS block) {
 		setPosition(block.getX() + 0.5D, block.getY() + 0.05D, block.getZ() + 0.5D);
 	}
-
-	public void setPosition(double x, double y, double z)
-	{
+	
+	public void setPosition(double x, double y, double z) {
 		setPositionAndRotation(x, y, z, getYaw(), getPitch());
 	}
-
-	public void setRotation(float yaw, float pitch)
-	{
+	
+	public void setRotation(float yaw, float pitch) {
 		setPositionAndRotation(getX(), getY(), getZ(), yaw, pitch);
 	}
-
-	public void setPositionAndRotation(double x, double y, double z, float yaw, float pitch)
-	{
+	
+	public void setPositionAndRotation(double x, double y, double z, float yaw, float pitch) {
 		minecraftEntity.refreshPositionAndAngles(x, y, z, yaw, pitch);
 	}
-
-	public void addMotion(double x, double y, double z)
-	{
+	
+	public void addMotion(double x, double y, double z) {
 		minecraftEntity.setVelocity(minecraftEntity.getVelocity().add(x, y, z));
 	}
-
+	
 	@Override
-	public int runCommand(String command)
-	{
-		if (world instanceof ServerWorldJS)
-		{
+	public int runCommand(String command) {
+		if (world instanceof ServerWorldJS) {
 			return world.getServer().minecraftServer.getCommandManager().execute(minecraftEntity.getCommandSource(), command);
 		}
-
+		
 		return 0;
 	}
-
-	public void kill()
-	{
+	
+	public void kill() {
 		minecraftEntity.kill();
 	}
-
-	public boolean startRiding(EntityJS e, boolean force)
-	{
+	
+	public boolean startRiding(EntityJS e, boolean force) {
 		return minecraftEntity.startRiding(e.minecraftEntity, force);
 	}
-
-	public void removePassengers()
-	{
+	
+	public void removePassengers() {
 		minecraftEntity.removeAllPassengers();
 	}
-
-	public void dismountRidingEntity()
-	{
+	
+	public void dismountRidingEntity() {
 		minecraftEntity.stopRiding();
 	}
-
-	public EntityArrayList getPassengers()
-	{
+	
+	public EntityArrayList getPassengers() {
 		return new EntityArrayList(world, minecraftEntity.getPassengerList());
 	}
 
@@ -410,112 +341,90 @@ public class EntityJS implements MessageSender, WrappedJS
 //	{
 //		return minecraftEntity.isPassenger(e.minecraftEntity);
 //	}
-
-	public EntityArrayList getRecursivePassengers()
-	{
+	
+	public EntityArrayList getRecursivePassengers() {
 		return new EntityArrayList(world, minecraftEntity.getPassengersDeep());
 	}
-
+	
 	@Nullable
-	public EntityJS getRidingEntity()
-	{
+	public EntityJS getRidingEntity() {
 		return world.getEntity(minecraftEntity.getVehicle());
 	}
-
-	public String getTeamId()
-	{
+	
+	public String getTeamId() {
 		AbstractTeam team = minecraftEntity.getScoreboardTeam();
 		return team == null ? "" : team.getName();
 	}
-
-	public boolean isOnSameTeam(EntityJS e)
-	{
+	
+	public boolean isOnSameTeam(EntityJS e) {
 		return minecraftEntity.isTeammate(e.minecraftEntity);
 	}
-
-	public boolean isOnScoreboardTeam(String teamID)
-	{
+	
+	public boolean isOnScoreboardTeam(String teamID) {
 		AbstractTeam team = minecraftEntity.getEntityWorld().getScoreboard().getTeam(teamID);
 		return team != null && minecraftEntity.isTeamPlayer(team);
 	}
-
-	public void setCustomName(Text name)
-	{
+	
+	public void setCustomName(Text name) {
 		minecraftEntity.setCustomName(name.component());
 	}
-
-	public Text getCustomName()
-	{
+	
+	public Text getCustomName() {
 		return Text.of(minecraftEntity.getCustomName());
 	}
-
-	public boolean getHasCustomName()
-	{
+	
+	public boolean getHasCustomName() {
 		return minecraftEntity.hasCustomName();
 	}
-
-	public void setCustomNameAlwaysVisible(boolean b)
-	{
+	
+	public void setCustomNameAlwaysVisible(boolean b) {
 		minecraftEntity.setCustomNameVisible(b);
 	}
-
-	public boolean getCustomNameAlwaysVisible()
-	{
+	
+	public boolean getCustomNameAlwaysVisible() {
 		return minecraftEntity.isCustomNameVisible();
 	}
-
-	public Direction getHorizontalFacing()
-	{
+	
+	public Direction getHorizontalFacing() {
 		return minecraftEntity.getHorizontalFacing();
 	}
-
-	public Direction getFacing()
-	{
-		if (getPitch() > 45F)
-		{
+	
+	public Direction getFacing() {
+		if (getPitch() > 45F) {
 			return Direction.DOWN;
-		}
-		else if (getPitch() < -45F)
-		{
+		} else if (getPitch() < -45F) {
 			return Direction.UP;
 		}
-
+		
 		return getHorizontalFacing();
 	}
-
-	public float getEyeHeight()
-	{
+	
+	public float getEyeHeight() {
 		return minecraftEntity.getStandingEyeHeight();
 	}
-
-	public BlockContainerJS getBlock()
-	{
+	
+	public BlockContainerJS getBlock() {
 		return new BlockContainerJS(minecraftEntity.world, minecraftEntity.getBlockPos());
 	}
-
-	public void setOnFire(int seconds)
-	{
+	
+	public void setOnFire(int seconds) {
 		minecraftEntity.setFireTicks(seconds);
 	}
-
-	public void extinguish()
-	{
+	
+	public void extinguish() {
 		minecraftEntity.extinguish();
 	}
-
-	public MapJS getFullNBT()
-	{
+	
+	public MapJS getFullNBT() {
 		CompoundTag nbt = new CompoundTag();
 		minecraftEntity.toTag(nbt);
 		return MapJS.of(nbt);
 	}
-
-	public void setFullNBT(Object n)
-	{
+	
+	public void setFullNBT(Object n) {
 		CompoundTag nbt = MapJS.nbt(n);
-
-		if (nbt != null)
-		{
+		
+		if (nbt != null) {
 			minecraftEntity.fromTag(nbt);
 		}
 	}
@@ -542,62 +451,49 @@ public class EntityJS implements MessageSender, WrappedJS
 
 		return map;
 	}*/
-
-	public void playSound(@ID String id, float volume, float pitch)
-	{
+	
+	public void playSound(@ID String id, float volume, float pitch) {
 		SoundEvent event = Registry.SOUND_EVENT.get(UtilsJS.getMCID(id));
-
-		if (event != null)
-		{
+		
+		if (event != null) {
 			minecraftEntity.world.playSound(null, getX(), getY(), getZ(), event, minecraftEntity.getSoundCategory(), volume, pitch);
 		}
 	}
-
-	public void playSound(@ID String id)
-	{
+	
+	public void playSound(@ID String id) {
 		playSound(id, 1F, 1F);
 	}
-
-	public void spawn()
-	{
+	
+	public void spawn() {
 		world.minecraftWorld.spawnEntity(minecraftEntity);
 	}
-
-	public void attack(String source, float hp)
-	{
-		if (damageSourceMap == null)
-		{
+	
+	public void attack(String source, float hp) {
+		if (damageSourceMap == null) {
 			damageSourceMap = new HashMap<>();
-
-			try
-			{
-				for (Field field : DamageSource.class.getDeclaredFields())
-				{
+			
+			try {
+				for (Field field : DamageSource.class.getDeclaredFields()) {
 					field.setAccessible(true);
-
-					if (Modifier.isStatic(field.getModifiers()) && field.getType() == DamageSource.class)
-					{
+					
+					if (Modifier.isStatic(field.getModifiers()) && field.getType() == DamageSource.class) {
 						DamageSource s = (DamageSource) field.get(null);
 						damageSourceMap.put(s.getName(), s);
 					}
 				}
-			}
-			catch (Exception ex)
-			{
+			} catch (Exception ex) {
 			}
 		}
-
+		
 		DamageSource s = damageSourceMap.getOrDefault(source, DamageSource.GENERIC);
 		minecraftEntity.damage(s, hp);
 	}
-
-	public void attack(float hp)
-	{
+	
+	public void attack(float hp) {
 		minecraftEntity.damage(DamageSource.GENERIC, hp);
 	}
-
-	public HitResult rayTraceResult(double distance)
-	{
+	
+	public HitResult rayTraceResult(double distance) {
 		double f = minecraftEntity.pitch;
 		double f1 = minecraftEntity.yaw;
 		Vec3d vec3d = minecraftEntity.getCameraPosVec(1);
@@ -610,30 +506,25 @@ public class EntityJS implements MessageSender, WrappedJS
 		Vec3d vec3d1 = vec3d.add(f6 * distance, f5 * distance, f7 * distance);
 		return minecraftEntity.world.rayTrace(new RayTraceContext(vec3d, vec3d1, RayTraceContext.ShapeType.OUTLINE, RayTraceContext.FluidHandling.ANY, minecraftEntity));
 	}
-
+	
 	@Nullable
-	public Map<String, Object> rayTrace(double distance)
-	{
+	public Map<String, Object> rayTrace(double distance) {
 		Map<String, Object> map = new HashMap<>();
 		HitResult ray = rayTraceResult(distance);
-
-		if (ray.getType() != HitResult.Type.MISS)
-		{
+		
+		if (ray.getType() != HitResult.Type.MISS) {
 			map.put("hitX", ray.getPos().x);
 			map.put("hitY", ray.getPos().y);
 			map.put("hitZ", ray.getPos().z);
-
-			if (ray instanceof BlockHitResult)
-			{
+			
+			if (ray instanceof BlockHitResult) {
 				map.put("block", new BlockContainerJS(getWorld().minecraftWorld, ((BlockHitResult) ray).getBlockPos()));
 				map.put("facing", ((BlockHitResult) ray).getSide());
-			}
-			else if (ray instanceof EntityHitResult)
-			{
+			} else if (ray instanceof EntityHitResult) {
 				map.put("entity", getWorld().getEntity(((EntityHitResult) ray).getEntity()));
 			}
 		}
-
+		
 		return map;
 	}
 }

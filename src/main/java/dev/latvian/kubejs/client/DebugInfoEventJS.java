@@ -5,32 +5,24 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 
+import java.util.List;
+
 /**
  * @author LatvianModder
  */
 @Environment(EnvType.CLIENT)
-public class DebugInfoEventJS extends EventJS
-		// TODO
-{
-//	public final transient RenderGameOverlayEvent.Text event;
-//
-//	public DebugInfoEventJS(RenderGameOverlayEvent.Text e)
-//	{
-//		event = e;
-//	}
-
-	public boolean getShowDebug()
-	{
+public class DebugInfoEventJS extends EventJS {
+	public final List<String> lines;
+	
+	public DebugInfoEventJS(List<String> lines) {
+		this.lines = lines;
+	}
+	
+	public boolean getShowDebug() {
 		return MinecraftClient.getInstance().options.debugEnabled;
 	}
-
-//	public List<String> getLeft()
-//	{
-//		return event.getLeft();
-//	}
-//
-//	public List<String> getRight()
-//	{
-//		return event.getRight();
-//	}
+	
+	public List<String> getLines() {
+		return lines;
+	}
 }

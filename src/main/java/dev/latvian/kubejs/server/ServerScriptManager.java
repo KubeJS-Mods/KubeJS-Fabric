@@ -23,61 +23,51 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author LatvianModder
  */
-public class ServerScriptManager
-{
+public class ServerScriptManager {
 	public static ServerScriptManager instance;
-
+	
 	public final ScriptManager scriptManager = new ScriptManager(ScriptType.SERVER);
 	public final VirtualKubeJSDataPack virtualDataPackFirst = new VirtualKubeJSDataPack(true);
 	public final VirtualKubeJSDataPack virtualDataPackLast = new VirtualKubeJSDataPack(false);
-
-	public void reloadScripts(ReloadableResourceManagerImpl resourceManager)
-	{
+	
+	public void reloadScripts(ReloadableResourceManagerImpl resourceManager) {
 		scriptManager.unload();
-
+		
 		Map<String, List<Identifier>> packs = new HashMap<>();
-
-		for (Identifier resource : resourceManager.findResources("kubejs", s -> s.endsWith(".js")))
-		{
+		
+		for (Identifier resource : resourceManager.findResources("kubejs", s -> s.endsWith(".js"))) {
 			packs.computeIfAbsent(resource.getNamespace(), s -> new ArrayList<>()).add(resource);
 		}
-
-		for (Map.Entry<String, List<Identifier>> entry : packs.entrySet())
-		{
+		
+		for (Map.Entry<String, List<Identifier>> entry : packs.entrySet()) {
 			ScriptPack pack = new ScriptPack(scriptManager, new ScriptPackInfo(entry.getKey(), "kubejs/"));
-
-			for (Identifier id : entry.getValue())
-			{
+			
+			for (Identifier id : entry.getValue()) {
 				pack.info.scripts.add(new ScriptFileInfo(pack.info, id.getPath().substring(7)));
 			}
-
-			for (ScriptFileInfo fileInfo : pack.info.scripts)
-			{
+			
+			for (ScriptFileInfo fileInfo : pack.info.scripts) {
 				ScriptSource scriptSource = info -> new InputStreamReader(resourceManager.getResource(info.location).getInputStream());
 				Throwable error = fileInfo.preload(scriptSource);
-
-				if (error == null)
-				{
-					if (fileInfo.shouldLoad(FabricLoader.getInstance().getEnvironmentType()))
-					{
+				
+				if (error == null) {
+					if (fileInfo.shouldLoad(FabricLoader.getInstance().getEnvironmentType())) {
 						pack.scripts.add(new ScriptFile(pack, fileInfo, scriptSource));
 					}
-				}
-				else
-				{
+				} else {
 					KubeJS.LOGGER.error("Failed to pre-load script file " + fileInfo.location + ": " + error);
 				}
 			}
-
+			
 			pack.scripts.sort(null);
 			scriptManager.packs.put(pack.info.namespace, pack);
 		}
-
+		
 		//Loading is required in prepare stage to allow virtual data pack overrides
 		virtualDataPackFirst.resetData();
 		ScriptType.SERVER.console.setLineNumber(true);
 		scriptManager.load();
-
+		
 		new DataPackEventJS(virtualDataPackFirst).post(ScriptType.SERVER, KubeJSEvents.SERVER_DATAPACK_FIRST);
 		new DataPackEventJS(virtualDataPackLast).post(ScriptType.SERVER, KubeJSEvents.SERVER_DATAPACK_LAST);
 
@@ -95,7 +85,7 @@ public class ServerScriptManager
 			}
 		}
 		 */
-
+		
 		ScriptType.SERVER.console.setLineNumber(false);
 		ScriptType.SERVER.console.info("Scripts loaded");
 
@@ -105,20 +95,18 @@ public class ServerScriptManager
 			minecraftServer.getPlayerList().func_232641_a_(new LiteralText("#" + (i + 1) + ": ").func_240699_a_(Formatting.DARK_RED).func_230529_a_(new LiteralText(scriptManager.errors.get(i)).func_240699_a_(Formatting.RED)), ChatType.CHAT, Util.NIL_UUID);
 		}
 		 */
-
+		
 		Map<Identifier, RecipeTypeJS> typeMap = new HashMap<>();
 		RegisterRecipeHandlersEvent.EVENT.invoker().accept(new RegisterRecipeHandlersEvent(typeMap));
 		RecipeEventJS.instance = new RecipeEventJS(typeMap);
 	}
-
-	public ResourceReloadListener createReloadListener()
-	{
+	
+	public ResourceReloadListener createReloadListener() {
 		return (stage, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor) -> {
-			if (!(resourceManager instanceof ReloadableResourceManagerImpl))
-			{
+			if (!(resourceManager instanceof ReloadableResourceManagerImpl)) {
 				throw new RuntimeException("Resource manager is not ReloadableResourceManagerImpl, KubeJS will not work! Unsupported resource manager class: " + resourceManager.getClass());
 			}
-
+			
 			reloadScripts((ReloadableResourceManagerImpl) resourceManager);
 			return CompletableFuture.supplyAsync(Object::new, backgroundExecutor).thenCompose(stage::whenPrepared).thenAcceptAsync(o -> {}, gameExecutor);
 		};

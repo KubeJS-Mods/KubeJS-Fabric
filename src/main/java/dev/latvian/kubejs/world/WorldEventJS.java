@@ -11,33 +11,27 @@ import javax.annotation.Nullable;
 /**
  * @author LatvianModder
  */
-public abstract class WorldEventJS extends EventJS
-{
+public abstract class WorldEventJS extends EventJS {
 	public abstract WorldJS getWorld();
-
+	
 	@Nullable
-	public ServerJS getServer()
-	{
+	public ServerJS getServer() {
 		return getWorld().getServer();
 	}
-
-	protected WorldJS worldOf(World world)
-	{
+	
+	protected WorldJS worldOf(World world) {
 		return UtilsJS.getWorld(world);
 	}
-
-	protected WorldJS worldOf(Entity entity)
-	{
+	
+	protected WorldJS worldOf(Entity entity) {
 		return worldOf(entity.world);
 	}
-
-	public final boolean post(String id)
-	{
+	
+	public final boolean post(String id) {
 		return post(getWorld().getSide(), id);
 	}
-
-	public final boolean post(String id, String sub)
-	{
+	
+	public final boolean post(String id, String sub) {
 		return post(getWorld().getSide(), id, sub);
 	}
 }

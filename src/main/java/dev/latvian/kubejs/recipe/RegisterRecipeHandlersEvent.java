@@ -11,23 +11,19 @@ import java.util.function.Consumer;
 /**
  * @author LatvianModder
  */
-public class RegisterRecipeHandlersEvent
-{
+public class RegisterRecipeHandlersEvent {
 	public static final Event<Consumer<RegisterRecipeHandlersEvent>> EVENT = EventFactory.createArrayBacked(Consumer.class, consumers -> event -> {
-		for (Consumer<RegisterRecipeHandlersEvent> consumer : consumers)
-		{
+		for (Consumer<RegisterRecipeHandlersEvent> consumer : consumers) {
 			consumer.accept(event);
 		}
 	});
 	private final Map<Identifier, RecipeTypeJS> map;
-
-	public RegisterRecipeHandlersEvent(Map<Identifier, RecipeTypeJS> m)
-	{
+	
+	public RegisterRecipeHandlersEvent(Map<Identifier, RecipeTypeJS> m) {
 		map = m;
 	}
-
-	public void register(RecipeTypeJS type)
-	{
+	
+	public void register(RecipeTypeJS type) {
 		map.put(UtilsJS.getMCID(type.toString()), type);
 	}
 }

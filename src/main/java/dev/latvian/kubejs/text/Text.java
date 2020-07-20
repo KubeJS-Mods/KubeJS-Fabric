@@ -16,89 +16,64 @@ import java.util.*;
 /**
  * @author LatvianModder
  */
-public abstract class Text implements Iterable<Text>, Comparable<Text>, JsonSerializable, WrappedJS
-{
-	public static Text of(@Nullable Object o)
-	{
+public abstract class Text implements Iterable<Text>, Comparable<Text>, JsonSerializable, WrappedJS {
+	public static Text of(@Nullable Object o) {
 		return ofWrapped(UtilsJS.wrap(o, JSObjectType.ANY));
 	}
-
-	private static Text ofWrapped(@Nullable Object o)
-	{
-		if (o == null)
-		{
+	
+	private static Text ofWrapped(@Nullable Object o) {
+		if (o == null) {
 			return new TextString("null");
-		}
-		else if (o instanceof CharSequence || o instanceof Number || o instanceof Character)
-		{
+		} else if (o instanceof CharSequence || o instanceof Number || o instanceof Character) {
 			return new TextString(o.toString());
-		}
-		else if (o instanceof Enum)
-		{
+		} else if (o instanceof Enum) {
 			return new TextString(((Enum) o).name());
-		}
-		else if (o instanceof Text)
-		{
+		} else if (o instanceof Text) {
 			return (Text) o;
-		}
-		else if (o instanceof ListJS)
-		{
+		} else if (o instanceof ListJS) {
 			Text text = new TextString("");
-
-			for (Object e1 : (ListJS) o)
-			{
+			
+			for (Object e1 : (ListJS) o) {
 				text.append(ofWrapped(e1));
 			}
-
+			
 			return text;
-		}
-		else if (o instanceof MapJS)
-		{
+		} else if (o instanceof MapJS) {
 			MapJS map = (MapJS) o;
-
-			if (map.containsKey("text") || map.containsKey("translate"))
-			{
+			
+			if (map.containsKey("text") || map.containsKey("translate")) {
 				Text text;
-
-				if (map.containsKey("text"))
-				{
+				
+				if (map.containsKey("text")) {
 					text = new TextString(map.get("text").toString());
-				}
-				else
-				{
+				} else {
 					Object[] with;
-
-					if (map.containsKey("with"))
-					{
+					
+					if (map.containsKey("with")) {
 						ListJS a = map.getOrNewList("with");
 						with = new Object[a.size()];
 						int i = 0;
-
-						for (Object e1 : a)
-						{
+						
+						for (Object e1 : a) {
 							with[i] = e1;
-
-							if (with[i] instanceof MapJS || with[i] instanceof ListJS)
-							{
+							
+							if (with[i] instanceof MapJS || with[i] instanceof ListJS) {
 								with[i] = ofWrapped(e1);
 							}
-
+							
 							i++;
 						}
-					}
-					else
-					{
+					} else {
 						with = new Object[0];
 					}
-
+					
 					text = new TextTranslate(map.get("translate").toString(), with);
 				}
-
-				if (map.containsKey("color"))
-				{
+				
+				if (map.containsKey("color")) {
 					text.color = TextColor.MAP.get(map.get("color").toString());
 				}
-
+				
 				text.bold = map.containsKey("bold") ? (Boolean) map.get("bold") : null;
 				text.italic = map.containsKey("italic") ? (Boolean) map.get("italic") : null;
 				text.underlined = map.containsKey("underlined") ? (Boolean) map.get("underlined") : null;
@@ -107,50 +82,42 @@ public abstract class Text implements Iterable<Text>, Comparable<Text>, JsonSeri
 				text.insertion = map.containsKey("insertion") ? map.get("insertion").toString() : null;
 				text.click = map.containsKey("click") ? map.get("click").toString() : null;
 				text.hover = map.containsKey("hover") ? ofWrapped(map.get("hover")) : null;
-
+				
 				text.siblings = null;
-
-				if (map.containsKey("extra"))
-				{
-					for (Object e : map.getOrNewList("extra"))
-					{
+				
+				if (map.containsKey("extra")) {
+					for (Object e : map.getOrNewList("extra")) {
 						text.append(ofWrapped(e));
 					}
 				}
 				return text;
 			}
 		}
-
+		
 		return new TextString(o.toString());
 	}
-
-	public static Text join(Text separator, Iterable<Text> texts)
-	{
+	
+	public static Text join(Text separator, Iterable<Text> texts) {
 		Text text = new TextString("");
 		boolean first = true;
-
-		for (Text t : texts)
-		{
-			if (first)
-			{
+		
+		for (Text t : texts) {
+			if (first) {
 				first = false;
-			}
-			else
-			{
+			} else {
 				text.append(separator);
 			}
-
+			
 			text.append(t);
 		}
-
+		
 		return text;
 	}
-
-	public static Text read(PacketByteBuf buffer)
-	{
+	
+	public static Text read(PacketByteBuf buffer) {
 		return Text.of(buffer.readText());
 	}
-
+	
 	private TextColor color;
 	private Boolean bold;
 	private Boolean italic;
@@ -161,70 +128,56 @@ public abstract class Text implements Iterable<Text>, Comparable<Text>, JsonSeri
 	private String click;
 	private Text hover;
 	private List<Text> siblings;
-
+	
 	public abstract MutableText rawComponent();
-
+	
 	public abstract Text rawCopy();
-
+	
 	@Override
 	public abstract JsonElement toJson();
-
-	public final net.minecraft.text.Text component()
-	{
+	
+	public final net.minecraft.text.Text component() {
 		MutableText component = rawComponent();
-
-		if (color != null)
-		{
+		
+		if (color != null) {
 			component.styled(style -> style.withFormatting(color.textFormatting));
 		}
-
+		
 		component.styled(style -> style.withBold(bold));
 		component.styled(style -> style.withItalic(italic));
 		component.styled(style -> style.withFormatting(underlined ? new Formatting[]{Formatting.UNDERLINE} : new Formatting[0]));
 		component.styled(style -> style.withFormatting(strikethrough ? new Formatting[]{Formatting.STRIKETHROUGH} : new Formatting[0]));
 		component.styled(style -> style.withFormatting(obfuscated ? new Formatting[]{Formatting.OBFUSCATED} : new Formatting[0]));
 		component.styled(style -> style.withInsertion(insertion));
-
-		if (click != null)
-		{
-			if (click.startsWith("command:"))
-			{
+		
+		if (click != null) {
+			if (click.startsWith("command:")) {
 				component.styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, click.substring(8))));
-			}
-			else if (click.startsWith("suggest_command:"))
-			{
+			} else if (click.startsWith("suggest_command:")) {
 				component.styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, click.substring(16))));
-			}
-			else if (click.startsWith("copy:"))
-			{
+			} else if (click.startsWith("copy:")) {
 				component.styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, click.substring(5))));
-			}
-			else
-			{
+			} else {
 				component.styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, click)));
 			}
 		}
-
-		if (hover != null)
-		{
+		
+		if (hover != null) {
 			component.styled(style -> style.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover.component())));
 		}
-
-		for (Text text : getSiblings())
-		{
+		
+		for (Text text : getSiblings()) {
 			component.append(text.component());
 		}
-
+		
 		return component;
 	}
-
-	public final String getString()
-	{
+	
+	public final String getString() {
 		return component().getString();
 	}
-
-	public final Text copy()
-	{
+	
+	public final Text copy() {
 		Text t = rawCopy();
 		t.color = color;
 		t.bold = bold;
@@ -235,321 +188,261 @@ public abstract class Text implements Iterable<Text>, Comparable<Text>, JsonSeri
 		t.insertion = insertion;
 		t.click = click;
 		t.hover = hover == null ? null : hover.copy();
-
-		for (Text child : getSiblings())
-		{
+		
+		for (Text child : getSiblings()) {
 			t.append(child.copy());
 		}
-
+		
 		return t;
 	}
-
-	public final JsonObject getPropertiesAsJson()
-	{
+	
+	public final JsonObject getPropertiesAsJson() {
 		JsonObject json = new JsonObject();
-
-		if (color != null)
-		{
+		
+		if (color != null) {
 			json.addProperty("color", color.textFormatting.getName());
 		}
-
-		if (bold != null)
-		{
+		
+		if (bold != null) {
 			json.addProperty("bold", bold);
 		}
-
-		if (italic != null)
-		{
+		
+		if (italic != null) {
 			json.addProperty("italic", italic);
 		}
-
-		if (underlined != null)
-		{
+		
+		if (underlined != null) {
 			json.addProperty("underlined", underlined);
 		}
-
-		if (strikethrough != null)
-		{
+		
+		if (strikethrough != null) {
 			json.addProperty("strikethrough", strikethrough);
 		}
-
-		if (obfuscated != null)
-		{
+		
+		if (obfuscated != null) {
 			json.addProperty("obfuscated", obfuscated);
 		}
-
-		if (insertion != null)
-		{
+		
+		if (insertion != null) {
 			json.addProperty("insertion", insertion);
 		}
-
-		if (click != null)
-		{
+		
+		if (click != null) {
 			json.addProperty("click", click);
 		}
-
-		if (hover != null)
-		{
+		
+		if (hover != null) {
 			json.add("hover", hover.toJson());
 		}
-
-		if (!getSiblings().isEmpty())
-		{
+		
+		if (!getSiblings().isEmpty()) {
 			JsonArray array = new JsonArray();
-
-			for (Text child : getSiblings())
-			{
+			
+			for (Text child : getSiblings()) {
 				array.add(child.toJson());
 			}
-
+			
 			json.add("extra", array);
 		}
-
+		
 		return json;
 	}
-
+	
 	@Override
-	public final Iterator<Text> iterator()
-	{
-		if (getSiblings().isEmpty())
-		{
+	public final Iterator<Text> iterator() {
+		if (getSiblings().isEmpty()) {
 			return Collections.singleton(this).iterator();
 		}
-
+		
 		List<Text> list = new ArrayList<>();
 		list.add(this);
-
-		for (Text child : getSiblings())
-		{
-			for (Text part : child)
-			{
+		
+		for (Text child : getSiblings()) {
+			for (Text part : child) {
 				list.add(part);
 			}
 		}
-
+		
 		return list.iterator();
 	}
-
-	public final Text color(TextColor value)
-	{
+	
+	public final Text color(TextColor value) {
 		color = value;
 		return this;
 	}
-
-	public final Text black()
-	{
+	
+	public final Text black() {
 		return color(TextColor.BLACK);
 	}
-
-	public final Text darkBlue()
-	{
+	
+	public final Text darkBlue() {
 		return color(TextColor.DARK_BLUE);
 	}
-
-	public final Text darkGreen()
-	{
+	
+	public final Text darkGreen() {
 		return color(TextColor.DARK_GREEN);
 	}
-
-	public final Text darkAqua()
-	{
+	
+	public final Text darkAqua() {
 		return color(TextColor.DARK_AQUA);
 	}
-
-	public final Text darkRed()
-	{
+	
+	public final Text darkRed() {
 		return color(TextColor.DARK_RED);
 	}
-
-	public final Text darkPurple()
-	{
+	
+	public final Text darkPurple() {
 		return color(TextColor.DARK_PURPLE);
 	}
-
-	public final Text gold()
-	{
+	
+	public final Text gold() {
 		return color(TextColor.GOLD);
 	}
-
-	public final Text gray()
-	{
+	
+	public final Text gray() {
 		return color(TextColor.GRAY);
 	}
-
-	public final Text darkGray()
-	{
+	
+	public final Text darkGray() {
 		return color(TextColor.DARK_GRAY);
 	}
-
-	public final Text blue()
-	{
+	
+	public final Text blue() {
 		return color(TextColor.BLUE);
 	}
-
-	public final Text green()
-	{
+	
+	public final Text green() {
 		return color(TextColor.GREEN);
 	}
-
-	public final Text aqua()
-	{
+	
+	public final Text aqua() {
 		return color(TextColor.AQUA);
 	}
-
-	public final Text red()
-	{
+	
+	public final Text red() {
 		return color(TextColor.RED);
 	}
-
-	public final Text lightPurple()
-	{
+	
+	public final Text lightPurple() {
 		return color(TextColor.LIGHT_PURPLE);
 	}
-
-	public final Text yellow()
-	{
+	
+	public final Text yellow() {
 		return color(TextColor.YELLOW);
 	}
-
-	public final Text white()
-	{
+	
+	public final Text white() {
 		return color(TextColor.WHITE);
 	}
-
-	public final Text bold(@Nullable Boolean value)
-	{
+	
+	public final Text bold(@Nullable Boolean value) {
 		bold = value;
 		return this;
 	}
-
-	public final Text bold()
-	{
+	
+	public final Text bold() {
 		return bold(true);
 	}
-
-	public final Text italic(@Nullable Boolean value)
-	{
+	
+	public final Text italic(@Nullable Boolean value) {
 		italic = value;
 		return this;
 	}
-
-	public final Text italic()
-	{
+	
+	public final Text italic() {
 		return italic(true);
 	}
-
-	public final Text underlined(@Nullable Boolean value)
-	{
+	
+	public final Text underlined(@Nullable Boolean value) {
 		underlined = value;
 		return this;
 	}
-
-	public final Text underlined()
-	{
+	
+	public final Text underlined() {
 		return underlined(true);
 	}
-
-	public final Text strikethrough(@Nullable Boolean value)
-	{
+	
+	public final Text strikethrough(@Nullable Boolean value) {
 		strikethrough = value;
 		return this;
 	}
-
-	public final Text strikethrough()
-	{
+	
+	public final Text strikethrough() {
 		return strikethrough(true);
 	}
-
-	public final Text obfuscated(@Nullable Boolean value)
-	{
+	
+	public final Text obfuscated(@Nullable Boolean value) {
 		obfuscated = value;
 		return this;
 	}
-
-	public final Text obfuscated()
-	{
+	
+	public final Text obfuscated() {
 		return obfuscated(true);
 	}
-
-	public final Text insertion(@Nullable String value)
-	{
+	
+	public final Text insertion(@Nullable String value) {
 		insertion = value;
 		return this;
 	}
-
-	public final Text click(@Nullable String value)
-	{
+	
+	public final Text click(@Nullable String value) {
 		click = value;
 		return this;
 	}
-
-	public final Text hover(Object text)
-	{
+	
+	public final Text hover(Object text) {
 		hover = of(text);
 		return this;
 	}
-
-	public final Text append(Object sibling)
-	{
-		if (siblings == null)
-		{
+	
+	public final Text append(Object sibling) {
+		if (siblings == null) {
 			siblings = new LinkedList<>();
 		}
-
+		
 		siblings.add(of(sibling));
 		return this;
 	}
-
-	public final List<Text> getSiblings()
-	{
+	
+	public final List<Text> getSiblings() {
 		return siblings == null ? Collections.emptyList() : siblings;
 	}
-
-	public final boolean hasSiblings()
-	{
+	
+	public final boolean hasSiblings() {
 		return siblings != null && !siblings.isEmpty();
 	}
-
+	
 	@Override
-	public boolean equals(Object obj)
-	{
-		if (obj == this)
-		{
+	public boolean equals(Object obj) {
+		if (obj == this) {
 			return true;
-		}
-		else if (obj instanceof Text)
-		{
+		} else if (obj instanceof Text) {
 			Text t = (Text) obj;
-
-			if (color == t.color && bold == t.bold && italic == t.italic && underlined == t.underlined && strikethrough == t.strikethrough && obfuscated == t.obfuscated)
-			{
+			
+			if (color == t.color && bold == t.bold && italic == t.italic && underlined == t.underlined && strikethrough == t.strikethrough && obfuscated == t.obfuscated) {
 				return Objects.equals(insertion, t.insertion) && Objects.equals(click, t.click) && Objects.equals(hover, t.hover) && Objects.equals(siblings, t.siblings);
 			}
 		}
-
+		
 		return false;
 	}
-
+	
 	@Override
-	public int hashCode()
-	{
+	public int hashCode() {
 		return Objects.hash(color, bold, italic, underlined, strikethrough, obfuscated, insertion, click, hover, siblings);
 	}
-
+	
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return component().getString();
 	}
-
+	
 	@Override
-	public int compareTo(Text o)
-	{
+	public int compareTo(Text o) {
 		return toString().compareTo(toString());
 	}
-
-	public void write(PacketByteBuf buffer)
-	{
+	
+	public void write(PacketByteBuf buffer) {
 		buffer.writeText(component());
 	}
 }

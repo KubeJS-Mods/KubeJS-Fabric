@@ -9,10 +9,8 @@ import net.minecraft.server.world.ServerWorld;
 /**
  * @author LatvianModder
  */
-public class KubeJSWorldEventHandler
-{
-	public void init()
-	{
+public class KubeJSWorldEventHandler {
+	public void init() {
 		// TODO
 //		MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, this::worldLoaded);
 //		MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, this::worldUnloaded);
@@ -45,11 +43,9 @@ public class KubeJSWorldEventHandler
 //			ServerJS.instance.updateWorldList();
 //		}
 //	}
-
-	private void worldTick(ServerWorld world)
-	{
-		if (!world.isClient)
-		{
+	
+	private void worldTick(ServerWorld world) {
+		if (!world.isClient) {
 			WorldJS w = ServerJS.instance.getWorld(world);
 			new SimpleWorldEventJS(w).post(ScriptType.SERVER, KubeJSEvents.WORLD_TICK);
 		}

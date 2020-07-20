@@ -17,6 +17,6 @@ public interface ItemDestroyCallback {
 			}
 		};
 	});
-
+	
 	void destroy(PlayerEntity player, @Nonnull ItemStack original, @Nullable Hand hand);
 }

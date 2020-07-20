@@ -16,8 +16,7 @@ import java.util.function.Supplier;
 /**
  * @author LatvianModder
  */
-public class FoodBuilder
-{
+public class FoodBuilder {
 	private int hunger;
 	private float saturation;
 	private boolean meat;
@@ -25,76 +24,64 @@ public class FoodBuilder
 	private boolean fastToEat;
 	private final List<Pair<Supplier<StatusEffectInstance>, Float>> effects = Lists.newArrayList();
 	public Consumer<ItemFoodEatenEventJS> eaten;
-
-	public FoodBuilder hunger(int h)
-	{
+	
+	public FoodBuilder hunger(int h) {
 		hunger = h;
 		return this;
 	}
-
-	public FoodBuilder saturation(float s)
-	{
+	
+	public FoodBuilder saturation(float s) {
 		saturation = s;
 		return this;
 	}
-
-	public FoodBuilder meat()
-	{
+	
+	public FoodBuilder meat() {
 		meat = true;
 		return this;
 	}
-
-	public FoodBuilder alwaysEdible()
-	{
+	
+	public FoodBuilder alwaysEdible() {
 		alwaysEdible = true;
 		return this;
 	}
-
-	public FoodBuilder fastToEat()
-	{
+	
+	public FoodBuilder fastToEat() {
 		fastToEat = true;
 		return this;
 	}
-
-	public FoodBuilder effect(@ID String potion, int duration, int amplifier, float probability)
-	{
+	
+	public FoodBuilder effect(@ID String potion, int duration, int amplifier, float probability) {
 		Identifier id = UtilsJS.getMCID(potion);
 		effects.add(Pair.of(() -> new StatusEffectInstance(Registry.STATUS_EFFECT.get(id), duration, amplifier), probability));
 		return this;
 	}
-
-	public FoodBuilder eaten(Consumer<ItemFoodEatenEventJS> e)
-	{
+	
+	public FoodBuilder eaten(Consumer<ItemFoodEatenEventJS> e) {
 		eaten = e;
 		return this;
 	}
-
-	public FoodComponent build()
-	{
+	
+	public FoodComponent build() {
 		FoodComponent.Builder b = new FoodComponent.Builder();
 		b.hunger(hunger);
 		b.saturationModifier(saturation);
-
-		if (meat)
-		{
+		
+		if (meat) {
 			b.meat();
 		}
-
-		if (alwaysEdible)
-		{
+		
+		if (alwaysEdible) {
 			b.alwaysEdible();
 		}
-
-		if (fastToEat)
-		{
+		
+		if (fastToEat) {
 			b.snack();
 		}
-
-		for (Pair<Supplier<StatusEffectInstance>, Float> effect : effects)
-		{
+		
+		for (Pair<Supplier<StatusEffectInstance>, Float> effect : effects) {
 			b.statusEffect(effect.getKey().get(), effect.getRight());
 		}
-
+		
 		return b.build();
 	}
 }

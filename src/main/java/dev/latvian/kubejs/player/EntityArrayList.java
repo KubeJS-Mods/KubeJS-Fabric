@@ -23,142 +23,114 @@ import java.util.function.Predicate;
 /**
  * @author LatvianModder
  */
-public class EntityArrayList extends ArrayList<EntityJS> implements MessageSender
-{
+public class EntityArrayList extends ArrayList<EntityJS> implements MessageSender {
 	private final WorldJS world;
-
-	public EntityArrayList(WorldJS w, int size)
-	{
+	
+	public EntityArrayList(WorldJS w, int size) {
 		super(size);
 		world = w;
 	}
-
-	public EntityArrayList(WorldJS w, Iterable<? extends Entity> c)
-	{
+	
+	public EntityArrayList(WorldJS w, Iterable<? extends Entity> c) {
 		this(w, c instanceof Collection ? ((Collection) c).size() : 10);
-
-		for (Entity entity : c)
-		{
+		
+		for (Entity entity : c) {
 			add(world.getEntity(entity));
 		}
 	}
-
-	public WorldJS getWorld()
-	{
+	
+	public WorldJS getWorld() {
 		return world;
 	}
-
+	
 	@Override
-	public Text getName()
-	{
+	public Text getName() {
 		return new TextString("EntityList");
 	}
-
+	
 	@Override
-	public Text getDisplayName()
-	{
+	public Text getDisplayName() {
 		return new TextString(toString()).lightPurple();
 	}
-
+	
 	@Override
-	public void tell(Object message)
-	{
+	public void tell(Object message) {
 		net.minecraft.text.Text component = Text.of(message).component();
-
-		for (EntityJS entity : this)
-		{
+		
+		for (EntityJS entity : this) {
 			entity.minecraftEntity.sendSystemMessage(component, Util.NIL_UUID);
 		}
 	}
-
+	
 	@Override
-	public void setStatusMessage(Object message)
-	{
+	public void setStatusMessage(Object message) {
 		net.minecraft.text.Text component = Text.of(message).component();
-
-		for (EntityJS entity : this)
-		{
-			if (entity.minecraftEntity instanceof ServerPlayerEntity)
-			{
+		
+		for (EntityJS entity : this) {
+			if (entity.minecraftEntity instanceof ServerPlayerEntity) {
 				((ServerPlayerEntity) entity.minecraftEntity).sendMessage(component, true);
 			}
 		}
 	}
-
+	
 	@Override
-	public int runCommand(String command)
-	{
+	public int runCommand(String command) {
 		int m = 0;
-
-		for (EntityJS entity : this)
-		{
+		
+		for (EntityJS entity : this) {
 			m = Math.max(m, entity.runCommand(command));
 		}
-
+		
 		return m;
 	}
-
-	public void kill()
-	{
-		for (EntityJS entity : this)
-		{
+	
+	public void kill() {
+		for (EntityJS entity : this) {
 			entity.kill();
 		}
 	}
-
-	public void playSound(@ID String id, float volume, float pitch)
-	{
+	
+	public void playSound(@ID String id, float volume, float pitch) {
 		SoundEvent event = Registry.SOUND_EVENT.get(UtilsJS.getMCID(id));
-
-		if (event != null)
-		{
-			for (EntityJS entity : this)
-			{
+		
+		if (event != null) {
+			for (EntityJS entity : this) {
 				entity.minecraftEntity.world.playSound(null, entity.getX(), entity.getY(), entity.getZ(), event, entity.minecraftEntity.getSoundCategory(), volume, pitch);
 			}
 		}
 	}
-
-	public void playSound(@ID String id)
-	{
+	
+	public void playSound(@ID String id) {
 		playSound(id, 1F, 1F);
 	}
-
-	public EntityArrayList filter(Predicate<EntityJS> filter)
-	{
-		if (isEmpty())
-		{
+	
+	public EntityArrayList filter(Predicate<EntityJS> filter) {
+		if (isEmpty()) {
 			return this;
 		}
-
+		
 		EntityArrayList list = new EntityArrayList(world, size());
-
-		for (EntityJS entity : this)
-		{
-			if (filter.test(entity))
-			{
+		
+		for (EntityJS entity : this) {
+			if (filter.test(entity)) {
 				list.add(entity);
 			}
 		}
-
+		
 		return list;
 	}
-
-	public void sendData(String channel, @Nullable Object data)
-	{
+	
+	public void sendData(String channel, @Nullable Object data) {
 		CompoundTag nbt = MapJS.nbt(data);
-
-		for (EntityJS entity : this)
-		{
-			if (entity instanceof PlayerJS)
-			{
+		
+		for (EntityJS entity : this) {
+			if (entity instanceof PlayerJS) {
 				((PlayerJS) entity).sendData(channel, nbt);
 			}
 		}
 	}
-
-	public EntityJS getFirst()
-	{
+	
+	public EntityJS getFirst() {
 		return get(0);
 	}
 }

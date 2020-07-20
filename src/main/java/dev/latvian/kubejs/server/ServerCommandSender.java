@@ -11,10 +11,8 @@ import net.minecraft.util.math.Vec3d;
 /**
  * @author LatvianModder
  */
-public class ServerCommandSender extends ServerCommandSource
-{
-	public ServerCommandSender(ServerJS w)
-	{
+public class ServerCommandSender extends ServerCommandSource {
+	public ServerCommandSender(ServerJS w) {
 		super(CommandOutput.DUMMY, Vec3d.ZERO, Vec2f.ZERO, (ServerWorld) w.getOverworld().minecraftWorld, 4, "Server", new LiteralText("Server"), w.minecraftServer, null, true, (context, success, result) -> {}, EntityAnchorArgumentType.EntityAnchor.FEET);
 	}
 }

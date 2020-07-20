@@ -20,15 +20,13 @@ import java.util.Map;
  * @author LatvianModder
  */
 @Mixin(RecipeManager.class)
-public abstract class RecipeManagerMixin implements RecipeManagerKJS
-{
+public abstract class RecipeManagerMixin implements RecipeManagerKJS {
 	@Inject(method = "apply", at = @At("HEAD"), cancellable = true)
-	private void customRecipesHead(Map<Identifier, JsonObject> map, ResourceManager resourceManager, Profiler profiler, CallbackInfo ci)
-	{
+	private void customRecipesHead(Map<Identifier, JsonObject> map, ResourceManager resourceManager, Profiler profiler, CallbackInfo ci) {
 		customRecipesKJS(map);
 		ci.cancel();
 	}
-
+	
 	@Override
 	@Accessor("recipes")
 	public abstract void setRecipesKJS(Map<RecipeType<?>, Map<Identifier, Recipe<?>>> map);

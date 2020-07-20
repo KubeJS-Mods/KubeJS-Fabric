@@ -9,15 +9,13 @@ import java.util.Map;
 /**
  * @author LatvianModder
  */
-public class MaterialListJS
-{
+public class MaterialListJS {
 	public static final MaterialListJS INSTANCE = new MaterialListJS();
-
+	
 	public final Map<String, MaterialJS> map;
 	public final MaterialJS air;
-
-	private MaterialListJS()
-	{
+	
+	private MaterialListJS() {
 		map = new HashMap<>();
 		air = add("air", Material.AIR, BlockSoundGroup.STONE);
 		add("wood", Material.WOOD, BlockSoundGroup.WOOD);
@@ -48,34 +46,28 @@ public class MaterialListJS
 		add("berry_bush", Material.PLANT, BlockSoundGroup.SWEET_BERRY_BUSH);
 		add("lantern", Material.METAL, BlockSoundGroup.LANTERN);
 	}
-
-	public MaterialJS add(MaterialJS m)
-	{
+	
+	public MaterialJS add(MaterialJS m) {
 		map.put(m.getId(), m);
 		return m;
 	}
-
-	public MaterialJS add(String s, Material m, BlockSoundGroup e)
-	{
+	
+	public MaterialJS add(String s, Material m, BlockSoundGroup e) {
 		return add(new MaterialJS(s, m, e));
 	}
-
-	public MaterialJS get(String id)
-	{
+	
+	public MaterialJS get(String id) {
 		MaterialJS m = map.get(id);
 		return m == null ? air : m;
 	}
-
-	public MaterialJS get(Material minecraftMaterial)
-	{
-		for (MaterialJS materialJS : map.values())
-		{
-			if (materialJS.getMinecraftMaterial() == minecraftMaterial)
-			{
+	
+	public MaterialJS get(Material minecraftMaterial) {
+		for (MaterialJS materialJS : map.values()) {
+			if (materialJS.getMinecraftMaterial() == minecraftMaterial) {
 				return materialJS;
 			}
 		}
-
+		
 		return air;
 	}
 }

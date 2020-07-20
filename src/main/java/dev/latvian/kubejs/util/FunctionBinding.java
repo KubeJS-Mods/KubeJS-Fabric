@@ -7,40 +7,34 @@ import javax.annotation.Nullable;
 /**
  * @author LatvianModder
  */
-public class FunctionBinding extends AbstractJSObject implements WrappedJS
-{
+public class FunctionBinding extends AbstractJSObject implements WrappedJS {
 	@FunctionalInterface
-	public interface Handler
-	{
+	public interface Handler {
 		@Nullable
 		Object call(Object[] args);
 	}
-
+	
 	private Handler handler;
-
-	public FunctionBinding(Handler h)
-	{
+	
+	public FunctionBinding(Handler h) {
 		handler = h;
 	}
-
-	public FunctionBinding(Runnable noArgFunction)
-	{
+	
+	public FunctionBinding(Runnable noArgFunction) {
 		handler = args -> {
 			noArgFunction.run();
 			return null;
 		};
 	}
-
+	
 	@Override
 	@Nullable
-	public Object call(Object thiz, Object... args)
-	{
+	public Object call(Object thiz, Object... args) {
 		return handler.call(args);
 	}
-
+	
 	@Override
-	public boolean isFunction()
-	{
+	public boolean isFunction() {
 		return true;
 	}
 }

@@ -6,10 +6,8 @@ import net.fabricmc.api.ModInitializer;
 /**
  * @author LatvianModder
  */
-public class KubeJSDocs implements ModInitializer
-{
-	public static void documentation(DocumentationEvent event)
-	{
+public class KubeJSDocs implements ModInitializer {
+	public static void documentation(DocumentationEvent event) {
 		event.type(Object.class)
 				.field("class", f -> f
 						.type(Class.class)
@@ -29,17 +27,16 @@ public class KubeJSDocs implements ModInitializer
 						.comment("Returns a string representation of the object, useful for logging")
 				)
 		;
-
+		
 		event.type(EventJS.class)
 				.method("cancel", m -> m
 						.comment("Stop event")
 				)
 		;
 	}
-
+	
 	@Override
-	public void onInitialize()
-	{
+	public void onInitialize() {
 		DocumentationEvent.EVENT.register(KubeJSDocs::documentation);
 	}
 }

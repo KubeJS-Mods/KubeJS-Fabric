@@ -17,144 +17,118 @@ import java.util.List;
 /**
  * @author LatvianModder
  */
-public abstract class RecipeJS
-{
+public abstract class RecipeJS {
 	public Identifier id;
 	public RecipeTypeJS type;
 	public JsonObject json = null;
 	public Recipe<?> originalRecipe = null;
 	public final List<IngredientJS> inputItems = new ArrayList<>(1);
 	public final List<ItemStackJS> outputItems = new ArrayList<>(1);
-
+	
 	public abstract void create(ListJS args);
-
+	
 	public abstract void deserialize();
-
+	
 	public abstract void serialize();
-
-	public final void save()
-	{
+	
+	public final void save() {
 		originalRecipe = null;
 	}
-
-	public RecipeJS id(@ID String _id)
-	{
+	
+	public RecipeJS id(@ID String _id) {
 		id = UtilsJS.getMCID(_id);
 		return this;
 	}
-
-	public RecipeJS group(@ID String g)
-	{
+	
+	public RecipeJS group(@ID String g) {
 		setGroup(g);
 		return this;
 	}
-
-	public final boolean hasInput(IngredientJS ingredient, boolean exact)
-	{
-		for (IngredientJS in : inputItems)
-		{
-			if (exact ? in.equals(ingredient) : in.anyStackMatches(ingredient))
-			{
+	
+	public final boolean hasInput(IngredientJS ingredient, boolean exact) {
+		for (IngredientJS in : inputItems) {
+			if (exact ? in.equals(ingredient) : in.anyStackMatches(ingredient)) {
 				return true;
 			}
 		}
-
+		
 		return false;
 	}
-
-	public final boolean replaceInput(IngredientJS i, IngredientJS with, boolean exact)
-	{
+	
+	public final boolean replaceInput(IngredientJS i, IngredientJS with, boolean exact) {
 		boolean changed = false;
-
-		for (int j = 0; j < inputItems.size(); j++)
-		{
-			if (exact ? inputItems.get(j).equals(i) : inputItems.get(j).anyStackMatches(i))
-			{
+		
+		for (int j = 0; j < inputItems.size(); j++) {
+			if (exact ? inputItems.get(j).equals(i) : inputItems.get(j).anyStackMatches(i)) {
 				inputItems.set(j, IngredientJS.of(with));
 				changed = true;
 				save();
 			}
 		}
-
+		
 		return changed;
 	}
-
-	public final boolean hasOutput(IngredientJS ingredient, boolean exact)
-	{
-		for (ItemStackJS out : outputItems)
-		{
-			if (exact ? ingredient.equals(out) : ingredient.test(out))
-			{
+	
+	public final boolean hasOutput(IngredientJS ingredient, boolean exact) {
+		for (ItemStackJS out : outputItems) {
+			if (exact ? ingredient.equals(out) : ingredient.test(out)) {
 				return true;
 			}
 		}
-
+		
 		return false;
 	}
-
-	public final boolean replaceOutput(IngredientJS i, ItemStackJS with, boolean exact)
-	{
+	
+	public final boolean replaceOutput(IngredientJS i, ItemStackJS with, boolean exact) {
 		boolean changed = false;
-
-		for (int j = 0; j < outputItems.size(); j++)
-		{
-			if (exact ? i.equals(outputItems.get(j)) : i.test(outputItems.get(j)))
-			{
+		
+		for (int j = 0; j < outputItems.size(); j++) {
+			if (exact ? i.equals(outputItems.get(j)) : i.test(outputItems.get(j))) {
 				outputItems.set(j, with.getCopy().count(outputItems.get(j).getCount())).chance(outputItems.get(j).getChance());
 				changed = true;
 				save();
 			}
 		}
-
+		
 		return changed;
 	}
-
+	
 	@ID
-	public String getGroup()
-	{
+	public String getGroup() {
 		JsonElement e = json.get("group");
 		return e instanceof JsonPrimitive ? e.getAsString() : "";
 	}
-
-	public void setGroup(@ID String g)
-	{
-		if (g.isEmpty())
-		{
+	
+	public void setGroup(@ID String g) {
+		if (g.isEmpty()) {
 			json.remove("group");
-		}
-		else
-		{
+		} else {
 			json.addProperty("group", g);
 		}
-
+		
 		save();
 	}
-
+	
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return id + "[" + type + "]";
 	}
-
+	
 	@ID
-	public String getId()
-	{
+	public String getId() {
 		return id.toString();
 	}
-
-	public String getMod()
-	{
+	
+	public String getMod() {
 		return id.getNamespace();
 	}
-
-	public String getPath()
-	{
+	
+	public String getPath() {
 		return id.getPath();
 	}
-
+	
 	@ID
-	public String getType()
-	{
+	public String getType() {
 		return type.toString();
 	}
 }

@@ -8,36 +8,30 @@ import net.minecraft.entity.player.PlayerEntity;
 /**
  * @author LatvianModder
  */
-public class ItemPickupEventJS extends PlayerEventJS
-{
+public class ItemPickupEventJS extends PlayerEventJS {
 	public final PlayerEntity player;
 	public final ItemEntity entity;
-
-	public ItemPickupEventJS(PlayerEntity player, ItemEntity entity)
-	{
+	
+	public ItemPickupEventJS(PlayerEntity player, ItemEntity entity) {
 		this.player = player;
 		this.entity = entity;
 	}
-
+	
 	@Override
-	public boolean canCancel()
-	{
+	public boolean canCancel() {
 		return true;
 	}
-
+	
 	@Override
-	public EntityJS getEntity()
-	{
+	public EntityJS getEntity() {
 		return entityOf(player);
 	}
-
-	public EntityJS getItemEntity()
-	{
+	
+	public EntityJS getItemEntity() {
 		return entityOf(entity);
 	}
-
-	public ItemStackJS getItem()
-	{
+	
+	public ItemStackJS getItem() {
 		return ItemStackJS.of(entity.getStack());
 	}
 }

@@ -3,8 +3,7 @@ package dev.latvian.kubejs.core;
 /**
  * @author LatvianModder/
  */
-public interface BlockKJS
-{
+public interface BlockKJS {
 	/* FIXME
 	void setHardnessKJS(float hardness);
 

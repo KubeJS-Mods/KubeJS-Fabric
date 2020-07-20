@@ -8,30 +8,25 @@ import java.util.Set;
 /**
  * @author LatvianModder
  */
-public final class IgnoreNBTIngredientJS implements IngredientJS
-{
+public final class IgnoreNBTIngredientJS implements IngredientJS {
 	private final ItemStackJS item;
-
-	public IgnoreNBTIngredientJS(ItemStackJS i)
-	{
+	
+	public IgnoreNBTIngredientJS(ItemStackJS i) {
 		item = i;
 	}
-
+	
 	@Override
-	public boolean test(ItemStackJS stack)
-	{
+	public boolean test(ItemStackJS stack) {
 		return item.areItemsEqual(stack);
 	}
-
+	
 	@Override
-	public boolean testVanilla(ItemStack stack)
-	{
+	public boolean testVanilla(ItemStack stack) {
 		return item.getItem() == stack.getItem();
 	}
-
+	
 	@Override
-	public Set<ItemStackJS> getStacks()
-	{
+	public Set<ItemStackJS> getStacks() {
 		return item.getStacks();
 	}
 }

@@ -15,60 +15,49 @@ import javax.annotation.Nullable;
  * @author LatvianModder
  */
 @Environment(EnvType.CLIENT)
-public class ClientWrapper
-{
+public class ClientWrapper {
 	@MinecraftClass
-	public MinecraftClient getMinecraft()
-	{
+	public MinecraftClient getMinecraft() {
 		return MinecraftClient.getInstance();
 	}
-
+	
 	@Nullable
-	public ClientWorldJS getWorld()
-	{
+	public ClientWorldJS getWorld() {
 		return ClientWorldJS.instance;
 	}
-
+	
 	@Nullable
-	public ClientPlayerJS getPlayer()
-	{
-		if (ClientWorldJS.instance == null)
-		{
+	public ClientPlayerJS getPlayer() {
+		if (ClientWorldJS.instance == null) {
 			return null;
 		}
-
+		
 		return ClientWorldJS.instance.clientPlayerData.getPlayer();
 	}
-
+	
 	@Nullable
-	public Screen getCurrentGui()
-	{
+	public Screen getCurrentGui() {
 		return getMinecraft().currentScreen;
 	}
-
-	public void setCurrentGui(Screen gui)
-	{
+	
+	public void setCurrentGui(Screen gui) {
 		getMinecraft().openScreen(gui);
 	}
-
-	public void setTitle(String t)
-	{
+	
+	public void setTitle(String t) {
 		ClientProperties.get().title = t.trim();
 		getMinecraft().updateWindowTitle();
 	}
-
-	public String getCurrentWorldName()
-	{
-		if (getMinecraft().getCurrentServerEntry() != null)
-		{
+	
+	public String getCurrentWorldName() {
+		if (getMinecraft().getCurrentServerEntry() != null) {
 			return getMinecraft().getCurrentServerEntry().name;
 		}
-
+		
 		return "Singleplayer";
 	}
-
-	public boolean isKeyDown(int key)
-	{
+	
+	public boolean isKeyDown(int key) {
 		return InputUtil.isKeyPressed(getMinecraft().getWindow().getHandle(), key);
 	}
 }

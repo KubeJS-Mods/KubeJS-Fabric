@@ -9,35 +9,29 @@ import java.util.function.Consumer;
 /**
  * @author LatvianModder
  */
-public class AttachDataEvent<T extends WithAttachedData>
-{
+public class AttachDataEvent<T extends WithAttachedData> {
 	public static final Event<Consumer<AttachDataEvent>> EVENT = EventFactory.createArrayBacked(Consumer.class, consumers -> event -> {
-		for (Consumer<AttachDataEvent> consumer : consumers)
-		{
+		for (Consumer<AttachDataEvent> consumer : consumers) {
 			consumer.accept(event);
 		}
 	});
 	private final DataType<T> type;
 	private final T parent;
-
-	public AttachDataEvent(DataType<T> t, T p)
-	{
+	
+	public AttachDataEvent(DataType<T> t, T p) {
 		type = t;
 		parent = p;
 	}
-
-	public DataType<T> getType()
-	{
+	
+	public DataType<T> getType() {
 		return type;
 	}
-
-	public T getParent()
-	{
+	
+	public T getParent() {
 		return parent;
 	}
-
-	public void add(String id, Object object)
-	{
+	
+	public void add(String id, Object object) {
 		parent.getData().put(id, object);
 	}
 }

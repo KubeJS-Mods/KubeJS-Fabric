@@ -10,25 +10,21 @@ import java.util.function.Supplier;
 /**
  * @author LatvianModder
  */
-public class ItemRegistryEventJS extends EventJS
-{
-	public ItemBuilder create(String name)
-	{
+public class ItemRegistryEventJS extends EventJS {
+	public ItemBuilder create(String name) {
 		ItemBuilder builder = new ItemBuilder(name);
 		KubeJSObjects.ITEMS.put(builder.id, builder);
 		KubeJSObjects.ALL.add(builder);
 		return builder;
 	}
-
+	
 	@Deprecated
-	public BlockItemBuilder createBlockItem(String name)
-	{
+	public BlockItemBuilder createBlockItem(String name) {
 		KubeJS.LOGGER.error("This method is deprecated! Replaced by block registry .item(function(item) { /*chained item functions here*/ }) or .noItem()");
 		return new BlockItemBuilder(name);
 	}
-
-	public Supplier<FoodBuilder> createFood(Supplier<FoodBuilder> builder)
-	{
+	
+	public Supplier<FoodBuilder> createFood(Supplier<FoodBuilder> builder) {
 		return builder;
 	}
 }

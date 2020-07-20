@@ -10,42 +10,35 @@ import javax.annotation.Nullable;
 /**
  * @author LatvianModder
  */
-public class ItemFrameEntityJS extends EntityJS
-{
+public class ItemFrameEntityJS extends EntityJS {
 	private final ItemFrameEntity itemFrameEntity;
-
-	public ItemFrameEntityJS(WorldJS w, ItemFrameEntity e)
-	{
+	
+	public ItemFrameEntityJS(WorldJS w, ItemFrameEntity e) {
 		super(w, e);
 		itemFrameEntity = e;
 	}
-
+	
 	@Override
-	public boolean isFrame()
-	{
+	public boolean isFrame() {
 		return true;
 	}
-
+	
 	@Override
 	@Nullable
-	public ItemStackJS getItem()
-	{
+	public ItemStackJS getItem() {
 		ItemStack stack = itemFrameEntity.getHeldItemStack();
 		return stack.isEmpty() ? null : ItemStackJS.of(stack);
 	}
-
-	public void setItem(Object item)
-	{
+	
+	public void setItem(Object item) {
 		itemFrameEntity.setHeldItemStack(ItemStackJS.of(item).getItemStack());
 	}
-
-	public int getFrameRotation()
-	{
+	
+	public int getFrameRotation() {
 		return itemFrameEntity.getRotation();
 	}
-
-	public void setFrameRotation(int rotation)
-	{
+	
+	public void setFrameRotation(int rotation) {
 		itemFrameEntity.setRotation(rotation);
 	}
 }

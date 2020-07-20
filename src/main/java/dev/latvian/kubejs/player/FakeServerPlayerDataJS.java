@@ -9,26 +9,22 @@ import javax.annotation.Nullable;
 /**
  * @author LatvianModder
  */
-public class FakeServerPlayerDataJS extends ServerPlayerDataJS
-{
+public class FakeServerPlayerDataJS extends ServerPlayerDataJS {
 	public ServerPlayerEntity player;
-
-	public FakeServerPlayerDataJS(ServerJS s, ServerPlayerEntity p)
-	{
+	
+	public FakeServerPlayerDataJS(ServerJS s, ServerPlayerEntity p) {
 		super(s, p.getUuid(), p.getGameProfile().getName(), true);
 		player = p;
 	}
-
+	
 	@Override
-	public WorldJS getOverworld()
-	{
+	public WorldJS getOverworld() {
 		return getServer().getOverworld();
 	}
-
+	
 	@Override
 	@Nullable
-	public ServerPlayerEntity getMinecraftPlayer()
-	{
+	public ServerPlayerEntity getMinecraftPlayer() {
 		return player;
 	}
 }

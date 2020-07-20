@@ -2,7 +2,6 @@ package dev.latvian.kubejs.callback.item;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 
@@ -14,6 +13,6 @@ public interface ItemSmeltCallback {
 			}
 		};
 	});
-
+	
 	void smelt(Inventory inventory, ItemStack result);
 }

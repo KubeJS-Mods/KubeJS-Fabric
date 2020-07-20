@@ -12,12 +12,11 @@ import java.util.Map;
  * @author LatvianModder
  */
 @Mixin(CompoundTag.class)
-public abstract class CompoundNBTMixin implements CompoundNBTKJS
-{
+public abstract class CompoundNBTMixin implements CompoundNBTKJS {
 	@Override
 	@Accessor("tags")
 	public abstract Map<String, Tag> getTagsKJS();
-
+	
 	@Override
 	@Accessor("tags")
 	public abstract void setTagsKJS(Map<String, Tag> map);

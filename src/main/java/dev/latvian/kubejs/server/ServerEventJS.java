@@ -7,11 +7,9 @@ import javax.annotation.Nullable;
 /**
  * @author LatvianModder
  */
-public class ServerEventJS extends EventJS
-{
+public class ServerEventJS extends EventJS {
 	@Nullable
-	public ServerJS getServer()
-	{
+	public ServerJS getServer() {
 		return ServerJS.instance;
 	}
 }

@@ -8,8 +8,7 @@ import java.util.Map;
 /**
  * @author LatvianModder
  */
-public enum TextColor
-{
+public enum TextColor {
 	BLACK("black", '0', 0x000000, Formatting.BLACK),
 	DARK_BLUE("dark_blue", '1', 0x0000AA, Formatting.DARK_BLUE),
 	DARK_GREEN("dark_green", '2', 0x00AA00, Formatting.DARK_GREEN),
@@ -26,24 +25,21 @@ public enum TextColor
 	LIGHT_PURPLE("light_purple", 'd', 0xFF55FF, Formatting.LIGHT_PURPLE),
 	YELLOW("yellow", 'e', 0xFFFF55, Formatting.YELLOW),
 	WHITE("white", 'f', 0xFFFFFF, Formatting.WHITE);
-
+	
 	public static final Map<String, TextColor> MAP = new HashMap<>();
-
-	static
-	{
-		for (TextColor color : values())
-		{
+	
+	static {
+		for (TextColor color : values()) {
 			MAP.put(color.name, color);
 		}
 	}
-
+	
 	public final String name;
 	public final char code;
 	public final int color;
 	public final Formatting textFormatting;
-
-	TextColor(String n, char c, int h, Formatting f)
-	{
+	
+	TextColor(String n, char c, int h, Formatting f) {
 		name = n;
 		code = c;
 		color = 0xFF000000 | h;

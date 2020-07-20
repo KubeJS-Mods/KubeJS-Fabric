@@ -18,85 +18,69 @@ import net.minecraft.world.level.LevelProperties;
 /**
  * @author LatvianModder
  */
-public class ServerWorldJS extends WorldJS
-{
+public class ServerWorldJS extends WorldJS {
 	private final ServerJS server;
-
-	public ServerWorldJS(ServerJS s, ServerWorld w)
-	{
+	
+	public ServerWorldJS(ServerJS s, ServerWorld w) {
 		super(w);
 		server = s;
 	}
-
+	
 	@Override
-	public ScriptType getSide()
-	{
+	public ScriptType getSide() {
 		return ScriptType.SERVER;
 	}
-
+	
 	@Override
-	public ServerJS getServer()
-	{
+	public ServerJS getServer() {
 		return server;
 	}
-
-	public long getSeed()
-	{
+	
+	public long getSeed() {
 		return ((ServerWorld) minecraftWorld).getSeed();
 	}
-
-	public void setTime(long time)
-	{
+	
+	public void setTime(long time) {
 		((LevelProperties) minecraftWorld.getLevelProperties()).method_29034(time);
 	}
-
-	public void setLocalTime(long time)
-	{
+	
+	public void setLocalTime(long time) {
 		((LevelProperties) minecraftWorld.getLevelProperties()).method_29035(time);
 	}
-
+	
 	@Override
-	public ServerPlayerDataJS getPlayerData(PlayerEntity player)
-	{
+	public ServerPlayerDataJS getPlayerData(PlayerEntity player) {
 		ServerPlayerDataJS data = server.playerMap.get(player.getUuid());
-
-		if (data != null)
-		{
+		
+		if (data != null) {
 			return data;
 		}
-
+		
 		FakeServerPlayerDataJS fakeData = server.fakePlayerMap.get(player.getUuid());
-
-		if (fakeData == null)
-		{
+		
+		if (fakeData == null) {
 			fakeData = new FakeServerPlayerDataJS(server, (ServerPlayerEntity) player);
 			AttachPlayerDataEvent.EVENT.invoker().accept(new AttachPlayerDataEvent(fakeData));
 		}
-
+		
 		fakeData.player = (ServerPlayerEntity) player;
 		return fakeData;
 	}
-
+	
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return "ServerWorld:" + getDimension();
 	}
-
+	
 	@Override
-	public EntityArrayList getEntities()
-	{
+	public EntityArrayList getEntities() {
 		return new EntityArrayList(this, Lists.newArrayList(((ServerWorld) minecraftWorld).iterateEntities()));
 	}
-
-	public EntityArrayList getEntities(String filter)
-	{
-		try
-		{
+	
+	public EntityArrayList getEntities(String filter) {
+		try {
 			return createEntityList(new EntitySelectorReader(new StringReader(filter), true).build().getEntities(new WorldCommandSender(this)));
-		}
-		catch (CommandSyntaxException e)
-		{
+		} catch (CommandSyntaxException e) {
 			return new EntityArrayList(this, 0);
 		}
 	}

@@ -11,24 +11,20 @@ import java.util.List;
 /**
  * @author LatvianModder
  */
-public class ClientItemTooltipEventJS extends EventJS
-{
+public class ClientItemTooltipEventJS extends EventJS {
 	private final ItemStack stack;
 	private final List<net.minecraft.text.Text> lines;
-
-	public ClientItemTooltipEventJS(ItemStack stack, TooltipContext context, List<net.minecraft.text.Text> lines)
-	{
+	
+	public ClientItemTooltipEventJS(ItemStack stack, TooltipContext context, List<net.minecraft.text.Text> lines) {
 		this.stack = stack;
 		this.lines = lines;
 	}
-
-	public ItemStackJS getItem()
-	{
+	
+	public ItemStackJS getItem() {
 		return ItemStackJS.of(stack);
 	}
-
-	public void add(Object text)
-	{
+	
+	public void add(Object text) {
 		lines.add(Text.of(text).component());
 	}
 }

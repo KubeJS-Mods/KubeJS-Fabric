@@ -13,70 +13,57 @@ import java.util.Map;
 /**
  * @author LatvianModder
  */
-public class EntityPotionEffectsJS
-{
+public class EntityPotionEffectsJS {
 	private final LivingEntity entity;
-
-	public EntityPotionEffectsJS(LivingEntity e)
-	{
+	
+	public EntityPotionEffectsJS(LivingEntity e) {
 		entity = e;
 	}
-
-	public void clear()
-	{
+	
+	public void clear() {
 		entity.clearStatusEffects();
 	}
-
-	public Collection<StatusEffectInstance> getActive()
-	{
+	
+	public Collection<StatusEffectInstance> getActive() {
 		return entity.getStatusEffects();
 	}
-
-	public Map<StatusEffect, StatusEffectInstance> getMap()
-	{
+	
+	public Map<StatusEffect, StatusEffectInstance> getMap() {
 		return entity.getActiveStatusEffects();
 	}
-
-	public boolean isActive(@ID String potion)
-	{
+	
+	public boolean isActive(@ID String potion) {
 		StatusEffect p = UtilsJS.getPotion(potion);
 		return p != null && entity.hasStatusEffect(p);
 	}
-
+	
 	@Nullable
-	public StatusEffectInstance getActive(@ID String potion)
-	{
+	public StatusEffectInstance getActive(@ID String potion) {
 		StatusEffect p = UtilsJS.getPotion(potion);
 		return p == null ? null : entity.getStatusEffect(p);
 	}
-
-	public void add(@ID String potion)
-	{
+	
+	public void add(@ID String potion) {
 		add(potion, 0, 0);
 	}
-
-	public void add(@ID String potion, int duration)
-	{
+	
+	public void add(@ID String potion, int duration) {
 		add(potion, duration, 0);
 	}
-
-	public void add(@ID String potion, int duration, int amplifier)
-	{
+	
+	public void add(@ID String potion, int duration, int amplifier) {
 		add(potion, duration, amplifier, false, true);
 	}
-
-	public void add(@ID String potion, int duration, int amplifier, boolean ambient, boolean showParticles)
-	{
+	
+	public void add(@ID String potion, int duration, int amplifier, boolean ambient, boolean showParticles) {
 		StatusEffect p = UtilsJS.getPotion(potion);
-
-		if (p != null)
-		{
+		
+		if (p != null) {
 			entity.addStatusEffect(new StatusEffectInstance(p, duration, amplifier, ambient, showParticles));
 		}
 	}
-
-	public boolean isApplicable(StatusEffectInstance effect)
-	{
+	
+	public boolean isApplicable(StatusEffectInstance effect) {
 		return entity.canHaveStatusEffect(effect);
 	}
 }

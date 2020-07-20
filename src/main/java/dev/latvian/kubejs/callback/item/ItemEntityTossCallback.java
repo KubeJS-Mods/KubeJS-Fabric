@@ -13,6 +13,6 @@ public interface ItemEntityTossCallback {
 			}
 		};
 	});
-
+	
 	void toss(PlayerEntity player, ItemEntity entity);
 }

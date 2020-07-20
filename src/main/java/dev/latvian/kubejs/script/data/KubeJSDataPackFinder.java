@@ -15,47 +15,38 @@ import java.util.function.Consumer;
 /**
  * @author LatvianModder
  */
-public class KubeJSDataPackFinder implements ResourcePackProvider
-{
+public class KubeJSDataPackFinder implements ResourcePackProvider {
 	private final File folder;
-
-	public KubeJSDataPackFinder(File f)
-	{
+	
+	public KubeJSDataPackFinder(File f) {
 		folder = f;
 	}
-
+	
 	@Override
-	public <T extends ResourcePackProfile> void register(Consumer<T> nameToPackMap, ResourcePackProfile.Factory<T> packInfoFactory)
-	{
+	public <T extends ResourcePackProfile> void register(Consumer<T> nameToPackMap, ResourcePackProfile.Factory<T> packInfoFactory) {
 		File dataFolder = new File(folder, "data");
-
-		if (!dataFolder.exists())
-		{
+		
+		if (!dataFolder.exists()) {
 			File scriptsFolder = new File(new File(dataFolder, "modpack"), "kubejs");
 			scriptsFolder.mkdirs();
-
-			try
-			{
-				try (PrintWriter scriptsJsonWriter = new PrintWriter(new FileWriter(new File(scriptsFolder, "scripts.json"))))
-				{
+			
+			try {
+				try (PrintWriter scriptsJsonWriter = new PrintWriter(new FileWriter(new File(scriptsFolder, "scripts.json")))) {
 					scriptsJsonWriter.println("{");
 					scriptsJsonWriter.println("	\"scripts\": [");
 					scriptsJsonWriter.println("		{\"file\": \"example.js\"}");
 					scriptsJsonWriter.println("	]");
 					scriptsJsonWriter.println("}");
 				}
-
-				try (PrintWriter exampleJsWriter = new PrintWriter(new FileWriter(new File(scriptsFolder, "example.js"))))
-				{
+				
+				try (PrintWriter exampleJsWriter = new PrintWriter(new FileWriter(new File(scriptsFolder, "example.js")))) {
 					exampleJsWriter.println("console.info('Hello, World! (You will see this line every time you start server or run /reload)')");
 				}
-			}
-			catch (Exception ex)
-			{
+			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 		}
-
+		
 		KubeJSResourcePack dataPack = new KubeJSResourcePack(folder, ResourceType.SERVER_DATA);
 		PackResourceMetadata dataPackMetadata = new PackResourceMetadata(new LiteralText("./kubejs/data/"), 5);
 		nameToPackMap.accept((T) new ResourcePackProfile("kubejs:data_pack", true, () -> dataPack, dataPack, dataPackMetadata, ResourcePackProfile.InsertionPosition.TOP, ResourcePackSource.PACK_SOURCE_BUILTIN));

@@ -12,14 +12,11 @@ import java.util.Map;
 /**
  * @author LatvianModder
  */
-public interface RecipeManagerKJS
-{
+public interface RecipeManagerKJS {
 	void setRecipesKJS(Map<RecipeType<?>, Map<Identifier, Recipe<?>>> map);
-
-	default void customRecipesKJS(Map<Identifier, JsonObject> jsonMap)
-	{
-		if (RecipeEventJS.instance != null)
-		{
+	
+	default void customRecipesKJS(Map<Identifier, JsonObject> jsonMap) {
+		if (RecipeEventJS.instance != null) {
 			RecipeEventJS.instance.post((RecipeManager) this, jsonMap);
 			RecipeEventJS.instance = null;
 		}

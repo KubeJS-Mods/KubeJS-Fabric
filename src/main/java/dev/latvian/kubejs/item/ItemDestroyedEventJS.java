@@ -11,39 +11,33 @@ import javax.annotation.Nullable;
 /**
  * @author LatvianModder
  */
-public class ItemDestroyedEventJS extends PlayerEventJS
-{
+public class ItemDestroyedEventJS extends PlayerEventJS {
 	public final PlayerEntity player;
 	public final ItemStack original;
 	public final Hand hand;
-
-	public ItemDestroyedEventJS(PlayerEntity player, ItemStack original, Hand hand)
-	{
+	
+	public ItemDestroyedEventJS(PlayerEntity player, ItemStack original, Hand hand) {
 		this.player = player;
 		this.original = original;
 		this.hand = hand;
 	}
-
+	
 	@Override
-	public boolean canCancel()
-	{
+	public boolean canCancel() {
 		return true;
 	}
-
+	
 	@Override
-	public EntityJS getEntity()
-	{
+	public EntityJS getEntity() {
 		return entityOf(player);
 	}
-
+	
 	@Nullable
-	public Hand getHand()
-	{
+	public Hand getHand() {
 		return hand;
 	}
-
-	public ItemStackJS getItem()
-	{
+	
+	public ItemStackJS getItem() {
 		return ItemStackJS.of(original);
 	}
 }

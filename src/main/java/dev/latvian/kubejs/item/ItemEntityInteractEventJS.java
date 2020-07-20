@@ -10,45 +10,38 @@ import net.minecraft.util.math.BlockPos;
 /**
  * @author LatvianModder
  */
-public class ItemEntityInteractEventJS extends PlayerEventJS
-{
+public class ItemEntityInteractEventJS extends PlayerEventJS {
 	public final PlayerEntity player;
 	public final Entity entity;
 	public final Hand hand;
 	public final BlockPos position;
-
-	public ItemEntityInteractEventJS(PlayerEntity player, Entity entity, Hand hand, BlockPos position)
-	{
+	
+	public ItemEntityInteractEventJS(PlayerEntity player, Entity entity, Hand hand, BlockPos position) {
 		this.player = player;
 		this.entity = entity;
 		this.hand = hand;
 		this.position = position;
 	}
-
+	
 	@Override
-	public boolean canCancel()
-	{
+	public boolean canCancel() {
 		return true;
 	}
-
+	
 	@Override
-	public EntityJS getEntity()
-	{
+	public EntityJS getEntity() {
 		return entityOf(player);
 	}
-
-	public Hand getHand()
-	{
+	
+	public Hand getHand() {
 		return hand;
 	}
-
-	public ItemStackJS getItem()
-	{
+	
+	public ItemStackJS getItem() {
 		return ItemStackJS.of(player.getStackInHand(hand));
 	}
-
-	public EntityJS getTarget()
-	{
+	
+	public EntityJS getTarget() {
 		return getWorld().getEntity(entity);
 	}
 }

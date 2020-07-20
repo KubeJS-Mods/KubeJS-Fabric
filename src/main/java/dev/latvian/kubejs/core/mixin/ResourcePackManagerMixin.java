@@ -14,13 +14,11 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Mixin(ResourcePackManager.class)
-public class ResourcePackManagerMixin implements ResourcePackManagerKJS
-{
+public class ResourcePackManagerMixin implements ResourcePackManagerKJS {
 	@Mutable @Shadow @Final private Set<ResourcePackProvider> providers;
-
+	
 	@Override
-	public void addProviderKJS(ResourcePackProvider provider)
-	{
+	public void addProviderKJS(ResourcePackProvider provider) {
 		LinkedHashSet<ResourcePackProvider> set = Sets.newLinkedHashSet(providers);
 		set.add(provider);
 		providers = ImmutableSet.copyOf(set);

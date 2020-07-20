@@ -21,75 +21,60 @@ import java.util.regex.Pattern;
 /**
  * @author LatvianModder
  */
-public class UtilsWrapper
-{
-	public ServerJS getServer()
-	{
+public class UtilsWrapper {
+	public ServerJS getServer() {
 		return ServerJS.instance;
 	}
-
-	public void queueIO(Runnable runnable)
-	{
+	
+	public void queueIO(Runnable runnable) {
 		UtilsJS.queueIO(runnable);
 	}
-
-	public Random getRandom()
-	{
+	
+	public Random getRandom() {
 		return UtilsJS.RANDOM;
 	}
-
-	public Random newRandom(long seed)
-	{
+	
+	public Random newRandom(long seed) {
 		return new Random(seed);
 	}
-
-	public <T> List<T> emptyList()
-	{
+	
+	public <T> List<T> emptyList() {
 		return Collections.emptyList();
 	}
-
-	public <K, V> Map<K, V> emptyMap()
-	{
+	
+	public <K, V> Map<K, V> emptyMap() {
 		return Collections.emptyMap();
 	}
-
-	public ListJS newList()
-	{
+	
+	public ListJS newList() {
 		return new ListJS();
 	}
-
-	public MapJS newMap()
-	{
+	
+	public MapJS newMap() {
 		return new MapJS();
 	}
-
-	public CountingMap newCountingMap()
-	{
+	
+	public CountingMap newCountingMap() {
 		return new CountingMap();
 	}
-
-	public Identifier id(String namespace, String path)
-	{
+	
+	public Identifier id(String namespace, String path) {
 		return new Identifier(namespace, path);
 	}
-
-	public Identifier id(@ID String id)
-	{
+	
+	public Identifier id(@ID String id) {
 		return UtilsJS.getMCID(id);
 	}
-
-	public ConsoleJS createConsole(String name)
-	{
+	
+	public ConsoleJS createConsole(String name) {
 		return new ConsoleJS(ScriptType.STARTUP, LogManager.getLogger(name));
 	}
-
-	public Pattern regex(String pattern)
-	{
+	
+	public Pattern regex(String pattern) {
 		return Pattern.compile(pattern);
 	}
-
-	public Pattern regex(String pattern, int flags)
-	{
+	
+	public Pattern regex(String pattern, int flags) {
 		return Pattern.compile(pattern, flags);
 	}
 
@@ -102,110 +87,87 @@ public class UtilsWrapper
 //	{
 //		return UtilsJS.getField(className, fieldName);
 //	}
-
-	public int parseInt(@Nullable Object object, int def)
-	{
+	
+	public int parseInt(@Nullable Object object, int def) {
 		return UtilsJS.parseInt(object, def);
 	}
-
-	public double parseDouble(@Nullable Object object, double def)
-	{
+	
+	public double parseDouble(@Nullable Object object, double def) {
 		return UtilsJS.parseDouble(object, def);
 	}
-
-	public Stat<Identifier> getStat(@ID String id)
-	{
+	
+	public Stat<Identifier> getStat(@ID String id) {
 		return UtilsJS.getStat(id);
 	}
-
-	public Identifier getToolType(String id)
-	{
+	
+	public Identifier getToolType(String id) {
 		return UtilsJS.getToolType(id);
 	}
-
-	public WorldJS getWorld(World world)
-	{
-		if (world.isClient())
-		{
+	
+	public WorldJS getWorld(World world) {
+		if (world.isClient()) {
 			return getClientWorld();
-		}
-		else
-		{
+		} else {
 			return ServerJS.instance.getWorld(world);
 		}
 	}
-
-	public WorldJS getClientWorld()
-	{
+	
+	public WorldJS getClientWorld() {
 		return ClientWorldJS.instance;
 	}
-
+	
 	@Nullable
-	public SoundEvent getSound(@ID String id)
-	{
+	public SoundEvent getSound(@ID String id) {
 		return Registry.SOUND_EVENT.get(UtilsJS.getMCID(id));
 	}
-
-	public Object randomOf(Random random, Collection<Object> objects)
-	{
-		if (objects.isEmpty())
-		{
+	
+	public Object randomOf(Random random, Collection<Object> objects) {
+		if (objects.isEmpty()) {
 			return null;
 		}
-
-		if (objects instanceof List)
-		{
+		
+		if (objects instanceof List) {
 			return ((List) objects).get(random.nextInt(objects.size()));
-		}
-		else
-		{
+		} else {
 			return new ArrayList<>(objects).get(random.nextInt(objects.size()));
 		}
 	}
-
-	public long getSystemTime()
-	{
+	
+	public long getSystemTime() {
 		return System.currentTimeMillis();
 	}
-
-	public Overlay overlay(String id, Object[] text)
-	{
+	
+	public Overlay overlay(String id, Object[] text) {
 		Overlay o = new Overlay(id);
-
-		for (Object o1 : text)
-		{
+		
+		for (Object o1 : text) {
 			o.add(o1);
 		}
-
+		
 		return o;
 	}
-
+	
 	@Nullable
-	public StatusEffect getPotion(@ID String id)
-	{
+	public StatusEffect getPotion(@ID String id) {
 		return UtilsJS.getPotion(id);
 	}
-
+	
 	@Nullable
-	public ListJS listOf(@Nullable Object o)
-	{
+	public ListJS listOf(@Nullable Object o) {
 		return ListJS.of(o);
 	}
-
-	public ListJS listOrSelf(@Nullable Object o)
-	{
+	
+	public ListJS listOrSelf(@Nullable Object o) {
 		return ListJS.orSelf(o);
 	}
-
+	
 	@Nullable
-	public MapJS mapOf(@Nullable Object o)
-	{
+	public MapJS mapOf(@Nullable Object o) {
 		return MapJS.of(o);
 	}
-
+	
 	@Nullable
-	public Object copy(@Nullable Object o)
-	{
+	public Object copy(@Nullable Object o) {
 		return UtilsJS.copy(o);
 	}
 }

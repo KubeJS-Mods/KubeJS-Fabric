@@ -8,31 +8,26 @@ import net.minecraft.server.network.ServerPlayerEntity;
 /**
  * @author LatvianModder
  */
-public class ItemFoodEatenEventJS extends PlayerEventJS
-{
+public class ItemFoodEatenEventJS extends PlayerEventJS {
 	private final ServerPlayerEntity player;
 	public final ItemStackJS item;
-
-	public ItemFoodEatenEventJS(ServerPlayerEntity p, ItemStack is)
-	{
+	
+	public ItemFoodEatenEventJS(ServerPlayerEntity p, ItemStack is) {
 		player = p;
 		item = ItemStackJS.of(is);
 	}
-
+	
 	@Override
-	public boolean canCancel()
-	{
+	public boolean canCancel() {
 		return true;
 	}
-
+	
 	@Override
-	public EntityJS getEntity()
-	{
+	public EntityJS getEntity() {
 		return entityOf(player);
 	}
-
-	public ItemStackJS getItem()
-	{
+	
+	public ItemStackJS getItem() {
 		return item;
 	}
 }

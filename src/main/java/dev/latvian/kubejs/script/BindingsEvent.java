@@ -11,53 +11,44 @@ import java.util.function.Consumer;
 /**
  * @author LatvianModder
  */
-public class BindingsEvent
-{
+public class BindingsEvent {
 	public static final Event<Consumer<BindingsEvent>> EVENT = EventFactory.createArrayBacked(Consumer.class, consumers -> event -> {
-		for (Consumer<BindingsEvent> consumer : consumers)
-		{
+		for (Consumer<BindingsEvent> consumer : consumers) {
 			consumer.accept(event);
 		}
 	});
-
+	
 	public final ScriptType type;
 	private final Map<String, Object> map;
 	private final Map<String, Object> constantMap;
-
-	public BindingsEvent(ScriptType t, Map<String, Object> m, Map<String, Object> cm)
-	{
+	
+	public BindingsEvent(ScriptType t, Map<String, Object> m, Map<String, Object> cm) {
 		type = t;
 		map = m;
 		constantMap = cm;
 	}
-
-	public ScriptType getType()
-	{
+	
+	public ScriptType getType() {
 		return type;
 	}
-
-	public void add(String name, Object value)
-	{
+	
+	public void add(String name, Object value) {
 		map.put(name, value);
 	}
-
-	public void addFunction(String name, FunctionBinding.Handler handler)
-	{
+	
+	public void addFunction(String name, FunctionBinding.Handler handler) {
 		add(name, new FunctionBinding(handler));
 	}
-
-	public void addFunction(String name, JSObject function)
-	{
+	
+	public void addFunction(String name, JSObject function) {
 		add(name, function);
 	}
-
-	public void addConstant(String name, Object value)
-	{
+	
+	public void addConstant(String name, Object value) {
 		constantMap.put(name, value);
 	}
-
-	public boolean isServer()
-	{
+	
+	public boolean isServer() {
 		return false;
 	}
 }

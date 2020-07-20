@@ -30,80 +30,67 @@ import java.util.Map;
  * @author LatvianModder
  */
 @Environment(EnvType.CLIENT)
-public class KubeJSClient extends KubeJSCommon implements ClientModInitializer
-{
+public class KubeJSClient extends KubeJSCommon implements ClientModInitializer {
 	public static final Map<String, Overlay> activeOverlays = new LinkedHashMap<>();
-
+	
 	@Override
-	public void init(File folder)
-	{
+	public void init(File folder) {
 		new KubeJSClientEventHandler().init();
 		ResourcePackManager<ClientResourcePackProfile> manager = MinecraftClient.getInstance().getResourcePackManager();
 		((ResourcePackManagerKJS) manager).addProviderKJS(new KubeJSResourcePackFinder(folder));
-
+		
 		ClientSidePacketRegistry.INSTANCE.register(KubeJSNet.PACKET_ID_S2C, (packetContext, packetByteBuf) -> {
 			int id = packetByteBuf.readInt();
-			switch (id)
-			{
-				case 1:
-				{
+			switch (id) {
+				case 1: {
 					new MessageSendDataFromServer(packetByteBuf).handle(() -> packetContext);
 					break;
 				}
-				case 2:
-				{
+				case 2: {
 					new MessageOpenOverlay(packetByteBuf).handle(() -> packetContext);
 					break;
 				}
-				case 3:
-				{
+				case 3: {
 					new MessageCloseOverlay(packetByteBuf).handle(() -> packetContext);
 					break;
 				}
 			}
 		});
 	}
-
+	
 	@Override
-	public void clientBindings(BindingsEvent event)
-	{
+	public void clientBindings(BindingsEvent event) {
 		event.add("client", new ClientWrapper());
 	}
-
+	
 	@Override
-	public void onInitializeClient()
-	{
+	public void onInitializeClient() {
 		new EventJS().post(ScriptType.STARTUP, KubeJSEvents.CLIENT_INIT);
 	}
-
+	
 	@Override
-	public void handleDataToClientPacket(String channel, @Nullable CompoundTag data)
-	{
+	public void handleDataToClientPacket(String channel, @Nullable CompoundTag data) {
 		new NetworkEventJS(MinecraftClient.getInstance().player, channel, MapJS.of(data)).post(KubeJSEvents.PLAYER_DATA_FROM_SERVER, channel);
 	}
-
+	
 	@Override
 	@Nullable
-	public PlayerEntity getClientPlayer()
-	{
+	public PlayerEntity getClientPlayer() {
 		return MinecraftClient.getInstance().player;
 	}
-
+	
 	@Override
-	public void openOverlay(Overlay o)
-	{
+	public void openOverlay(Overlay o) {
 		activeOverlays.put(o.id, o);
 	}
-
+	
 	@Override
-	public void closeOverlay(String id)
-	{
+	public void closeOverlay(String id) {
 		activeOverlays.remove(id);
 	}
-
+	
 	@Override
-	public WorldJS getClientWorld()
-	{
+	public WorldJS getClientWorld() {
 		return ClientWorldJS.instance;
 	}
 }

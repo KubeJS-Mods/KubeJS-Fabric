@@ -14,9 +14,11 @@ import java.util.function.Consumer;
 
 @Mixin(ItemStack.class)
 public abstract class ItemStackMixin {
-	@Shadow public abstract ItemStack copy();
-
-	@Inject(at = @At(value = "RETURN", target = "Ljava/util/function/Consumer;accept(Ljava/lang/Object;)V"), method = "damage(ILnet/minecraft/entity/LivingEntity;Ljava/util/function/Consumer;)V")
+	@Shadow
+	public abstract ItemStack copy();
+	
+	@Inject(at = @At(value = "RETURN", target = "Ljava/util/function/Consumer;accept(Ljava/lang/Object;)V"),
+	        method = "damage(ILnet/minecraft/entity/LivingEntity;Ljava/util/function/Consumer;)V")
 	<T extends LivingEntity> void onBreak(int amount, T entity, Consumer<T> breakCallback, CallbackInfo ci) {
 		if (!(entity instanceof PlayerEntity)) return;
 		ItemDestroyCallback.EVENT.invoker().destroy((PlayerEntity) entity, this.copy(), entity.getActiveHand());

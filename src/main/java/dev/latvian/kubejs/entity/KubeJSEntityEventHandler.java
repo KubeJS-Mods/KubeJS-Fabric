@@ -3,17 +3,15 @@ package dev.latvian.kubejs.entity;
 /**
  * @author LatvianModder
  */
-public class KubeJSEntityEventHandler
-{
-	public void init()
-	{
+public class KubeJSEntityEventHandler {
+	public void init() {
 //		MinecraftForge.EVENT_BUS.addListener(this::livingDeath);
 //		MinecraftForge.EVENT_BUS.addListener(this::livingAttack);
 //		MinecraftForge.EVENT_BUS.addListener(this::livingDrops);
 //		MinecraftForge.EVENT_BUS.addListener(this::checkLivingSpawn);
 //		MinecraftForge.EVENT_BUS.addListener(this::entitySpawned);
 	}
-
+	
 	// TODO
 //	private void livingDeath(LivingDeathEvent event)
 //	{

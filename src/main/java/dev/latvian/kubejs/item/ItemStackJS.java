@@ -24,155 +24,113 @@ import java.util.*;
 /**
  * @author LatvianModder
  */
-public abstract class ItemStackJS implements IngredientJS, NBTSerializable, WrappedJSObjectChangeListener<MapJS>
-{
+public abstract class ItemStackJS implements IngredientJS, NBTSerializable, WrappedJSObjectChangeListener<MapJS> {
 	private static List<ItemStackJS> cachedItemList;
-
-	public static ItemStackJS of(@Nullable Object o)
-	{
-		if (o == null)
-		{
+	
+	public static ItemStackJS of(@Nullable Object o) {
+		if (o == null) {
 			return EmptyItemStackJS.INSTANCE;
-		}
-		else if (o instanceof ItemStackJS)
-		{
+		} else if (o instanceof ItemStackJS) {
 			return (ItemStackJS) o;
-		}
-		else if (o instanceof IngredientJS)
-		{
+		} else if (o instanceof IngredientJS) {
 			return ((IngredientJS) o).getFirst();
-		}
-		else if (o instanceof ItemStack)
-		{
+		} else if (o instanceof ItemStack) {
 			ItemStack stack = (ItemStack) o;
 			return stack.isEmpty() ? EmptyItemStackJS.INSTANCE : new BoundItemStackJS(stack);
-		}
-		else if (o instanceof Identifier)
-		{
+		} else if (o instanceof Identifier) {
 			return new UnboundItemStackJS((Identifier) o);
-		}
-		else if (o instanceof Item)
-		{
+		} else if (o instanceof Item) {
 			return new UnboundItemStackJS(Registry.ITEM.getId(((Item) o)));
-		}
-		else if (o instanceof CharSequence)
-		{
+		} else if (o instanceof CharSequence) {
 			String s = o.toString();
-
-			if (s.startsWith("#"))
-			{
+			
+			if (s.startsWith("#")) {
 				return new TagIngredientJS(new Identifier(s.substring(1))).getFirst();
 			}
-
+			
 			return new UnboundItemStackJS(new Identifier(s));
 		}
-
+		
 		MapJS map = MapJS.of(o);
-
-		if (map != null)
-		{
-			if (map.containsKey("item"))
-			{
+		
+		if (map != null) {
+			if (map.containsKey("item")) {
 				ItemStackJS stack = new UnboundItemStackJS(new Identifier(KubeJS.appendModId(map.get("item").toString())));
-
-				if (map.get("count") instanceof Number)
-				{
+				
+				if (map.get("count") instanceof Number) {
 					stack.setCount(((Number) map.get("count")).intValue());
 				}
-
-				if (map.containsKey("nbt"))
-				{
+				
+				if (map.containsKey("nbt")) {
 					stack.nbt(map.get("nbt"));
 				}
-
+				
 				return stack;
-			}
-			else if (map.get("tag") instanceof CharSequence)
-			{
+			} else if (map.get("tag") instanceof CharSequence) {
 				ItemStackJS stack = new TagIngredientJS(new Identifier(map.get("tag").toString())).getFirst();
-
-				if (map.containsKey("count"))
-				{
+				
+				if (map.containsKey("count")) {
 					stack.setCount(UtilsJS.parseInt(map.get("count"), 1));
 				}
-
+				
 				return stack;
 			}
 		}
-
+		
 		String s = String.valueOf(o).trim();
-
-		if (s.isEmpty() || s.equals("air"))
-		{
+		
+		if (s.isEmpty() || s.equals("air")) {
 			return EmptyItemStackJS.INSTANCE;
 		}
-
-		if (s.startsWith("#"))
-		{
+		
+		if (s.startsWith("#")) {
 			return new TagIngredientJS(new Identifier(s.substring(1))).getFirst();
 		}
-
+		
 		return new UnboundItemStackJS(new Identifier(s));
 	}
-
-	public static ItemStackJS of(@Nullable Object o, @Nullable Object countOrNBT)
-	{
+	
+	public static ItemStackJS of(@Nullable Object o, @Nullable Object countOrNBT) {
 		ItemStackJS stack = of(o);
 		Object n = UtilsJS.wrap(countOrNBT, JSObjectType.ANY);
-
-		if (n instanceof Number)
-		{
+		
+		if (n instanceof Number) {
 			stack.setCount(((Number) n).intValue());
-		}
-		else if (n instanceof MapJS)
-		{
+		} else if (n instanceof MapJS) {
 			stack.nbt(n);
 		}
-
+		
 		return stack;
 	}
-
-	public static ItemStackJS of(@Nullable Object o, int count, @Nullable Object nbt)
-	{
+	
+	public static ItemStackJS of(@Nullable Object o, int count, @Nullable Object nbt) {
 		ItemStackJS stack = of(o);
 		stack.setCount(count);
 		stack.nbt(nbt);
 		return stack;
 	}
-
-	public static ItemStackJS resultFromRecipeJson(JsonElement json)
-	{
-		if (json == null || json.isJsonNull())
-		{
+	
+	public static ItemStackJS resultFromRecipeJson(JsonElement json) {
+		if (json == null || json.isJsonNull()) {
 			return EmptyItemStackJS.INSTANCE;
-		}
-		else if (json.isJsonPrimitive())
-		{
+		} else if (json.isJsonPrimitive()) {
 			return of(json.getAsString());
-		}
-		else if (json.isJsonObject())
-		{
+		} else if (json.isJsonObject()) {
 			JsonObject o = json.getAsJsonObject();
-
-			if (o.has("item"))
-			{
+			
+			if (o.has("item")) {
 				ItemStackJS stack = ItemStackJS.of(o.get("item").getAsString());
-
-				if (o.has("count"))
-				{
+				
+				if (o.has("count")) {
 					stack.setCount(o.get("count").getAsInt());
 				}
-
-				if (o.has("nbt"))
-				{
+				
+				if (o.has("nbt")) {
 					JsonElement element = o.get("nbt");
-
-					if (element.isJsonObject())
-					{
+					
+					if (element.isJsonObject()) {
 						stack.nbt(element);
-					}
-					else
-					{
+					} else {
 						// TODO redo this
 //						try
 //						{
@@ -184,401 +142,331 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 //						}
 					}
 				}
-
-				if (o.has("chance"))
-				{
+				
+				if (o.has("chance")) {
 					stack.setChance(o.get("chance").getAsDouble());
 				}
-
+				
 				return stack;
 			}
 		}
-
+		
 		return EmptyItemStackJS.INSTANCE;
 	}
-
-	public static List<ItemStackJS> getList()
-	{
-		if (cachedItemList != null)
-		{
+	
+	public static List<ItemStackJS> getList() {
+		if (cachedItemList != null) {
 			return cachedItemList;
 		}
-
+		
 		LinkedHashSet<ItemStackJS> set = new LinkedHashSet<>();
 		DefaultedList<ItemStack> stackList = DefaultedList.of();
-
-		for (Item item : Registry.ITEM)
-		{
+		
+		for (Item item : Registry.ITEM) {
 			item.appendStacks(ItemGroup.SEARCH, stackList);
 		}
-
-		for (ItemStack stack : stackList)
-		{
-			if (!stack.isEmpty())
-			{
+		
+		for (ItemStack stack : stackList) {
+			if (!stack.isEmpty()) {
 				set.add(new BoundItemStackJS(stack).getCopy().count(1));
 			}
 		}
-
+		
 		cachedItemList = Collections.unmodifiableList(Arrays.asList(set.toArray(new ItemStackJS[0])));
 		return cachedItemList;
 	}
-
-	public static void clearListCache()
-	{
+	
+	public static void clearListCache() {
 		cachedItemList = null;
 	}
-
-	public static List<String> getTypeList()
-	{
+	
+	public static List<String> getTypeList() {
 		List<String> list = new ArrayList<>();
-
-		for (Identifier id : Registry.ITEM.getIds())
-		{
+		
+		for (Identifier id : Registry.ITEM.getIds()) {
 			list.add(id.toString());
 		}
-
+		
 		return list;
 	}
-
+	
 	private double chance = 1D;
-
+	
 	public abstract Item getItem();
-
+	
 	@MinecraftClass
 	public abstract ItemStack getItemStack();
-
+	
 	@ID
-	public String getId()
-	{
+	public String getId() {
 		return Registry.ITEM.getId(getItem()).toString();
 	}
-
+	
 	public abstract ItemStackJS getCopy();
-
+	
 	public abstract void setCount(int count);
-
+	
 	@Override
 	public abstract int getCount();
-
+	
 	@Override
-	public final ItemStackJS count(int c)
-	{
+	public final ItemStackJS count(int c) {
 		setCount(c);
 		return this;
 	}
-
-	public final ItemStackJS x(int c)
-	{
+	
+	public final ItemStackJS x(int c) {
 		return count(c);
 	}
-
+	
 	@Override
-	public boolean isEmpty()
-	{
+	public boolean isEmpty() {
 		return getCount() <= 0;
 	}
-
-	public boolean isBlock()
-	{
+	
+	public boolean isBlock() {
 		return getItem() instanceof BlockItem;
 	}
-
+	
 	public abstract MapJS getNbt();
-
-	public final ItemStackJS nbt(@Nullable Object o)
-	{
+	
+	public final ItemStackJS nbt(@Nullable Object o) {
 		MapJS nbt = MapJS.of(o);
-
-		if (nbt != null)
-		{
+		
+		if (nbt != null) {
 			getNbt().putAll(nbt);
 		}
-
+		
 		return this;
 	}
-
-	public void setChance(double c)
-	{
+	
+	public void setChance(double c) {
 		chance = MathHelper.clamp(c, 0D, 1D);
 	}
-
-	public double getChance()
-	{
+	
+	public double getChance() {
 		return chance;
 	}
-
-	public final ItemStackJS chance(double c)
-	{
+	
+	public final ItemStackJS chance(double c) {
 		setChance(c);
 		return this;
 	}
-
-	public Text getName()
-	{
+	
+	public Text getName() {
 		return Text.of(getItemStack().getName());
 	}
-
-	public void setName(@Nullable Object displayName)
-	{
-		if (displayName == null || displayName instanceof String && displayName.toString().isEmpty())
-		{
+	
+	public void setName(@Nullable Object displayName) {
+		if (displayName == null || displayName instanceof String && displayName.toString().isEmpty()) {
 			return;
 		}
-
+		
 		Text t = Text.of(displayName);
 		MapJS nbt = getNbt();
 		nbt.getOrNewMap("display").put("Name", t.toJson());
 	}
-
-	public final ItemStackJS name(String displayName)
-	{
+	
+	public final ItemStackJS name(String displayName) {
 		setName(displayName);
 		return this;
 	}
-
-	public String toString()
-	{
+	
+	public String toString() {
 		StringBuilder builder = new StringBuilder();
-
+		
 		int count = getCount();
 		double chance = getChance();
 		MapJS nbt = getNbt();
-
-		if (count > 1 || chance < 1D || !nbt.isEmpty())
-		{
+		
+		if (count > 1 || chance < 1D || !nbt.isEmpty()) {
 			builder.append("item.of('");
 			builder.append(getId());
 			builder.append('\'');
-
-			if (count > 1)
-			{
+			
+			if (count > 1) {
 				builder.append(", ");
 				builder.append(count);
 			}
-
-			if (!nbt.isEmpty())
-			{
+			
+			if (!nbt.isEmpty()) {
 				builder.append(", ");
 				builder.append(nbt);
 			}
-
+			
 			builder.append(')');
-
-			if (chance < 1D)
-			{
+			
+			if (chance < 1D) {
 				builder.append(".chance(");
 				builder.append(chance);
 				builder.append(')');
 			}
-		}
-		else
-		{
+		} else {
 			builder.append('\'');
 			builder.append(getId());
 			builder.append('\'');
 		}
-
+		
 		return builder.toString();
 	}
-
+	
 	@Override
-	public boolean test(ItemStackJS stack)
-	{
+	public boolean test(ItemStackJS stack) {
 		return areItemsEqual(stack) && isNBTEqual(stack);
 	}
-
+	
 	@Override
-	public boolean testVanilla(ItemStack stack)
-	{
+	public boolean testVanilla(ItemStack stack) {
 		return areItemsEqual(stack) && isNBTEqual(stack);
 	}
-
+	
 	@Override
-	public Set<ItemStackJS> getStacks()
-	{
+	public Set<ItemStackJS> getStacks() {
 		return Collections.singleton(this);
 	}
-
+	
 	@Override
-	public ItemStackJS getFirst()
-	{
+	public ItemStackJS getFirst() {
 		return getCopy();
 	}
-
+	
 	@Override
-	public int hashCode()
-	{
+	public int hashCode() {
 		return Objects.hash(getItem(), getNbt());
 	}
-
+	
 	@Override
-	public boolean equals(Object o)
-	{
-		if (o instanceof CharSequence)
-		{
+	public boolean equals(Object o) {
+		if (o instanceof CharSequence) {
 			return getId().equals(UtilsJS.getID(o.toString()));
-		}
-		else if (o instanceof ItemStack)
-		{
+		} else if (o instanceof ItemStack) {
 			ItemStack s = (ItemStack) o;
 			return !s.isEmpty() && areItemsEqual(s) && isNBTEqual(s);
 		}
-
+		
 		ItemStackJS s = of(o);
 		return !s.isEmpty() && areItemsEqual(s) && isNBTEqual(s);
 	}
-
-	public boolean strongEquals(Object o)
-	{
-		if (o instanceof CharSequence)
-		{
+	
+	public boolean strongEquals(Object o) {
+		if (o instanceof CharSequence) {
 			return getId().equals(UtilsJS.getID(o.toString())) && getCount() == 1 && getNbt().isEmpty();
-		}
-		else if (o instanceof ItemStack)
-		{
+		} else if (o instanceof ItemStack) {
 			ItemStack s = (ItemStack) o;
 			return getCount() == s.getCount() && areItemsEqual(s) && isNBTEqual(s);
 		}
-
+		
 		ItemStackJS s = of(o);
 		return getCount() == s.getCount() && areItemsEqual(s) && isNBTEqual(s);
 	}
-
-	public MapJS getEnchantments()
-	{
+	
+	public MapJS getEnchantments() {
 		final MapJS nbt = getNbt();
 		final String key = getItem() == Items.ENCHANTED_BOOK ? "StoredEnchantments" : "Enchantments";
 		final MapJS enchantments = new MapJS();
-
+		
 		enchantments.changeListener = o -> {
 			ListJS list = new ListJS(o.size());
-
-			for (Map.Entry<String, Object> entry : o.entrySet())
-			{
-				if (entry.getValue() instanceof Number && ((Number) entry.getValue()).intValue() > 0)
-				{
+			
+			for (Map.Entry<String, Object> entry : o.entrySet()) {
+				if (entry.getValue() instanceof Number && ((Number) entry.getValue()).intValue() > 0) {
 					MapJS ench = new MapJS(2);
 					ench.put("id", new Identifier(entry.getKey()).toString());
 					ench.put("lvl", entry.getValue());
 					list.add(ench);
 				}
 			}
-
-			if (list.isEmpty())
-			{
+			
+			if (list.isEmpty()) {
 				nbt.remove(key);
-			}
-			else
-			{
+			} else {
 				nbt.put(key, list);
 			}
 		};
-
+		
 		ListJS list = ListJS.of(nbt.get(key));
-
-		if (list != null)
-		{
-			for (Object o : list)
-			{
+		
+		if (list != null) {
+			for (Object o : list) {
 				MapJS m = MapJS.of(o);
-
-				if (m != null && m.containsKey("id") && m.containsKey("lvl"))
-				{
+				
+				if (m != null && m.containsKey("id") && m.containsKey("lvl")) {
 					enchantments.put(m.get("id").toString(), m.get("lvl"));
 				}
 			}
 		}
-
+		
 		return enchantments;
 	}
-
-	public ItemStackJS enchant(Object enchantments)
-	{
+	
+	public ItemStackJS enchant(Object enchantments) {
 		getEnchantments().putAll(MapJS.of(enchantments));
 		return this;
 	}
-
-	public String getMod()
-	{
+	
+	public String getMod() {
 		return Registry.ITEM.getId(getItem()).getNamespace();
 	}
-
-	public ListJS getLore()
-	{
+	
+	public ListJS getLore() {
 		final MapJS nbt = getNbt();
 		final ListJS lore = new ListJS();
-
+		
 		lore.changeListener = o -> {
-			if (lore.isEmpty())
-			{
+			if (lore.isEmpty()) {
 				nbt.remove("Lore");
-			}
-			else
-			{
+			} else {
 				ListJS lore1 = new ListJS(lore.size());
-
-				for (Object o1 : lore)
-				{
+				
+				for (Object o1 : lore) {
 					lore1.add(net.minecraft.text.Text.Serializer.toJson(Text.of(o1).component()));
 				}
-
+				
 				nbt.put("Lore", lore1);
 			}
 		};
-
+		
 		ListJS list = ListJS.of(nbt.get("Lore"));
-
-		if (list != null)
-		{
-			for (Object o : list)
-			{
-				try
-				{
+		
+		if (list != null) {
+			for (Object o : list) {
+				try {
 					lore.add(net.minecraft.text.Text.Serializer.fromLenientJson(o.toString()));
-				}
-				catch (JsonParseException var19)
-				{
+				} catch (JsonParseException var19) {
 				}
 			}
 		}
-
+		
 		return lore;
 	}
-
-	public IgnoreNBTIngredientJS ignoreNBT()
-	{
+	
+	public IgnoreNBTIngredientJS ignoreNBT() {
 		return new IgnoreNBTIngredientJS(this);
 	}
-
-	public boolean areItemsEqual(ItemStackJS stack)
-	{
+	
+	public boolean areItemsEqual(ItemStackJS stack) {
 		return getItem() == stack.getItem();
 	}
-
-	public boolean areItemsEqual(ItemStack stack)
-	{
+	
+	public boolean areItemsEqual(ItemStack stack) {
 		return getItem() == stack.getItem();
 	}
-
-	public boolean isNBTEqual(ItemStackJS stack)
-	{
+	
+	public boolean isNBTEqual(ItemStackJS stack) {
 		return Objects.equals(getNbt(), stack.getNbt());
 	}
-
-	public boolean isNBTEqual(ItemStack stack)
-	{
+	
+	public boolean isNBTEqual(ItemStack stack) {
 		MapJS nbt = getNbt();
 		CompoundTag nbt1 = stack.getTag();
-
-		if (nbt1 == null)
-		{
+		
+		if (nbt1 == null) {
 			return nbt.isEmpty();
 		}
-
+		
 		return Objects.equals(MapJS.nbt(nbt), nbt1);
 	}
-
+	
 	// TODO Make isItemEffective alternatives as this doesn't exist in Fabric.
 //	public int getHarvestLevel(Identifier tool, @Nullable PlayerJS<?> player, @Nullable BlockContainerJS block)
 //	{
@@ -590,51 +478,44 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 //	{
 //		return getHarvestLevel(tool, null, null);
 //	}
-
+	
 	@Override
-	public JsonElement toJson()
-	{
+	public JsonElement toJson() {
 		JsonObject json = new JsonObject();
 		json.addProperty("item", getId());
-
-		if (!getNbt().isEmpty())
-		{
+		
+		if (!getNbt().isEmpty()) {
 			json.addProperty("type", "forge:nbt");
 			json.addProperty("nbt", getNbt().toNBT().toString());
 		}
-
+		
 		return json;
 	}
-
-	public JsonElement toResultJson()
-	{
+	
+	public JsonElement toResultJson() {
 		JsonObject json = new JsonObject();
 		json.addProperty("item", getId());
 		json.addProperty("count", getCount());
-
+		
 		MapJS nbt = getNbt();
-
-		if (!nbt.isEmpty())
-		{
+		
+		if (!nbt.isEmpty()) {
 			json.addProperty("nbt", nbt.toNBT().toString());
 		}
-
-		if (getChance() < 1D)
-		{
+		
+		if (getChance() < 1D) {
 			json.addProperty("chance", getChance());
 		}
-
+		
 		return json;
 	}
-
+	
 	@Override
-	public CompoundTag toNBT()
-	{
+	public CompoundTag toNBT() {
 		return getItemStack().toTag(new CompoundTag());
 	}
-
+	
 	@Override
-	public void onChanged(@Nullable MapJS o)
-	{
+	public void onChanged(@Nullable MapJS o) {
 	}
 }

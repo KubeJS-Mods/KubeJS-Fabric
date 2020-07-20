@@ -9,8 +9,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
  * @author LatvianModder
  */
 @Mixin(AbstractBlock.AbstractBlockState.class)
-public abstract class AbstractBlockStateMixin implements AbstractBlockStateKJS
-{
+public abstract class AbstractBlockStateMixin implements AbstractBlockStateKJS {
 	@Override
 	@Accessor("luminance")
 	public abstract void setLightLevelKJS(int level);

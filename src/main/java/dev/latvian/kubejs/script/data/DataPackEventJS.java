@@ -9,26 +9,21 @@ import dev.latvian.kubejs.util.UtilsJS;
 /**
  * @author LatvianModder
  */
-public class DataPackEventJS extends ServerEventJS
-{
+public class DataPackEventJS extends ServerEventJS {
 	private final VirtualKubeJSDataPack virtualDataPack;
-
-	public DataPackEventJS(VirtualKubeJSDataPack d)
-	{
+	
+	public DataPackEventJS(VirtualKubeJSDataPack d) {
 		virtualDataPack = d;
 	}
-
-	public void add(@ID String id, String content)
-	{
+	
+	public void add(@ID String id, String content) {
 		virtualDataPack.addData(UtilsJS.getMCID(id), content);
 	}
-
-	public void addJson(@ID String id, Object json)
-	{
+	
+	public void addJson(@ID String id, Object json) {
 		MapJS map = MapJS.of(json);
-
-		if (map != null)
-		{
+		
+		if (map != null) {
 			add(id, JsonUtilsJS.toString(map.toJson()));
 		}
 	}

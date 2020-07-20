@@ -37,309 +37,255 @@ import java.util.Map;
 /**
  * @author LatvianModder
  */
-public class BlockContainerJS
-{
+public class BlockContainerJS {
 	private static final Identifier AIR_ID = new Identifier("minecraft:air");
-
+	
 	public final WorldAccess minecraftWorld;
 	private final BlockPos pos;
-
+	
 	private BlockState cachedState;
 	private BlockEntity cachedEntity;
-
-	public BlockContainerJS(WorldAccess w, BlockPos p)
-	{
+	
+	public BlockContainerJS(WorldAccess w, BlockPos p) {
 		minecraftWorld = w;
 		pos = p;
 	}
-
-	public void clearCache()
-	{
+	
+	public void clearCache() {
 		cachedState = null;
 		cachedEntity = null;
 	}
-
-	public WorldJS getWorld()
-	{
+	
+	public WorldJS getWorld() {
 		return UtilsJS.getWorld((World) minecraftWorld);
 	}
-
-	public BlockPos getPos()
-	{
+	
+	public BlockPos getPos() {
 		return pos;
 	}
-
-	public String getDimension()
-	{
+	
+	public String getDimension() {
 		return ((World) minecraftWorld).getDimensionRegistryKey().getValue().toString();
 	}
-
-	public int getX()
-	{
+	
+	public int getX() {
 		return getPos().getX();
 	}
-
-	public int getY()
-	{
+	
+	public int getY() {
 		return getPos().getY();
 	}
-
-	public int getZ()
-	{
+	
+	public int getZ() {
 		return getPos().getZ();
 	}
-
-	public BlockContainerJS offset(Direction f, int d)
-	{
+	
+	public BlockContainerJS offset(Direction f, int d) {
 		return new BlockContainerJS(minecraftWorld, getPos().offset(f, d));
 	}
-
-	public BlockContainerJS offset(Direction f)
-	{
+	
+	public BlockContainerJS offset(Direction f) {
 		return offset(f, 1);
 	}
-
-	public BlockContainerJS offset(int x, int y, int z)
-	{
+	
+	public BlockContainerJS offset(int x, int y, int z) {
 		return new BlockContainerJS(minecraftWorld, getPos().add(x, y, z));
 	}
-
-	public BlockContainerJS getDown()
-	{
+	
+	public BlockContainerJS getDown() {
 		return offset(Direction.DOWN);
 	}
-
-	public BlockContainerJS getUp()
-	{
+	
+	public BlockContainerJS getUp() {
 		return offset(Direction.UP);
 	}
-
-	public BlockContainerJS getNorth()
-	{
+	
+	public BlockContainerJS getNorth() {
 		return offset(Direction.NORTH);
 	}
-
-	public BlockContainerJS getSouth()
-	{
+	
+	public BlockContainerJS getSouth() {
 		return offset(Direction.SOUTH);
 	}
-
-	public BlockContainerJS getWest()
-	{
+	
+	public BlockContainerJS getWest() {
 		return offset(Direction.WEST);
 	}
-
-	public BlockContainerJS getEast()
-	{
+	
+	public BlockContainerJS getEast() {
 		return offset(Direction.EAST);
 	}
-
+	
 	@MinecraftClass
-	public BlockState getBlockState()
-	{
-		if (cachedState == null)
-		{
+	public BlockState getBlockState() {
+		if (cachedState == null) {
 			cachedState = minecraftWorld.getBlockState(getPos());
 		}
-
+		
 		return cachedState;
 	}
-
+	
 	@MinecraftClass
-	public void setBlockState(BlockState state, int flags)
-	{
+	public void setBlockState(BlockState state, int flags) {
 		minecraftWorld.setBlockState(getPos(), state, flags);
 		clearCache();
 	}
-
+	
 	@ID
-	public String getId()
-	{
+	public String getId() {
 		return Registry.BLOCK.getId(getBlockState().getBlock()).toString();
 	}
-
-	public void set(@ID String id, Map<?, ?> properties, int flags)
-	{
+	
+	public void set(@ID String id, Map<?, ?> properties, int flags) {
 		Block block = Registry.BLOCK.get(UtilsJS.getMCID(id));
 		BlockState state = (block == null ? Blocks.AIR : block).getDefaultState();
-
-		if (!properties.isEmpty() && state.getBlock() != Blocks.AIR)
-		{
+		
+		if (!properties.isEmpty() && state.getBlock() != Blocks.AIR) {
 			Map<String, Property> pmap = new HashMap<>();
-
-			for (Property property : state.getProperties())
-			{
+			
+			for (Property property : state.getProperties()) {
 				pmap.put(property.getName(), property);
 			}
-
-			for (Map.Entry entry : properties.entrySet())
-			{
+			
+			for (Map.Entry entry : properties.entrySet()) {
 				Property<?> property = pmap.get(String.valueOf(entry.getKey()));
-
-				if (property != null)
-				{
+				
+				if (property != null) {
 					state = state.with(property, UtilsJS.cast(property.parse(String.valueOf(entry.getValue())).get()));
 				}
 			}
 		}
-
+		
 		setBlockState(state, flags);
 	}
-
-	public void set(@ID String id, Map<?, ?> properties)
-	{
+	
+	public void set(@ID String id, Map<?, ?> properties) {
 		set(id, properties, 3);
 	}
-
-	public void set(@ID String id)
-	{
+	
+	public void set(@ID String id) {
 		set(id, Collections.emptyMap());
 	}
-
-	public Map<String, String> getProperties()
-	{
+	
+	public Map<String, String> getProperties() {
 		Map<String, String> map = new HashMap<>();
 		BlockState state = getBlockState();
-
-		for (Property property : state.getProperties())
-		{
+		
+		for (Property property : state.getProperties()) {
 			map.put(property.getName(), property.name(state.get(property)));
 		}
-
+		
 		return map;
 	}
-
+	
 	@Nullable
 	@MinecraftClass
-	public BlockEntity getEntity()
-	{
-		if (cachedEntity == null || cachedEntity.isRemoved())
-		{
+	public BlockEntity getEntity() {
+		if (cachedEntity == null || cachedEntity.isRemoved()) {
 			cachedEntity = minecraftWorld.getBlockEntity(pos);
 		}
-
+		
 		return cachedEntity;
 	}
-
+	
 	@ID
-	public String getEntityId()
-	{
+	public String getEntityId() {
 		BlockEntity entity = getEntity();
 		return entity == null ? "minecraft:air" : Registry.BLOCK_ENTITY_TYPE.getId(entity.getType()).toString();
 	}
-
+	
 	@Nullable
-	public MapJS getEntityData()
-	{
+	public MapJS getEntityData() {
 		final BlockEntity entity = getEntity();
-
-		if (entity != null)
-		{
+		
+		if (entity != null) {
 			MapJS entityData = MapJS.of(entity.toTag(new CompoundTag()));
-
-			if (entityData != null)
-			{
+			
+			if (entityData != null) {
 				entityData.changeListener = o -> entity.fromTag(entity.getCachedState(), MapJS.nbt(o));
 				return entityData;
 			}
 		}
-
+		
 		return null;
 	}
-
-	public int getLight()
-	{
+	
+	public int getLight() {
 		return minecraftWorld.getLightLevel(pos);
 	}
-
-	public boolean getCanSeeSky()
-	{
+	
+	public boolean getCanSeeSky() {
 		return minecraftWorld.isSkyVisible(pos);
 	}
-
+	
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		String id = getId();
 		Map<String, String> properties = getProperties();
-
-		if (properties.isEmpty())
-		{
+		
+		if (properties.isEmpty()) {
 			return id;
 		}
-
+		
 		StringBuilder builder = new StringBuilder(id);
 		builder.append('[');
-
+		
 		boolean first = true;
-
-		for (Map.Entry<String, String> entry : properties.entrySet())
-		{
-			if (first)
-			{
+		
+		for (Map.Entry<String, String> entry : properties.entrySet()) {
+			if (first) {
 				first = false;
-			}
-			else
-			{
+			} else {
 				builder.append(',');
 			}
-
+			
 			builder.append(entry.getKey());
 			builder.append('=');
 			builder.append(entry.getValue());
 		}
-
+		
 		builder.append(']');
 		return builder.toString();
 	}
-
-	public ExplosionJS createExplosion()
-	{
+	
+	public ExplosionJS createExplosion() {
 		return new ExplosionJS(minecraftWorld, getX() + 0.5D, getY() + 0.5D, getZ() + 0.5D);
 	}
-
+	
 	@Nullable
-	public EntityJS createEntity(@ID String id)
-	{
+	public EntityJS createEntity(@ID String id) {
 		EntityJS entity = getWorld().createEntity(id);
-
-		if (entity != null)
-		{
+		
+		if (entity != null) {
 			entity.setPosition(this);
 		}
-
+		
 		return entity;
 	}
-
-	public void spawnLightning(boolean effectOnly, @Nullable EntityJS player)
-	{
-		if (minecraftWorld instanceof ServerWorld)
-		{
+	
+	public void spawnLightning(boolean effectOnly, @Nullable EntityJS player) {
+		if (minecraftWorld instanceof ServerWorld) {
 			LightningEntity e = EntityType.LIGHTNING_BOLT.create((ServerWorld) minecraftWorld);
 			e.method_29495(new Vec3d(getX() + 0.5D, getY() + 0.5D, getZ() + 0.5D));
 			e.setChanneler(player instanceof ServerPlayerJS ? ((ServerPlayerJS) player).minecraftPlayer : null);
 			minecraftWorld.spawnEntity(e);
 		}
 	}
-
-	public void spawnLightning(boolean effectOnly)
-	{
+	
+	public void spawnLightning(boolean effectOnly) {
 		spawnLightning(effectOnly, null);
 	}
-
-	public void spawnFireworks(FireworksJS fireworks)
-	{
-		if (minecraftWorld instanceof World)
-		{
+	
+	public void spawnFireworks(FireworksJS fireworks) {
+		if (minecraftWorld instanceof World) {
 			minecraftWorld.spawnEntity(fireworks.createFireworkRocket((World) minecraftWorld, getX() + 0.5D, getY() + 0.5D, getZ() + 0.5D));
 		}
 	}
-
+	
 	@Nullable
-	public InventoryJS getInventory(Direction facing)
-	{
+	public InventoryJS getInventory(Direction facing) {
 		BlockEntity tileEntity = getEntity();
-
+		
 		// TODO
 //		if (tileEntity != null)
 //		{
@@ -350,35 +296,29 @@ public class BlockContainerJS
 //				return new InventoryJS(handler);
 //			}
 //		}
-
+		
 		return null;
 	}
-
-	public MaterialJS getMaterial()
-	{
+	
+	public MaterialJS getMaterial() {
 		return MaterialListJS.INSTANCE.get(getBlockState().getMaterial());
 	}
-
+	
 	@SuppressWarnings("deprecation")
 	@Environment(EnvType.CLIENT)
-	public ItemStackJS getItem()
-	{
+	public ItemStackJS getItem() {
 		BlockState state = getBlockState();
 		return ItemStackJS.of(state.getBlock().getPickStack(minecraftWorld, pos, state));
 	}
-
+	
 	@Override
-	public boolean equals(Object obj)
-	{
-		if (obj == this)
-		{
+	public boolean equals(Object obj) {
+		if (obj == this) {
 			return true;
-		}
-		else if (obj instanceof CharSequence || obj instanceof Identifier)
-		{
+		} else if (obj instanceof CharSequence || obj instanceof Identifier) {
 			return getId().equals(obj.toString());
 		}
-
+		
 		return super.equals(obj);
 	}
 }

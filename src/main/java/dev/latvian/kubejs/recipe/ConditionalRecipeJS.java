@@ -5,20 +5,16 @@ import dev.latvian.kubejs.util.ListJS;
 /**
  * @author LatvianModder
  */
-public class ConditionalRecipeJS extends RecipeJS
-{
+public class ConditionalRecipeJS extends RecipeJS {
 	@Override
-	public void create(ListJS args)
-	{
+	public void create(ListJS args) {
 	}
-
+	
 	@Override
-	public void deserialize()
-	{
+	public void deserialize() {
 	}
-
+	
 	@Override
-	public void serialize()
-	{
+	public void serialize() {
 	}
 }

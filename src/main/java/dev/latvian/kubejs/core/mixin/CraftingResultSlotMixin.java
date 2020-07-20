@@ -15,9 +15,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(CraftingResultSlot.class)
 public class CraftingResultSlotMixin {
 	@Shadow @Final private PlayerEntity player;
-
+	
 	@Shadow @Final private CraftingInventory input;
-
+	
 	@Inject(at = @At("HEAD"), method = "onCrafted(Lnet/minecraft/item/ItemStack;)V")
 	void onCraft(ItemStack stack, CallbackInfo ci) {
 		ItemCraftCallback.EVENT.invoker().craft(this.player, input, stack);

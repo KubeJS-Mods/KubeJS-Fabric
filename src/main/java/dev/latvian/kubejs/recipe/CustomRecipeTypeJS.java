@@ -6,16 +6,13 @@ import net.minecraft.recipe.RecipeSerializer;
 /**
  * @author LatvianModder
  */
-public class CustomRecipeTypeJS extends RecipeTypeJS
-{
-	public CustomRecipeTypeJS(RecipeSerializer s)
-	{
+public class CustomRecipeTypeJS extends RecipeTypeJS {
+	public CustomRecipeTypeJS(RecipeSerializer s) {
 		super(s, CustomRecipeJS::new);
 	}
-
+	
 	@Override
-	public boolean isCustom()
-	{
+	public boolean isCustom() {
 		return true;
 	}
 }

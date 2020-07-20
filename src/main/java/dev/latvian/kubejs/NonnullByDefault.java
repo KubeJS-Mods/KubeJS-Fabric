@@ -15,6 +15,5 @@ import java.lang.annotation.RetentionPolicy;
 @Nonnull
 @TypeQualifierDefault({ElementType.METHOD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface NonnullByDefault
-{
+public @interface NonnullByDefault {
 }

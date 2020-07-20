@@ -26,117 +26,94 @@ import javax.annotation.Nullable;
 /**
  * @author LatvianModder
  */
-public class KubeJSItemEventHandler
-{
-	public void init()
-	{
+public class KubeJSItemEventHandler {
+	public void init() {
 		AfterScriptLoadCallback.EVENT.register(this::registry);
 		ItemRightClickAirCallback.EVENT.register(this::rightClick); // Done
-		EmptyRightClickAirCallback.EVENT.register(this::rightClickEmpty); // Done
-		EmptyLeftClickAirCallback.EVENT.register(this::leftClickEmpty); // Done
+//		EmptyRightClickAirCallback.EVENT.register(this::rightClickEmpty); // Done
+//		EmptyLeftClickAirCallback.EVENT.register(this::leftClickEmpty); // Done
 		ItemEntityPickupCallback.EVENT.register(this::pickup); // Done
 		ItemEntityTossCallback.EVENT.register(this::toss); // Done
 		ItemRightClickEntityCallback.EVENT.register(this::entityInteract); // Done
 		ItemCraftCallback.EVENT.register(this::crafted); // Done
-		ItemSmeltCallback.EVENT.register(this::smelted); // Done
+//		ItemSmeltCallback.EVENT.register(this::smelted); // Done
 		ItemDestroyCallback.EVENT.register(this::destroyed); // Done
 	}
-
-	private void registry()
-	{
-		for (ItemBuilder builder : KubeJSObjects.ITEMS.values())
-		{
+	
+	private void registry() {
+		for (ItemBuilder builder : KubeJSObjects.ITEMS.values()) {
 			builder.item = new ItemJS(builder);
 			Registry.register(Registry.ITEM, builder.id, builder.item);
 		}
-
-		for (BlockBuilder builder : KubeJSObjects.BLOCKS.values())
-		{
-			if (builder.itemBuilder != null)
-			{
+		
+		for (BlockBuilder builder : KubeJSObjects.BLOCKS.values()) {
+			if (builder.itemBuilder != null) {
 				builder.itemBuilder.blockItem = new BlockItemJS(builder.itemBuilder);
 				Registry.register(Registry.ITEM, builder.id, builder.itemBuilder.blockItem);
 			}
 		}
-
-		for (FluidBuilder builder : KubeJSObjects.FLUIDS.values())
-		{
+		
+		for (FluidBuilder builder : KubeJSObjects.FLUIDS.values()) {
 			builder.bucketItem = new BucketItemJS(builder);
 			Registry.register(Registry.ITEM, builder.id.getNamespace() + ":" + builder.id.getPath() + "_bucket", builder.bucketItem);
 		}
 	}
-
-	private ActionResult rightClick(PlayerEntity player, ItemStack stack, Hand hand, BlockPos position)
-	{
-		if (new ItemRightClickEventJS(player, stack, hand, position).post(KubeJSEvents.ITEM_RIGHT_CLICK))
-		{
+	
+	private ActionResult rightClick(PlayerEntity player, ItemStack stack, Hand hand, BlockPos position) {
+		if (new ItemRightClickEventJS(player, stack, hand, position).post(KubeJSEvents.ITEM_RIGHT_CLICK)) {
 			return ActionResult.SUCCESS;
 		}
-
+		
 		return ActionResult.PASS;
 	}
-
-	private void rightClickEmpty(PlayerEntity player, Hand hand, BlockPos position)
-	{
+	
+	private void rightClickEmpty(PlayerEntity player, Hand hand, BlockPos position) {
 		new ItemRightClickEmptyEventJS(player, hand, position).post(KubeJSEvents.ITEM_RIGHT_CLICK_EMPTY);
 	}
-
-	private void leftClickEmpty(PlayerEntity player, Hand hand, BlockPos position)
-	{
+	
+	private void leftClickEmpty(PlayerEntity player, Hand hand, BlockPos position) {
 		new ItemLeftClickEventJS(player, hand, position).post(KubeJSEvents.ITEM_LEFT_CLICK);
 	}
-
-	private ActionResult pickup(PlayerEntity player, ItemEntity entity)
-	{
-		if (player != null && player.world != null && new ItemPickupEventJS(player, entity).post(KubeJSEvents.ITEM_PICKUP))
-		{
+	
+	private ActionResult pickup(PlayerEntity player, ItemEntity entity) {
+		if (player != null && player.world != null && new ItemPickupEventJS(player, entity).post(KubeJSEvents.ITEM_PICKUP)) {
 			return ActionResult.SUCCESS;
 		}
-
+		
 		return ActionResult.PASS;
 	}
-
-	private ActionResult toss(PlayerEntity player, ItemEntity entity)
-	{
-		if (player != null && player.world != null && new ItemTossEventJS(player, entity).post(KubeJSEvents.ITEM_TOSS))
-		{
+	
+	private ActionResult toss(PlayerEntity player, ItemEntity entity) {
+		if (player != null && player.world != null && new ItemTossEventJS(player, entity).post(KubeJSEvents.ITEM_TOSS)) {
 			return ActionResult.SUCCESS;
 		}
-
+		
 		return ActionResult.PASS;
 	}
-
-	private ActionResult entityInteract(PlayerEntity player, Entity entity, Hand hand, BlockPos position)
-	{
-		if (new ItemEntityInteractEventJS(player, entity, hand, position).post(KubeJSEvents.ITEM_ENTITY_INTERACT))
-		{
+	
+	private ActionResult entityInteract(PlayerEntity player, Entity entity, Hand hand, BlockPos position) {
+		if (new ItemEntityInteractEventJS(player, entity, hand, position).post(KubeJSEvents.ITEM_ENTITY_INTERACT)) {
 			return ActionResult.SUCCESS;
 		}
-
+		
 		return ActionResult.FAIL;
 	}
-
-	private void crafted(PlayerEntity player, Inventory inventory, ItemStack result)
-	{
-		if (player instanceof ServerPlayerEntity && !result.isEmpty())
-		{
+	
+	private void crafted(PlayerEntity player, Inventory inventory, ItemStack result) {
+		if (player instanceof ServerPlayerEntity && !result.isEmpty()) {
 			new ItemCraftedEventJS(player, inventory, result).post(KubeJSEvents.ITEM_CRAFTED);
 			new InventoryChangedEventJS((ServerPlayerEntity) player, result, -1).post(KubeJSEvents.PLAYER_INVENTORY_CHANGED);
 		}
 	}
-
-	private void smelted(Inventory inventory, ItemStack result)
-	{
-		if (!result.isEmpty())
-		{
+	
+	private void smelted(Inventory inventory, ItemStack result) {
+		if (!result.isEmpty()) {
 			new ItemSmeltedEventJS(inventory, result).post(ScriptType.SERVER, KubeJSEvents.ITEM_SMELTED);
 		}
 	}
-
-	private void destroyed(PlayerEntity player, @Nonnull ItemStack original, @Nullable Hand hand)
-	{
-		if (player instanceof ServerPlayerEntity)
-		{
+	
+	private void destroyed(PlayerEntity player, @Nonnull ItemStack original, @Nullable Hand hand) {
+		if (player instanceof ServerPlayerEntity) {
 			new ItemDestroyedEventJS(player, original, hand).post(KubeJSEvents.ITEM_DESTROYED);
 		}
 	}

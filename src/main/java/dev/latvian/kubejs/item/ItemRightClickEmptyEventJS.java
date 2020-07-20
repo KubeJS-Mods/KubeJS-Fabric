@@ -9,32 +9,27 @@ import net.minecraft.util.math.BlockPos;
 /**
  * @author LatvianModder
  */
-public class ItemRightClickEmptyEventJS extends PlayerEventJS
-{
+public class ItemRightClickEmptyEventJS extends PlayerEventJS {
 	public final PlayerEntity player;
 	public final Hand hand;
 	public final BlockPos position;
-
-	public ItemRightClickEmptyEventJS(PlayerEntity player, Hand hand, BlockPos position)
-	{
+	
+	public ItemRightClickEmptyEventJS(PlayerEntity player, Hand hand, BlockPos position) {
 		this.player = player;
 		this.hand = hand;
 		this.position = position;
 	}
-
+	
 	@Override
-	public EntityJS getEntity()
-	{
+	public EntityJS getEntity() {
 		return entityOf(player);
 	}
-
-	public Hand getHand()
-	{
+	
+	public Hand getHand() {
 		return hand;
 	}
-
-	public ItemStackJS getItem()
-	{
+	
+	public ItemStackJS getItem() {
 		return EmptyItemStackJS.INSTANCE;
 	}
 }

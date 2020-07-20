@@ -13,6 +13,6 @@ public interface ItemEntityPickupCallback {
 			}
 		};
 	});
-
+	
 	void pickup(PlayerEntity player, ItemEntity entity);
 }

@@ -15,6 +15,6 @@ public interface ItemRightClickAirCallback {
 			}
 		};
 	});
-
+	
 	void rightClick(PlayerEntity player, ItemStack stack, Hand hand, BlockPos position);
 }

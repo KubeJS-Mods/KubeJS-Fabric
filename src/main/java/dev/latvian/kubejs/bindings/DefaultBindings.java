@@ -17,20 +17,17 @@ import net.minecraft.util.Rarity;
 /**
  * @author LatvianModder
  */
-public class DefaultBindings
-{
+public class DefaultBindings {
 	public static final MapJS GLOBAL = new MapJS();
-
-	public static void init(ScriptManager manager, BindingsEvent event)
-	{
+	
+	public static void init(ScriptManager manager, BindingsEvent event) {
 		event.add("global", GLOBAL);
-
-		if (event.type == ScriptType.SERVER)
-		{
+		
+		if (event.type == ScriptType.SERVER) {
 			ServerSettings.instance = new ServerSettings();
 			event.add("settings", ServerSettings.instance);
 		}
-
+		
 		event.add("mod", ScriptModData.getInstance());
 		event.add("console", manager.type.console);
 		event.add("events", new ScriptEventsWrapper(event.type.manager.get().events));
@@ -45,38 +42,37 @@ public class DefaultBindings
 		event.add("facing", new FacingWrapper());
 
 //		event.add("fluid", new FluidWrapper());
-
+		
 		event.addConstant("SECOND", 1000L);
 		event.addConstant("MINUTE", 60000L);
 		event.addConstant("HOUR", 3600000L);
-
-		for (TextColor color : TextColor.MAP.values())
-		{
+		
+		for (TextColor color : TextColor.MAP.values()) {
 			event.addConstant(color.name.toUpperCase(), color);
 		}
-
+		
 		event.addConstant("SLOT_MAINHAND", EquipmentSlot.MAINHAND);
 		event.addConstant("SLOT_OFFHAND", EquipmentSlot.OFFHAND);
 		event.addConstant("SLOT_FEET", EquipmentSlot.FEET);
 		event.addConstant("SLOT_LEGS", EquipmentSlot.LEGS);
 		event.addConstant("SLOT_CHEST", EquipmentSlot.CHEST);
 		event.addConstant("SLOT_HEAD", EquipmentSlot.HEAD);
-
+		
 		event.addConstant("RARITY_COMMON", Rarity.COMMON);
 		event.addConstant("RARITY_UNCOMMON", Rarity.UNCOMMON);
 		event.addConstant("RARITY_RARE", Rarity.RARE);
 		event.addConstant("RARITY_EPIC", Rarity.EPIC);
-
+		
 		event.addConstant("AIR_ITEM", Items.AIR);
 		event.addConstant("AIR_BLOCK", Blocks.AIR);
 
 //		event.addConstant("TOOL_TYPE_AXE", ToolType.AXE);
 //		event.addConstant("TOOL_TYPE_PICKAXE", ToolType.PICKAXE);
 //		event.addConstant("TOOL_TYPE_SHOVEL", ToolType.SHOVEL);
-
+		
 		event.addConstant("MAIN_HAND", Hand.MAIN_HAND);
 		event.addConstant("OFF_HAND", Hand.OFF_HAND);
-
+		
 		KubeJS.instance.proxy.clientBindings(event);
 	}
 }

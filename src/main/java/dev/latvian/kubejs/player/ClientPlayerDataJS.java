@@ -11,58 +11,49 @@ import java.util.UUID;
 /**
  * @author LatvianModder
  */
-public class ClientPlayerDataJS extends PlayerDataJS<PlayerEntity, ClientPlayerJS>
-{
+public class ClientPlayerDataJS extends PlayerDataJS<PlayerEntity, ClientPlayerJS> {
 	private final ClientWorldJS world;
 	private final ClientPlayerJS player;
 	private final PlayerEntity minecraftPlayer;
-
-	public ClientPlayerDataJS(ClientWorldJS w, PlayerEntity p, boolean s)
-	{
+	
+	public ClientPlayerDataJS(ClientWorldJS w, PlayerEntity p, boolean s) {
 		world = w;
 		minecraftPlayer = p;
 		player = new ClientPlayerJS(this, minecraftPlayer, s);
 	}
-
-	public ClientWorldJS getWorld()
-	{
+	
+	public ClientWorldJS getWorld() {
 		return world;
 	}
-
+	
 	@Override
-	public UUID getId()
-	{
+	public UUID getId() {
 		return player.getId();
 	}
-
+	
 	@Override
-	public String getName()
-	{
+	public String getName() {
 		return player.getProfile().getName();
 	}
-
+	
 	@Override
-	public GameProfile getProfile()
-	{
+	public GameProfile getProfile() {
 		return player.getProfile();
 	}
-
+	
 	@Override
-	public WorldJS getOverworld()
-	{
+	public WorldJS getOverworld() {
 		return world;
 	}
-
+	
 	@Nullable
 	@Override
-	public PlayerEntity getMinecraftPlayer()
-	{
+	public PlayerEntity getMinecraftPlayer() {
 		return minecraftPlayer;
 	}
-
+	
 	@Override
-	public ClientPlayerJS getPlayer()
-	{
+	public ClientPlayerJS getPlayer() {
 		return player;
 	}
 }

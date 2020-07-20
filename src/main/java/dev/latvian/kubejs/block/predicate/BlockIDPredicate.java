@@ -15,108 +15,88 @@ import java.util.*;
 /**
  * @author LatvianModder
  */
-public class BlockIDPredicate implements BlockPredicate
-{
-	private static class PropertyObject
-	{
+public class BlockIDPredicate implements BlockPredicate {
+	private static class PropertyObject {
 		private Property<?> property;
 		private Object value;
 	}
-
+	
 	private final Identifier id;
 	private Map<String, String> properties;
 	private Block cachedBlock;
 	private List<PropertyObject> cachedProperties;
-
-	public BlockIDPredicate(@ID String i)
-	{
+	
+	public BlockIDPredicate(@ID String i) {
 		id = UtilsJS.getMCID(i);
 	}
-
+	
 	@Override
-	public String toString()
-	{
-		if (properties == null || properties.isEmpty())
-		{
+	public String toString() {
+		if (properties == null || properties.isEmpty()) {
 			return id.toString();
 		}
-
+		
 		StringBuilder sb = new StringBuilder(id.toString());
 		sb.append('[');
-
+		
 		boolean first = true;
-
-		for (Map.Entry<String, String> entry : properties.entrySet())
-		{
-			if (first)
-			{
+		
+		for (Map.Entry<String, String> entry : properties.entrySet()) {
+			if (first) {
 				first = false;
-			}
-			else
-			{
+			} else {
 				sb.append(',');
 			}
-
+			
 			sb.append(entry.getKey());
 			sb.append('=');
 			sb.append(entry.getValue());
 		}
-
+		
 		sb.append(']');
 		return sb.toString();
 	}
-
-	public BlockIDPredicate with(String key, String value)
-	{
-		if (properties == null)
-		{
+	
+	public BlockIDPredicate with(String key, String value) {
+		if (properties == null) {
 			properties = new HashMap<>();
 		}
-
+		
 		properties.put(key, value);
 		cachedBlock = null;
 		cachedProperties = null;
 		return this;
 	}
-
-	private Block getBlock()
-	{
-		if (cachedBlock == null)
-		{
+	
+	private Block getBlock() {
+		if (cachedBlock == null) {
 			cachedBlock = Registry.BLOCK.get(id);
-
-			if (cachedBlock == null)
-			{
+			
+			if (cachedBlock == null) {
 				cachedBlock = Blocks.AIR;
 			}
 		}
-
+		
 		return cachedBlock;
 	}
-
-	public List<PropertyObject> getBlockProperties()
-	{
-		if (cachedProperties == null)
-		{
+	
+	public List<PropertyObject> getBlockProperties() {
+		if (cachedProperties == null) {
 			cachedProperties = new LinkedList<>();
-
+			
 			Map<String, Property<?>> map = new HashMap<>();
-
-			for (Property<?> property : getBlock().getDefaultState().getProperties())
-			{
+			
+			for (Property<?> property : getBlock().getDefaultState().getProperties()) {
 				map.put(property.getName(), property);
 			}
-
-			for (Map.Entry<String, String> entry : properties.entrySet())
-			{
+			
+			for (Map.Entry<String, String> entry : properties.entrySet()) {
 				Property<?> property = map.get(entry.getKey());
-
-				if (property != null)
-				{
+				
+				if (property != null) {
 					Optional<?> o = property.parse(entry.getValue());
-
-					if (o.isPresent())
-					{
+					
+					if (o.isPresent()) {
 						PropertyObject po = new PropertyObject();
 						po.property = property;
 						po.value = o.get();
@@ -125,48 +105,40 @@ public class BlockIDPredicate implements BlockPredicate
 				}
 			}
 		}
-
+		
 		return cachedProperties;
 	}
-
-	public BlockState getBlockState()
-	{
+	
+	public BlockState getBlockState() {
 		BlockState state = getBlock().getDefaultState();
-
-		for (PropertyObject object : getBlockProperties())
-		{
+		
+		for (PropertyObject object : getBlockProperties()) {
 			state = state.with(object.property, UtilsJS.cast(object.value));
 		}
-
+		
 		return state;
 	}
-
+	
 	@Override
-	public boolean check(BlockContainerJS b)
-	{
+	public boolean check(BlockContainerJS b) {
 		return getBlock() != Blocks.AIR && checkState(b.getBlockState());
 	}
-
-	public boolean checkState(BlockState state)
-	{
-		if (state.getBlock() != getBlock())
-		{
+	
+	public boolean checkState(BlockState state) {
+		if (state.getBlock() != getBlock()) {
 			return false;
 		}
-
-		if (properties == null || properties.isEmpty())
-		{
+		
+		if (properties == null || properties.isEmpty()) {
 			return true;
 		}
-
-		for (PropertyObject object : getBlockProperties())
-		{
-			if (!state.get(object.property).equals(object.value))
-			{
+		
+		for (PropertyObject object : getBlockProperties()) {
+			if (!state.get(object.property).equals(object.value)) {
 				return false;
 			}
 		}
-
+		
 		return true;
 	}
 

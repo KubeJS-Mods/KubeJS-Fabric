@@ -12,52 +12,42 @@ import java.util.regex.Pattern;
 /**
  * @author LatvianModder
  */
-public class IngredientWrapper
-{
-	public IngredientJS getNone()
-	{
+public class IngredientWrapper {
+	public IngredientJS getNone() {
 		return EmptyItemStackJS.INSTANCE;
 	}
-
-	public IngredientJS getAll()
-	{
+	
+	public IngredientJS getAll() {
 		return MatchAllIngredientJS.INSTANCE;
 	}
-
-	public IngredientJS of(Object object)
-	{
+	
+	public IngredientJS of(Object object) {
 		return IngredientJS.of(object);
 	}
-
-	public IngredientJS custom(Predicate<ItemStackJS> predicate)
-	{
+	
+	public IngredientJS custom(Predicate<ItemStackJS> predicate) {
 		return predicate::test;
 	}
-
-	public IngredientJS matchAny(Object[] objects)
-	{
+	
+	public IngredientJS matchAny(Object[] objects) {
 		MatchAnyIngredientJS ingredient = new MatchAnyIngredientJS();
 		ingredient.addAll(objects);
 		return ingredient;
 	}
-
-	public IngredientJS tag(@ID String tag)
-	{
+	
+	public IngredientJS tag(@ID String tag) {
 		return new TagIngredientJS(UtilsJS.getMCID(tag));
 	}
-
-	public IngredientJS mod(String modId)
-	{
+	
+	public IngredientJS mod(String modId) {
 		return new ModIngredientJS(modId);
 	}
-
-	public IngredientJS regex(Pattern pattern)
-	{
+	
+	public IngredientJS regex(Pattern pattern) {
 		return new RegexIngredientJS(pattern);
 	}
-
-	public IngredientJS regex(String pattern)
-	{
+	
+	public IngredientJS regex(String pattern) {
 		return regex(Pattern.compile(pattern));
 	}
 }

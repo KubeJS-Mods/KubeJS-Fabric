@@ -5,7 +5,6 @@ import net.minecraft.util.Identifier;
 /**
  * @author LatvianModder
  */
-public interface ImageButtonKJS
-{
+public interface ImageButtonKJS {
 	Identifier getButtonTextureKJS();
 }

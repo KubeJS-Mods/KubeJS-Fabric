@@ -11,23 +11,20 @@ import java.util.function.Supplier;
 /**
  * @author LatvianModder
  */
-public enum ScriptType
-{
+public enum ScriptType {
 	STARTUP("startup", "KubeJS Startup", () -> KubeJS.startupScriptManager),
 	SERVER("server", "KubeJS Server", () -> ServerScriptManager.instance.scriptManager),
 	CLIENT("client", "KubeJS Client", () -> KubeJS.clientScriptManager);
-
-	public static ScriptType of(WorldView world)
-	{
+	
+	public static ScriptType of(WorldView world) {
 		return world.isClient() ? CLIENT : SERVER;
 	}
-
+	
 	public final String name;
 	public final ConsoleJS console;
 	public final Supplier<ScriptManager> manager;
-
-	ScriptType(String n, String cname, Supplier<ScriptManager> m)
-	{
+	
+	ScriptType(String n, String cname, Supplier<ScriptManager> m) {
 		name = n;
 		console = new ConsoleJS(this, LogManager.getLogger(cname));
 		manager = m;

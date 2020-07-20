@@ -14,16 +14,15 @@ import java.util.Map;
  * @author LatvianModder
  */
 @Mixin(ReloadableResourceManagerImpl.class)
-public abstract class SimpleReloadableResourceManagerMixin implements SimpleReloadableResourceManagerKJS
-{
+public abstract class SimpleReloadableResourceManagerMixin implements SimpleReloadableResourceManagerKJS {
 	@Override
 	@Accessor("namespaceManagers")
 	public abstract Map<String, NamespaceResourceManager> getNamespaceResourceManagersKJS();
-
+	
 	@Override
 	@Accessor("listeners")
 	public abstract List<ResourceReloadListener> getReloadListenersKJS();
-
+	
 	@Override
 	@Accessor("initialListeners")
 	public abstract List<ResourceReloadListener> getInitTaskQueueKJS();

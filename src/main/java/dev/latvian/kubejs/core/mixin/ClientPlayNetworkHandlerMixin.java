@@ -17,19 +17,16 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(ClientPlayNetworkHandler.class)
 @Environment(EnvType.CLIENT)
-public class ClientPlayNetworkHandlerMixin
-{
+public class ClientPlayNetworkHandlerMixin {
 	@Inject(method = "onGameJoin", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/GameJoinS2CPacket;getEntityId()I"))
-	private void onGameJoin(GameJoinS2CPacket packet, CallbackInfo ci)
-	{
+	private void onGameJoin(GameJoinS2CPacket packet, CallbackInfo ci) {
 		KubeJSClientEventHandler.ON_JOIN.invoker().run();
 	}
-
+	
 	@Inject(method = "onPlayerRespawn", at = @At(value = "INVOKE",
 	                                             target = "Lnet/minecraft/client/world/ClientWorld;addPlayer(ILnet/minecraft/client/network/AbstractClientPlayerEntity;)V",
 	                                             shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
-	private void onPlayerRespawn(PlayerRespawnS2CPacket packet, CallbackInfo ci, RegistryKey registryKey, RegistryKey registryKey2, DimensionType dimensionType, ClientPlayerEntity clientPlayerEntity, int i, String string, ClientPlayerEntity clientPlayerEntity2)
-	{
+	private void onPlayerRespawn(PlayerRespawnS2CPacket packet, CallbackInfo ci, RegistryKey registryKey, RegistryKey registryKey2, DimensionType dimensionType, ClientPlayerEntity clientPlayerEntity, int i, String string, ClientPlayerEntity clientPlayerEntity2) {
 		KubeJSClientEventHandler.ON_RESPAWN.invoker().accept(clientPlayerEntity2);
 	}
 }

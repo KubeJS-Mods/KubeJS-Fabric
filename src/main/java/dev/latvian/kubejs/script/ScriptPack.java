@@ -7,16 +7,14 @@ import java.util.List;
 /**
  * @author LatvianModder
  */
-public class ScriptPack
-{
+public class ScriptPack {
 	public final ScriptManager manager;
 	public final ScriptPackInfo info;
 	public final List<ScriptFile> scripts;
-
+	
 	public ScriptEngine engine;
-
-	public ScriptPack(ScriptManager m, ScriptPackInfo i)
-	{
+	
+	public ScriptPack(ScriptManager m, ScriptPackInfo i) {
 		manager = m;
 		info = i;
 		scripts = new ArrayList<>();

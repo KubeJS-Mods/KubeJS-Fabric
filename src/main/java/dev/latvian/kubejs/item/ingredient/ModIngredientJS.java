@@ -11,65 +11,53 @@ import java.util.Set;
 /**
  * @author LatvianModder
  */
-public class ModIngredientJS implements IngredientJS
-{
+public class ModIngredientJS implements IngredientJS {
 	private final String mod;
-
-	public ModIngredientJS(String m)
-	{
+	
+	public ModIngredientJS(String m) {
 		mod = m;
 	}
-
-	public String getMod()
-	{
+	
+	public String getMod() {
 		return mod;
 	}
-
+	
 	@Override
-	public boolean test(ItemStackJS stack)
-	{
+	public boolean test(ItemStackJS stack) {
 		return !stack.isEmpty() && mod.equals(stack.getMod());
 	}
-
+	
 	@Override
-	public boolean testVanilla(ItemStack stack)
-	{
+	public boolean testVanilla(ItemStack stack) {
 		return !stack.isEmpty() && mod.equals(Registry.ITEM.getId(stack.getItem()).getNamespace());
 	}
-
+	
 	@Override
-	public Set<ItemStackJS> getStacks()
-	{
+	public Set<ItemStackJS> getStacks() {
 		Set<ItemStackJS> set = new LinkedHashSet<>();
-
-		for (ItemStackJS stack : ItemStackJS.getList())
-		{
-			if (mod.equals(stack.getMod()))
-			{
+		
+		for (ItemStackJS stack : ItemStackJS.getList()) {
+			if (mod.equals(stack.getMod())) {
 				set.add(stack);
 			}
 		}
-
+		
 		return set;
 	}
-
+	
 	@Override
-	public ItemStackJS getFirst()
-	{
-		for (ItemStackJS stack : ItemStackJS.getList())
-		{
-			if (mod.equals(stack.getMod()))
-			{
+	public ItemStackJS getFirst() {
+		for (ItemStackJS stack : ItemStackJS.getList()) {
+			if (mod.equals(stack.getMod())) {
 				return stack.getCopy();
 			}
 		}
-
+		
 		return EmptyItemStackJS.INSTANCE;
 	}
-
+	
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return "mod:" + mod;
 	}
 }

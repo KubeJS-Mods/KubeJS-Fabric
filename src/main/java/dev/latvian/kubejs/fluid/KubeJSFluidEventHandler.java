@@ -5,15 +5,12 @@ import dev.latvian.kubejs.core.AfterScriptLoadCallback;
 /**
  * @author LatvianModder
  */
-public class KubeJSFluidEventHandler
-{
-	public void init()
-	{
+public class KubeJSFluidEventHandler {
+	public void init() {
 		AfterScriptLoadCallback.EVENT.register(this::registry);
 	}
-
-	private void registry()
-	{
+	
+	private void registry() {
 		// TODO
 //		for (FluidBuilder builder : KubeJSObjects.FLUIDS.values())
 //		{
