@@ -22,7 +22,7 @@ public abstract class DataPackRegistriesMixin implements DataPackRegistriesKJS {
 		initKJS();
 	}
 	
-	@ModifyArg(method = "reload", remap = false, at = @At(value = "INVOKE", ordinal = 0,
+	@ModifyArg(method = "reload", at = @At(value = "INVOKE", ordinal = 0,
 	                                                      target = "Lnet/minecraft/resource/ReloadableResourceManager;beginReload(Ljava/util/concurrent/Executor;Ljava/util/concurrent/Executor;Ljava/util/List;Ljava/util/concurrent/CompletableFuture;)Ljava/util/concurrent/CompletableFuture;"),
 	           index = 2)
 	private static List<ResourcePack> resourcePackList(List<ResourcePack> list) {

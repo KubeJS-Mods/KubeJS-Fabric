@@ -15,7 +15,7 @@ public abstract class AbstractBlockMixin implements BlockKJS {
 	public abstract void setHardnessKJS(float f);
 
 	@Override
-	@Accessor(value = "field_235689_au_", remap = false)
+	@Accessor(value = "field_235689_au_")
 	public abstract void setResistanceKJS(float f);
 
 	@Override
@@ -23,11 +23,11 @@ public abstract class AbstractBlockMixin implements BlockKJS {
 	public abstract void setLightLevelKJS(int f);
 
 	@Override
-	@Accessor(value = "harvestTool", remap = false)
+	@Accessor(value = "harvestTool")
 	public abstract void setHarvestToolKJS(ToolType v);
 
 	@Override
-	@Accessor(value = "harvestLevel", remap = false)
+	@Accessor(value = "harvestLevel")
 	public abstract void setHarvestLevelKJS(int v);
 	 */
 }
