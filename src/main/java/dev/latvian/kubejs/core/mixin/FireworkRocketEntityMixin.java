@@ -11,6 +11,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(FireworkRocketEntity.class)
 public abstract class FireworkRocketEntityMixin implements FireworkRocketEntityKJS {
 	@Override
-	@Accessor("lifetime")
+	@Accessor("lifeTime")
 	public abstract void setLifetimeKJS(int lifetime);
 }
