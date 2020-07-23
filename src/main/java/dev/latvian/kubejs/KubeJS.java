@@ -76,14 +76,6 @@ public class KubeJS implements ModInitializer {
 			startupFolder.mkdirs();
 			
 			try {
-				try (PrintWriter scriptsJsonWriter = new PrintWriter(new FileWriter(new File(startupFolder, "scripts.json")))) {
-					scriptsJsonWriter.println("{");
-					scriptsJsonWriter.println("	\"scripts\": [");
-					scriptsJsonWriter.println("		{\"file\": \"example.js\"}");
-					scriptsJsonWriter.println("	]");
-					scriptsJsonWriter.println("}");
-				}
-				
 				try (PrintWriter exampleJsWriter = new PrintWriter(new FileWriter(new File(startupFolder, "example.js")))) {
 					exampleJsWriter.println("console.info('Hello, World! (You will only see this line once in console, during startup)')");
 				}
