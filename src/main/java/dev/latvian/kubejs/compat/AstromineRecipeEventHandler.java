@@ -11,8 +11,10 @@ import dev.latvian.kubejs.recipe.RecipeTypeJS;
 import dev.latvian.kubejs.recipe.RegisterRecipeHandlersEvent;
 import dev.latvian.kubejs.util.ListJS;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.item.ItemStack;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class AstromineRecipeEventHandler implements KubeJSInitializer {
 	@Override
@@ -26,7 +28,8 @@ public class AstromineRecipeEventHandler implements KubeJSInitializer {
 	}
 	
 	private static abstract class SimpleRecipeJS extends RecipeJS {
-		private IngredientJS input, output;
+		private IngredientJS input;
+		private ItemStackJS output;
 		private int time = 30;
 		private double energyConsumed = 280;
 		
@@ -35,7 +38,7 @@ public class AstromineRecipeEventHandler implements KubeJSInitializer {
 			if (args.size() < 2) {
 				throw new RecipeExceptionJS(getTypeName() + " recipe requires 2 arguments - output, and input!");
 			}
-			output = IngredientJS.of(args.get(0));
+			output = ItemStackJS.of(args.get(0));
 			if (output.isEmpty()) {
 				throw new RecipeExceptionJS(getTypeName() + " recipe result " + args.get(0) + " is not a valid item!");
 			}
@@ -51,6 +54,11 @@ public class AstromineRecipeEventHandler implements KubeJSInitializer {
 			if (args.size() >= 4) {
 				energyConsumed = ((Number) args.get(3)).doubleValue();
 			}
+
+			inputItems.add(input);
+			outputItems.addAll(output.getStacks());
+
+			System.out.println("CREATE: " + inputItems.stream().map(stack -> stack.getStacks().toString()).collect(Collectors.joining()));
 		}
 		
 		@Override
@@ -60,14 +68,19 @@ public class AstromineRecipeEventHandler implements KubeJSInitializer {
 			
 			time = json.get("time").getAsInt();
 			energyConsumed = json.get("energy_consumed").getAsDouble();
+
+			inputItems.add(input);
+			outputItems.addAll(output.getStacks());
+
+			System.out.println("DESERIALIZE: " + inputItems.stream().map(stack -> stack.getStacks().toString()).collect(Collectors.joining()));
 		}
 		
 		protected abstract String getTypeName();
 		
 		@Override
 		public void serialize() {
-			json.add("input", toJson(input));
-			json.add("output", toJson(output));
+			json.add("input", inputItems.get(0).toJson());
+			json.add("output", outputItems.get(0).toResultJson());
 			json.addProperty("time", time);
 			json.addProperty("energy_consumed", energyConsumed);
 		}

@@ -148,6 +148,7 @@ public class RecipeEventJS extends ServerEventJS {
 					modified++;
 				} catch (Exception ex) {
 					ScriptType.SERVER.console.warn("Error parsing recipe " + r + ": " + ex);
+					ex.printStackTrace();
 				}
 			}
 			
