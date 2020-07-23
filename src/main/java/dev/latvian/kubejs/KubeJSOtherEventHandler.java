@@ -8,8 +8,9 @@ import net.minecraft.util.registry.Registry;
 /**
  * @author LatvianModder
  */
-public class KubeJSOtherEventHandler {
-	public void init() {
+public class KubeJSOtherEventHandler implements KubeJSInitializer {
+	@Override
+	public void onKubeJSInitialization() {
 		AfterScriptLoadCallback.EVENT.register(this::registry);
 	}
 	

@@ -1,20 +1,13 @@
 package dev.latvian.kubejs;
 
 import dev.latvian.kubejs.block.BlockRegistryEventJS;
-import dev.latvian.kubejs.block.KubeJSBlockEventHandler;
 import dev.latvian.kubejs.core.AfterScriptLoadCallback;
-import dev.latvian.kubejs.entity.KubeJSEntityEventHandler;
 import dev.latvian.kubejs.event.EventJS;
 import dev.latvian.kubejs.fluid.FluidRegistryEventJS;
-import dev.latvian.kubejs.fluid.KubeJSFluidEventHandler;
 import dev.latvian.kubejs.item.ItemRegistryEventJS;
-import dev.latvian.kubejs.item.KubeJSItemEventHandler;
 import dev.latvian.kubejs.net.KubeJSNet;
-import dev.latvian.kubejs.player.KubeJSPlayerEventHandler;
-import dev.latvian.kubejs.recipe.KubeJSRecipeEventHandler;
 import dev.latvian.kubejs.script.*;
 import dev.latvian.kubejs.util.UtilsJS;
-import dev.latvian.kubejs.world.KubeJSWorldEventHandler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
@@ -50,17 +43,9 @@ public class KubeJS implements ModInitializer {
 		String proxyClass = "dev.latvian.kubejs." + (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT ? "client.KubeJSClient" : "KubeJSCommon");
 		proxy = (KubeJSCommon) Class.forName(proxyClass).getDeclaredConstructor().newInstance();
 		
-		// TODO add back
-//		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::loadComplete);
+		AfterScriptLoadCallback.EVENT.register(this::loadComplete);
 		
-		new KubeJSOtherEventHandler().init();
-		new KubeJSWorldEventHandler().init();
-		new KubeJSPlayerEventHandler().init();
-		new KubeJSEntityEventHandler().init();
-		new KubeJSBlockEventHandler().init();
-		new KubeJSItemEventHandler().init();
-		new KubeJSRecipeEventHandler().init();
-		new KubeJSFluidEventHandler().init();
+		FabricLoader.getInstance().getEntrypoints("kubejs-init", KubeJSInitializer.class).forEach(KubeJSInitializer::onKubeJSInitialization);
 		
 		File folder = getGameDirectory().resolve("kubejs").toFile();
 		
@@ -155,9 +140,8 @@ public class KubeJS implements ModInitializer {
 		KubeJSNet.init();
 		new EventJS().post(ScriptType.STARTUP, KubeJSEvents.INIT);
 	}
-
-//	private void loadComplete(FMLLoadCompleteEvent event)
-//	{
-//		new EventJS().post(ScriptType.STARTUP, KubeJSEvents.POSTINIT);
-//	}
+	
+	private void loadComplete() {
+		new EventJS().post(ScriptType.STARTUP, KubeJSEvents.POSTINIT);
+	}
 }

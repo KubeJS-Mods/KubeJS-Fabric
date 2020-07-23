@@ -1,6 +1,7 @@
 package dev.latvian.kubejs.item;
 
 import dev.latvian.kubejs.KubeJSEvents;
+import dev.latvian.kubejs.KubeJSInitializer;
 import dev.latvian.kubejs.KubeJSObjects;
 import dev.latvian.kubejs.block.BlockBuilder;
 import dev.latvian.kubejs.callback.item.*;
@@ -26,8 +27,9 @@ import javax.annotation.Nullable;
 /**
  * @author LatvianModder
  */
-public class KubeJSItemEventHandler {
-	public void init() {
+public class KubeJSItemEventHandler implements KubeJSInitializer {
+	@Override
+	public void onKubeJSInitialization() {
 		AfterScriptLoadCallback.EVENT.register(this::registry);
 		ItemRightClickAirCallback.EVENT.register(this::rightClick); // Done
 //		EmptyRightClickAirCallback.EVENT.register(this::rightClickEmpty); // Done

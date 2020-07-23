@@ -1,10 +1,13 @@
 package dev.latvian.kubejs.player;
 
+import dev.latvian.kubejs.KubeJSInitializer;
+
 /**
  * @author LatvianModder
  */
-public class KubeJSPlayerEventHandler {
-	public void init() {
+public class KubeJSPlayerEventHandler implements KubeJSInitializer {
+	@Override
+	public void onKubeJSInitialization() {
 //		MinecraftForge.EVENT_BUS.addListener(this::loggedIn);
 //		MinecraftForge.EVENT_BUS.addListener(this::loggedOut);
 //		MinecraftForge.EVENT_BUS.addListener(this::cloned);

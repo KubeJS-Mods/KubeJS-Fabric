@@ -1,12 +1,14 @@
 package dev.latvian.kubejs.fluid;
 
+import dev.latvian.kubejs.KubeJSInitializer;
 import dev.latvian.kubejs.core.AfterScriptLoadCallback;
 
 /**
  * @author LatvianModder
  */
-public class KubeJSFluidEventHandler {
-	public void init() {
+public class KubeJSFluidEventHandler implements KubeJSInitializer {
+	@Override
+	public void onKubeJSInitialization() {
 		AfterScriptLoadCallback.EVENT.register(this::registry);
 	}
 	

@@ -16,6 +16,17 @@
       "dev.latvian.kubejs.KubeJS",
       "dev.latvian.kubejs.server.KubeJSServerEventHandler",
       "dev.latvian.kubejs.docs.KubeJSDocs"
+    ],
+    "kubejs-init": [
+      "dev.latvian.kubejs.KubeJSOtherEventHandler",
+      "dev.latvian.kubejs.world.KubeJSWorldEventHandler",
+      "dev.latvian.kubejs.player.KubeJSPlayerEventHandler",
+      "dev.latvian.kubejs.entity.KubeJSEntityEventHandler",
+      "dev.latvian.kubejs.block.KubeJSBlockEventHandler",
+      "dev.latvian.kubejs.item.KubeJSItemEventHandler",
+      "dev.latvian.kubejs.recipe.KubeJSRecipeEventHandler",
+      "dev.latvian.kubejs.fluid.KubeJSFluidEventHandler",
+      "dev.latvian.kubejs.compat.AstromineRecipeEventHandler"
     ]
   },
   "accessWidener": "kubejs.accessWidener",

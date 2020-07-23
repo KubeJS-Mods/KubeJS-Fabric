@@ -1,6 +1,7 @@
 package dev.latvian.kubejs.world;
 
 import dev.latvian.kubejs.KubeJSEvents;
+import dev.latvian.kubejs.KubeJSInitializer;
 import dev.latvian.kubejs.script.ScriptType;
 import dev.latvian.kubejs.server.ServerJS;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -9,8 +10,9 @@ import net.minecraft.server.world.ServerWorld;
 /**
  * @author LatvianModder
  */
-public class KubeJSWorldEventHandler {
-	public void init() {
+public class KubeJSWorldEventHandler implements KubeJSInitializer {
+	@Override
+	public void onKubeJSInitialization() {
 		// TODO
 //		MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, this::worldLoaded);
 //		MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, this::worldUnloaded);

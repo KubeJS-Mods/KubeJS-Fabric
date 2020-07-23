@@ -1,6 +1,7 @@
 package dev.latvian.kubejs.block;
 
 import dev.latvian.kubejs.KubeJSEvents;
+import dev.latvian.kubejs.KubeJSInitializer;
 import dev.latvian.kubejs.KubeJSObjects;
 import dev.latvian.kubejs.core.AfterScriptLoadCallback;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
@@ -17,8 +18,9 @@ import net.minecraft.world.World;
 /**
  * @author LatvianModder
  */
-public class KubeJSBlockEventHandler {
-	public void init() {
+public class KubeJSBlockEventHandler implements KubeJSInitializer {
+	@Override
+	public void onKubeJSInitialization() {
 		AfterScriptLoadCallback.EVENT.register(this::registry);
 		UseBlockCallback.EVENT.register(this::rightClick);
 		AttackBlockCallback.EVENT.register(this::leftClick);
