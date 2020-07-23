@@ -6,6 +6,8 @@ import dev.latvian.kubejs.server.ServerJS;
 import dev.latvian.kubejs.util.*;
 import dev.latvian.kubejs.world.ClientWorldJS;
 import dev.latvian.kubejs.world.WorldJS;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.stat.Stat;
@@ -111,7 +113,8 @@ public class UtilsWrapper {
 			return ServerJS.instance.getWorld(world);
 		}
 	}
-	
+
+	@Environment(EnvType.CLIENT)
 	public WorldJS getClientWorld() {
 		return ClientWorldJS.instance;
 	}
