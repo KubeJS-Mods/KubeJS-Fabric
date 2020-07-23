@@ -55,15 +55,8 @@ public class AstromineRecipeEventHandler implements KubeJSInitializer {
 		
 		@Override
 		public void deserialize() {
-			input = IngredientJS.of(json.get("input"));
-			if (input.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe input " + json.get("input") + " is not a valid item!");
-			}
-			
-			output = IngredientJS.of(json.get("output"));
-			if (output.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe result " + json.get("output") + " is not a valid item!");
-			}
+			input = IngredientJS.ingredientFromRecipeJson(json.get("input"));
+			output = ItemStackJS.resultFromRecipeJson(json.get("output"));
 			
 			time = json.get("time").getAsInt();
 			energyConsumed = json.get("energy_consumed").getAsDouble();

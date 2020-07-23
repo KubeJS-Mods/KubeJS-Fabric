@@ -45,7 +45,7 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 			String s = o.toString();
 			
 			if (s.startsWith("#")) {
-				return new TagIngredientJS(new Identifier(s.substring(1))).getFirst();
+				return new TagIngredientJS(new Identifier(s.substring(1)), 1).getFirst();
 			}
 			
 			return new UnboundItemStackJS(new Identifier(s));
@@ -67,7 +67,11 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 				
 				return stack;
 			} else if (map.get("tag") instanceof CharSequence) {
-				ItemStackJS stack = new TagIngredientJS(new Identifier(map.get("tag").toString())).getFirst();
+				int count = 1;
+				if (map.containsKey("count")) {
+					count = UtilsJS.parseInt(map.get("count"), 1);
+				}
+				ItemStackJS stack = new TagIngredientJS(new Identifier(map.get("tag").toString()), count).getFirst();
 				
 				if (map.containsKey("count")) {
 					stack.setCount(UtilsJS.parseInt(map.get("count"), 1));
@@ -84,7 +88,7 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 		}
 		
 		if (s.startsWith("#")) {
-			return new TagIngredientJS(new Identifier(s.substring(1))).getFirst();
+			return new TagIngredientJS(new Identifier(s.substring(1)), 1).getFirst();
 		}
 		
 		return new UnboundItemStackJS(new Identifier(s));

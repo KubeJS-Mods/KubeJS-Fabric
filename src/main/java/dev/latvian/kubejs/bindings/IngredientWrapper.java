@@ -36,7 +36,11 @@ public class IngredientWrapper {
 	}
 	
 	public IngredientJS tag(@ID String tag) {
-		return new TagIngredientJS(UtilsJS.getMCID(tag));
+		return new TagIngredientJS(UtilsJS.getMCID(tag), 1);
+	}
+	
+	public IngredientJS tag(@ID String tag, int count) {
+		return new TagIngredientJS(UtilsJS.getMCID(tag), count);
 	}
 	
 	public IngredientJS mod(String modId) {

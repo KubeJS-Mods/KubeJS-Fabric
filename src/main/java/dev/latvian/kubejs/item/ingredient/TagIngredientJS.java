@@ -23,13 +23,20 @@ import java.util.Set;
  */
 public class TagIngredientJS implements IngredientJS {
 	private final Identifier tag;
+	private final int count;
 	
-	public TagIngredientJS(Identifier t) {
-		tag = t;
+	public TagIngredientJS(Identifier t, int count) {
+		this.tag = t;
+		this.count = count;
 	}
 	
 	public Identifier getTag() {
 		return tag;
+	}
+	
+	@Override
+	public int getCount() {
+		return count;
 	}
 	
 	@Override
@@ -56,8 +63,11 @@ public class TagIngredientJS implements IngredientJS {
 			Set<ItemStackJS> set = new LinkedHashSet<>();
 			
 			for (ItemStack stack1 : list) {
-				if (!stack1.isEmpty()) {
-					set.add(new BoundItemStackJS(stack1));
+				ItemStack stack = stack1;
+				if (!stack.isEmpty()) {
+					stack = stack.copy();
+					stack.setCount(count);
+					set.add(new BoundItemStackJS(stack));
 				}
 			}
 			
@@ -78,8 +88,10 @@ public class TagIngredientJS implements IngredientJS {
 				item.appendStacks(ItemGroup.SEARCH, list);
 				
 				for (ItemStack stack : list) {
-					if (!stack.isEmpty()) {
-						return new BoundItemStackJS(stack);
+					ItemStack stack1 = stack.copy();
+					if (!stack1.isEmpty()) {
+						stack1.setCount(count);
+						return new BoundItemStackJS(stack1);
 					}
 				}
 				
