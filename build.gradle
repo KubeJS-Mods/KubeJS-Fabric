@@ -30,6 +30,19 @@ dependencies {
     modRuntime("me.shedaniel:RoughlyEnoughItems:4.10.2")
 }
 
+processResources {
+    inputs.property "version", project.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include "fabric.mod.json"
+        expand "version": project.version
+    }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude "fabric.mod.json"
+    }
+}
+
 if (ENV.LOCAL_MAVEN) {
     uploadArchives {
         repositories {
