@@ -1,7 +1,9 @@
 package dev.latvian.kubejs.compat;
 
+import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import dev.latvian.kubejs.KubeJS;
 import dev.latvian.kubejs.KubeJSInitializer;
 import dev.latvian.kubejs.item.ItemStackJS;
 import dev.latvian.kubejs.item.ingredient.IngredientJS;
@@ -11,9 +13,11 @@ import dev.latvian.kubejs.recipe.RecipeTypeJS;
 import dev.latvian.kubejs.recipe.RegisterRecipeHandlersEvent;
 import dev.latvian.kubejs.util.ListJS;
 import net.fabricmc.loader.api.FabricLoader;
+import org.apache.logging.log4j.Level;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 	@Override
@@ -37,12 +41,13 @@ public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 			event.register(new RecipeTypeJS("techreborn:wire_mill", () -> new ImplementedRecipeJS("Wire Mill")));
 		});
 	}
-	
+
 	private static abstract class SimpleRecipeJS extends RecipeJS {
-		private List<IngredientJS> inputs, outputs;
+		private List<IngredientJS> inputs = new ArrayList<>();
+		private List<IngredientJS> outputs = new ArrayList<>();
 		private int time = 30;
 		private int power = 280;
-		
+
 		@Override
 		public void create(ListJS args) {
 			if (args.size() < 2) {
@@ -57,7 +62,8 @@ public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 				if (ingredient.isEmpty()) {
 					throw new RecipeExceptionJS(getTypeName() + " recipe result " + o + " is not a valid item!");
 				}
-				inputs.add(ingredient);
+				if (ingredient instanceof ItemStackJS){ outputItems.add((ItemStackJS) ingredient);}
+				else outputs.add(ingredient);
 			}
 			ListJS inputList = ListJS.of(args.get(1));
 			if (inputList.isEmpty()) {
@@ -68,18 +74,19 @@ public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 				if (ingredient.isEmpty()) {
 					throw new RecipeExceptionJS(getTypeName() + " recipe input " + o + " is not a valid item!");
 				}
-				outputs.add(ingredient);
+				if (ingredient instanceof ItemStackJS) inputItems.add(ingredient);
+				else inputs.add(ingredient);
 			}
-			
+
 			if (args.size() >= 3) {
 				time = ((Number) args.get(2)).intValue();
 			}
-			
+
 			if (args.size() >= 4) {
 				power = ((Number) args.get(3)).intValue();
 			}
 		}
-		
+
 		@Override
 		public void deserialize() {
 			ListJS outputList = ListJS.of(json.get("results"));
@@ -91,7 +98,8 @@ public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 				if (ingredient.isEmpty()) {
 					throw new RecipeExceptionJS(getTypeName() + " recipe result " + o + " is not a valid item!");
 				}
-				inputs.add(ingredient);
+				if (ingredient instanceof ItemStackJS) outputItems.add((ItemStackJS) ingredient);
+				else outputs.add(ingredient);
 			}
 			ListJS inputList = ListJS.of(json.get("ingredients"));
 			if (inputList.isEmpty()) {
@@ -102,45 +110,32 @@ public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 				if (ingredient.isEmpty()) {
 					throw new RecipeExceptionJS(getTypeName() + " recipe input " + o + " is not a valid item!");
 				}
-				outputs.add(ingredient);
+				if (ingredient instanceof ItemStackJS) inputItems.add(ingredient);
+				else inputs.add(ingredient);
 			}
-			
+
 			time = json.get("time").getAsInt();
 			power = json.get("power").getAsInt();
 		}
-		
+
 		protected abstract String getTypeName();
-		
+
 		@Override
 		public void serialize() {
-			JsonArray ingredients = new JsonArray();
-			for (IngredientJS input : inputs) {
-				ingredients.add(toJson(input));
-			}
-			json.add("ingredients", ingredients);
-			JsonArray results = new JsonArray();
-			for (IngredientJS output : outputs) {
-				results.add(toJson(output));
-			}
-			json.add("results", results);
+			json.add("ingredients", toJsonArray(Stream.concat(inputs.stream(), inputItems.stream()).collect(Collectors.toSet())));
+			json.add("results", toJsonArray(Stream.concat(outputs.stream(), outputItems.stream()).collect(Collectors.toSet())));
 			json.addProperty("time", time);
 			json.addProperty("power", power);
 		}
 	}
 	
-	static JsonElement toJson(IngredientJS ingredient) {
-		Set<ItemStackJS> set = ingredient.getStacks();
-		
-		if (set.size() == 1) {
-			return set.iterator().next().toResultJson();
-		}
-		
+	static JsonElement toJsonArray(Collection<? extends IngredientJS> ingredients) {
 		JsonArray array = new JsonArray();
-		
-		for (ItemStackJS stackJS : set) {
-			array.add(stackJS.toResultJson());
-		}
-		
+
+		ingredients.forEach(ingredient -> {
+			array.add(ingredient.toJson());
+		});
+
 		return array;
 	}
 	

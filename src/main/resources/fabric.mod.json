@@ -26,7 +26,8 @@
       "dev.latvian.kubejs.item.KubeJSItemEventHandler",
       "dev.latvian.kubejs.recipe.KubeJSRecipeEventHandler",
       "dev.latvian.kubejs.fluid.KubeJSFluidEventHandler",
-      "dev.latvian.kubejs.compat.AstromineRecipeEventHandler"
+      "dev.latvian.kubejs.compat.AstromineRecipeEventHandler",
+      "dev.latvian.kubejs.compat.TechRebornRecipeEventHandler"
     ]
   },
   "accessWidener": "kubejs.accessWidener",
