@@ -15,6 +15,7 @@ import dev.latvian.kubejs.util.DynamicMapJS;
 import dev.latvian.kubejs.util.ListJS;
 import dev.latvian.kubejs.util.MapJS;
 import dev.latvian.kubejs.util.UtilsJS;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeManager;
 import net.minecraft.recipe.RecipeSerializer;
@@ -168,6 +169,7 @@ public class RecipeEventJS extends ServerEventJS {
 			}
 		}
 		
+		FabricLoader.getInstance().getEntrypoints("kubejs-set-recipes", Consumer.class).forEach(consumer -> consumer.accept(newRecipeMap));
 		((RecipeManagerKJS) recipeManager).setRecipesKJS(newRecipeMap);
 		ScriptType.SERVER.console.info("Added " + added + " recipes, removed " + removed + " recipes, modified " + modified + " recipes");
 	}
