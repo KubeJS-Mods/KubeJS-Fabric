@@ -132,9 +132,9 @@ public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 	static JsonElement toJsonArray(Collection<? extends IngredientJS> ingredients) {
 		JsonArray array = new JsonArray();
 
-		ingredients.forEach(ingredient -> {
+		for (IngredientJS ingredient : ingredients) {
 			array.add(ingredient.toJson());
-		});
+		}
 
 		return array;
 	}
