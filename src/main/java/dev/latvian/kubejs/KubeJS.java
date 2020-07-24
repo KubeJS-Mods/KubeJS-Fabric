@@ -11,6 +11,7 @@ import dev.latvian.kubejs.util.UtilsJS;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -45,7 +46,10 @@ public class KubeJS implements ModInitializer {
 		
 		AfterScriptLoadCallback.EVENT.register(this::loadComplete);
 		
-		FabricLoader.getInstance().getEntrypoints("kubejs-init", KubeJSInitializer.class).forEach(KubeJSInitializer::onKubeJSInitialization);
+		FabricLoader.getInstance().getEntrypoints("kubejs-init", KubeJSInitializer.class).forEach((it) -> {
+			it.onKubeJSInitialization();
+			LOGGER.log(Level.INFO, "Initialized entrypoint " + it.getClass().getSimpleName() + "!");
+		});
 		
 		File folder = getGameDirectory().resolve("kubejs").toFile();
 		

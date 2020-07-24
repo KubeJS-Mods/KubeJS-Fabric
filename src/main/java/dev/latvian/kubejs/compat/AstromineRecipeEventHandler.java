@@ -13,6 +13,7 @@ import dev.latvian.kubejs.util.ListJS;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class AstromineRecipeEventHandler implements KubeJSInitializer {
 	@Override
@@ -26,7 +27,8 @@ public class AstromineRecipeEventHandler implements KubeJSInitializer {
 	}
 	
 	private static abstract class SimpleRecipeJS extends RecipeJS {
-		private IngredientJS input, output;
+		private IngredientJS input;
+		private ItemStackJS output;
 		private int time = 30;
 		private double energyConsumed = 280;
 		
@@ -35,7 +37,7 @@ public class AstromineRecipeEventHandler implements KubeJSInitializer {
 			if (args.size() < 2) {
 				throw new RecipeExceptionJS(getTypeName() + " recipe requires 2 arguments - output, and input!");
 			}
-			output = IngredientJS.of(args.get(0));
+			output = ItemStackJS.of(args.get(0));
 			if (output.isEmpty()) {
 				throw new RecipeExceptionJS(getTypeName() + " recipe result " + args.get(0) + " is not a valid item!");
 			}
@@ -51,6 +53,9 @@ public class AstromineRecipeEventHandler implements KubeJSInitializer {
 			if (args.size() >= 4) {
 				energyConsumed = ((Number) args.get(3)).doubleValue();
 			}
+
+			inputItems.add(input);
+			outputItems.addAll(output.getStacks());
 		}
 		
 		@Override
@@ -60,14 +65,17 @@ public class AstromineRecipeEventHandler implements KubeJSInitializer {
 			
 			time = json.get("time").getAsInt();
 			energyConsumed = json.get("energy_consumed").getAsDouble();
+
+			inputItems.add(input);
+			outputItems.addAll(output.getStacks());
 		}
 		
 		protected abstract String getTypeName();
 		
 		@Override
 		public void serialize() {
-			json.add("input", toJson(input));
-			json.add("output", toJson(output));
+			json.add("input", inputItems.get(0).getStacks().size() > 1 ? toJsonArray(inputItems.get(0)) : inputItems.get(0).toJson());
+			json.add("output", outputItems.get(0).getStacks().size() > 1 ? toJsonArray(outputItems.get(0)) : outputItems.get(0).toResultJson());
 			json.addProperty("time", time);
 			json.addProperty("energy_consumed", energyConsumed);
 		}
@@ -103,6 +111,11 @@ public class AstromineRecipeEventHandler implements KubeJSInitializer {
 			if (args.size() >= 5) {
 				energyConsumed = ((Number) args.get(4)).doubleValue();
 			}
+
+			inputItems.add(firstInput);
+			inputItems.add(secondInput);
+
+			outputItems.addAll(output.getStacks());
 		}
 		
 		@Override
@@ -124,6 +137,11 @@ public class AstromineRecipeEventHandler implements KubeJSInitializer {
 			
 			time = json.get("time").getAsInt();
 			energyConsumed = json.get("energy_consumed").getAsDouble();
+
+			inputItems.add(firstInput);
+			inputItems.add(secondInput);
+
+			outputItems.addAll(output.getStacks());
 		}
 		
 		protected String getTypeName() {
@@ -132,20 +150,16 @@ public class AstromineRecipeEventHandler implements KubeJSInitializer {
 		
 		@Override
 		public void serialize() {
-			json.add("firstInput", toJson(firstInput));
-			json.add("secondInput", toJson(secondInput));
-			json.add("output", toJson(output));
+			json.add("firstInput", inputItems.get(0).toJson());
+			json.add("secondInput", inputItems.get(1).toJson());
+			json.add("output", outputItems.get(0).toResultJson());
 			json.addProperty("time", time);
 			json.addProperty("energy_consumed", energyConsumed);
 		}
 	}
 	
-	static JsonElement toJson(IngredientJS ingredient) {
+	static JsonElement toJsonArray(IngredientJS ingredient) {
 		Set<ItemStackJS> set = ingredient.getStacks();
-		
-		if (set.size() == 1) {
-			return set.iterator().next().toResultJson();
-		}
 		
 		JsonArray array = new JsonArray();
 		
