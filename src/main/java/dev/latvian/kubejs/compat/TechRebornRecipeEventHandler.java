@@ -54,26 +54,14 @@ public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 				throw new RecipeExceptionJS(getTypeName() + " recipe requires 2 arguments - output, and input!");
 			}
 			ListJS outputList = ListJS.of(args.get(0));
-			if (outputList.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe result " + args.get(0) + " is not a valid item!");
-			}
 			for (Object o : outputList) {
 				IngredientJS ingredient = IngredientJS.of(o);
-				if (ingredient.isEmpty()) {
-					throw new RecipeExceptionJS(getTypeName() + " recipe result " + o + " is not a valid item!");
-				}
 				if (ingredient instanceof ItemStackJS){ outputItems.add((ItemStackJS) ingredient);}
 				else outputs.add(ingredient);
 			}
 			ListJS inputList = ListJS.of(args.get(1));
-			if (inputList.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe input " + args.get(1) + " is not a valid item!");
-			}
 			for (Object o : inputList) {
 				IngredientJS ingredient = IngredientJS.of(o);
-				if (ingredient.isEmpty()) {
-					throw new RecipeExceptionJS(getTypeName() + " recipe input " + o + " is not a valid item!");
-				}
 				if (ingredient instanceof ItemStackJS) inputItems.add(ingredient);
 				else inputs.add(ingredient);
 			}
@@ -90,26 +78,14 @@ public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 		@Override
 		public void deserialize() {
 			ListJS outputList = ListJS.of(json.get("results"));
-			if (outputList.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe result " + json.get("results") + " is not a valid item!");
-			}
 			for (Object o : outputList) {
 				IngredientJS ingredient = IngredientJS.of(o);
-				if (ingredient.isEmpty()) {
-					throw new RecipeExceptionJS(getTypeName() + " recipe result " + o + " is not a valid item!");
-				}
 				if (ingredient instanceof ItemStackJS) outputItems.add((ItemStackJS) ingredient);
 				else outputs.add(ingredient);
 			}
 			ListJS inputList = ListJS.of(json.get("ingredients"));
-			if (inputList.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe input " + json.get("ingredients") + " is not a valid item!");
-			}
 			for (Object o : inputList) {
 				IngredientJS ingredient = IngredientJS.of(o);
-				if (ingredient.isEmpty()) {
-					throw new RecipeExceptionJS(getTypeName() + " recipe input " + o + " is not a valid item!");
-				}
 				if (ingredient instanceof ItemStackJS) inputItems.add(ingredient);
 				else inputs.add(ingredient);
 			}

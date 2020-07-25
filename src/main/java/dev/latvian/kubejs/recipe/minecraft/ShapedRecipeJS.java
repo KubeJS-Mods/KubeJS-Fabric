@@ -45,7 +45,7 @@ public class ShapedRecipeJS extends RecipeJS {
 					IngredientJS ingredient = IngredientJS.of(item);
 					
 					if (!ingredient.isEmpty()) {
-						String currentId = String.valueOf(id++);
+						String currentId = String.valueOf('A' + (id++));
 						horizontalPattern.append(currentId);
 						inputItems.add(ingredient);
 						key.add(currentId);
@@ -98,10 +98,6 @@ public class ShapedRecipeJS extends RecipeJS {
 	public void deserialize() {
 		ItemStackJS result = ItemStackJS.resultFromRecipeJson(json.get("result"));
 		
-		if (result.isEmpty()) {
-			throw new RecipeExceptionJS("Shaped recipe result " + json.get("result") + " is not a valid item!");
-		}
-		
 		outputItems.add(result);
 		
 		for (JsonElement e : json.get("pattern").getAsJsonArray()) {
@@ -115,12 +111,8 @@ public class ShapedRecipeJS extends RecipeJS {
 		for (Map.Entry<String, JsonElement> entry : json.get("key").getAsJsonObject().entrySet()) {
 			IngredientJS i = IngredientJS.ingredientFromRecipeJson(entry.getValue());
 			
-			if (!i.isEmpty()) {
-				inputItems.add(i);
-				key.add(entry.getKey());
-			} else {
-				throw new RecipeExceptionJS("Shaped recipe ingredient " + entry.getValue() + " with key '" + entry.getKey() + "' is not a valid ingredient!");
-			}
+			inputItems.add(i);
+			key.add(entry.getKey());
 		}
 		
 		if (key.isEmpty()) {

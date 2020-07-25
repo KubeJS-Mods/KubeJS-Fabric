@@ -13,7 +13,6 @@ import dev.latvian.kubejs.util.ListJS;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class AstromineRecipeEventHandler implements KubeJSInitializer {
 	@Override
@@ -38,13 +37,7 @@ public class AstromineRecipeEventHandler implements KubeJSInitializer {
 				throw new RecipeExceptionJS(getTypeName() + " recipe requires 2 arguments - output, and input!");
 			}
 			output = ItemStackJS.of(args.get(0));
-			if (output.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe result " + args.get(0) + " is not a valid item!");
-			}
 			input = IngredientJS.of(args.get(1));
-			if (input.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe input " + args.get(1) + " is not a valid item!");
-			}
 			
 			if (args.size() >= 3) {
 				time = ((Number) args.get(2)).intValue();
@@ -53,7 +46,7 @@ public class AstromineRecipeEventHandler implements KubeJSInitializer {
 			if (args.size() >= 4) {
 				energyConsumed = ((Number) args.get(3)).doubleValue();
 			}
-
+			
 			inputItems.add(input);
 			outputItems.addAll(output.getStacks());
 		}
@@ -65,7 +58,7 @@ public class AstromineRecipeEventHandler implements KubeJSInitializer {
 			
 			time = json.get("time").getAsInt();
 			energyConsumed = json.get("energy_consumed").getAsDouble();
-
+			
 			inputItems.add(input);
 			outputItems.addAll(output.getStacks());
 		}
@@ -92,17 +85,8 @@ public class AstromineRecipeEventHandler implements KubeJSInitializer {
 				throw new RecipeExceptionJS(getTypeName() + " recipe requires 2 arguments - output, first input, and second input!");
 			}
 			output = IngredientJS.of(args.get(0));
-			if (output.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe result " + args.get(0) + " is not a valid item!");
-			}
 			firstInput = IngredientJS.of(args.get(1));
-			if (firstInput.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe first input " + args.get(1) + " is not a valid item!");
-			}
 			secondInput = IngredientJS.of(args.get(2));
-			if (secondInput.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe second input " + args.get(2) + " is not a valid item!");
-			}
 			
 			if (args.size() >= 4) {
 				time = ((Number) args.get(3)).intValue();
@@ -111,36 +95,25 @@ public class AstromineRecipeEventHandler implements KubeJSInitializer {
 			if (args.size() >= 5) {
 				energyConsumed = ((Number) args.get(4)).doubleValue();
 			}
-
+			
 			inputItems.add(firstInput);
 			inputItems.add(secondInput);
-
+			
 			outputItems.addAll(output.getStacks());
 		}
 		
 		@Override
 		public void deserialize() {
 			firstInput = IngredientJS.of(json.get("firstInput"));
-			if (firstInput.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe first input " + json.get("firstInput") + " is not a valid item!");
-			}
-			
 			secondInput = IngredientJS.of(json.get("secondInput"));
-			if (secondInput.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe second input " + json.get("secondInput") + " is not a valid item!");
-			}
-			
 			output = IngredientJS.of(json.get("output"));
-			if (output.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe result " + json.get("output") + " is not a valid item!");
-			}
 			
 			time = json.get("time").getAsInt();
 			energyConsumed = json.get("energy_consumed").getAsDouble();
-
+			
 			inputItems.add(firstInput);
 			inputItems.add(secondInput);
-
+			
 			outputItems.addAll(output.getStacks());
 		}
 		
