@@ -7,6 +7,7 @@ import dev.latvian.kubejs.fluid.FluidRegistryEventJS;
 import dev.latvian.kubejs.item.ItemRegistryEventJS;
 import dev.latvian.kubejs.net.KubeJSNet;
 import dev.latvian.kubejs.script.*;
+import dev.latvian.kubejs.trade.TradeRegistryEventJS;
 import dev.latvian.kubejs.util.UtilsJS;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
@@ -102,7 +103,8 @@ public class KubeJS implements ModInitializer {
 		new BlockRegistryEventJS().post(ScriptType.STARTUP, KubeJSEvents.BLOCK_REGISTRY);
 		new ItemRegistryEventJS().post(ScriptType.STARTUP, KubeJSEvents.ITEM_REGISTRY);
 		new FluidRegistryEventJS().post(ScriptType.STARTUP, KubeJSEvents.FLUID_REGISTRY);
-		
+		new TradeRegistryEventJS().post(ScriptType.STARTUP, KubeJSEvents.TRADE_REGISTRY);
+
 		AfterScriptLoadCallback.EVENT.invoker().afterLoad();
 	}
 	
