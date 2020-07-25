@@ -40,6 +40,7 @@ public class DefaultBindings {
 		event.add("ingredient", new IngredientWrapper());
 		event.add("nbt", new NBTWrapper());
 		event.add("facing", new FacingWrapper());
+		event.add("trade", new TradeWrapper());
 
 //		event.add("fluid", new FluidWrapper());
 		

@@ -39,6 +39,7 @@ public class TradeOfferFactory implements TradeOffers.Factory {
 		this.multiplier = multiplier;
 	}
 
+	@Override
 	public TradeOffer create(Entity entity, Random random) {
 		return new TradeOffer(new ItemStack(Items.EMERALD, this.price), new ItemStack(this.sell.getItem(), this.count), this.maxUses, this.experience, this.multiplier);
 	}
