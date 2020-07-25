@@ -43,8 +43,8 @@ public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 	}
 
 	private static abstract class SimpleRecipeJS extends RecipeJS {
-		private List<IngredientJS> inputs = new ArrayList<>();
-		private List<IngredientJS> outputs = new ArrayList<>();
+		private final List<IngredientJS> inputs = new ArrayList<>();
+		private final List<IngredientJS> outputs = new ArrayList<>();
 		private int time = 30;
 		private int power = 280;
 

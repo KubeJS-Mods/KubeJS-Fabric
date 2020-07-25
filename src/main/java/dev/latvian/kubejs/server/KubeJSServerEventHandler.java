@@ -16,11 +16,14 @@ import dev.latvian.kubejs.world.WorldJS;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author LatvianModder
@@ -30,7 +33,8 @@ public class KubeJSServerEventHandler implements ModInitializer {
 	public void onInitialize() {
 		ServerLifecycleEvents.SERVER_STARTED.register(this::serverStarting);
 		ServerLifecycleEvents.SERVER_STOPPING.register(this::serverStopping);
-		CommandRegistrationCallback.EVENT.register((commandDispatcher, dedicated) -> KubeJSCommands.register(commandDispatcher));
+		ServerTickEvents.START_SERVER_TICK.register(this::serverTick);
+		CommandRegistrationCallback.EVENT.register(KubeJSCommands::register);
 	}
 	
 	public void serverStarting(MinecraftServer server) {
@@ -88,92 +92,86 @@ public class KubeJSServerEventHandler implements ModInitializer {
 		ServerJS.instance = null;
 	}
 
-//	@SubscribeEvent(priority = EventPriority.LOWEST)
-//	public static void serverTick(TickEvent.ServerTickEvent event)
-//	{
-//		if (event.phase != TickEvent.Phase.END)
-//		{
-//			return;
-//		}
-//
-//		ServerJS s = ServerJS.instance;
-//
-//		if (!s.scheduledEvents.isEmpty())
-//		{
-//			long now = System.currentTimeMillis();
-//			Iterator<ScheduledEvent> eventIterator = s.scheduledEvents.iterator();
-//			List<ScheduledEvent> list = new ArrayList<>();
-//
-//			while (eventIterator.hasNext())
-//			{
-//				ScheduledEvent e = eventIterator.next();
-//
-//				if (now >= e.getEndTime())
-//				{
-//					list.add(e);
-//					eventIterator.remove();
-//				}
-//			}
-//
-//			for (ScheduledEvent e : list)
-//			{
-//				try
-//				{
-//					e.call();
-//				}
-//				catch (Throwable ex)
-//				{
-//					if (ex.getClass().getName().equals("jdk.nashorn.api.scripting.NashornException"))
-//					{
-//						e.file.pack.manager.type.console.error("Error occurred while handling scheduled event callback in " + e.file.info.location + ": " + ex);
-//					}
-//					else
-//					{
-//						ex.printStackTrace();
-//					}
-//				}
-//			}
-//		}
-//
-//		if (!s.scheduledTickEvents.isEmpty())
-//		{
-//			long now = s.getOverworld().getTime();
-//			Iterator<ScheduledEvent> eventIterator = s.scheduledTickEvents.iterator();
-//			List<ScheduledEvent> list = new ArrayList<>();
-//
-//			while (eventIterator.hasNext())
-//			{
-//				ScheduledEvent e = eventIterator.next();
-//
-//				if (now >= e.getEndTime())
-//				{
-//					list.add(e);
-//					eventIterator.remove();
-//				}
-//			}
-//
-//			for (ScheduledEvent e : list)
-//			{
-//				try
-//				{
-//					e.call();
-//				}
-//				catch (Throwable ex)
-//				{
-//					if (ex.getClass().getName().equals("jdk.nashorn.api.scripting.NashornException"))
-//					{
-//						e.file.pack.manager.type.console.error("Error occurred while handling scheduled event callback in " + e.file.info.location + ": " + ex);
-//					}
-//					else
-//					{
-//						ex.printStackTrace();
-//					}
-//				}
-//			}
-//		}
-//
-//		new ServerEventJS().post(ScriptType.SERVER, KubeJSEvents.SERVER_TICK);
-//	}
+	public void serverTick(MinecraftServer event)
+	{
+		ServerJS s = ServerJS.instance;
+
+		if (!s.scheduledEvents.isEmpty())
+		{
+			long now = System.currentTimeMillis();
+			Iterator<ScheduledEvent> eventIterator = s.scheduledEvents.iterator();
+			List<ScheduledEvent> list = new ArrayList<>();
+
+			while (eventIterator.hasNext())
+			{
+				ScheduledEvent e = eventIterator.next();
+
+				if (now >= e.getEndTime())
+				{
+					list.add(e);
+					eventIterator.remove();
+				}
+			}
+
+			for (ScheduledEvent e : list)
+			{
+				try
+				{
+					e.call();
+				}
+				catch (Throwable ex)
+				{
+					if (ex.getClass().getName().equals("jdk.nashorn.api.scripting.NashornException"))
+					{
+						e.file.pack.manager.type.console.error("Error occurred while handling scheduled event callback in " + e.file.info.location + ": " + ex);
+					}
+					else
+					{
+						ex.printStackTrace();
+					}
+				}
+			}
+		}
+
+		if (!s.scheduledTickEvents.isEmpty())
+		{
+			long now = s.getOverworld().getTime();
+			Iterator<ScheduledEvent> eventIterator = s.scheduledTickEvents.iterator();
+			List<ScheduledEvent> list = new ArrayList<>();
+
+			while (eventIterator.hasNext())
+			{
+				ScheduledEvent e = eventIterator.next();
+
+				if (now >= e.getEndTime())
+				{
+					list.add(e);
+					eventIterator.remove();
+				}
+			}
+
+			for (ScheduledEvent e : list)
+			{
+				try
+				{
+					e.call();
+				}
+				catch (Throwable ex)
+				{
+					if (ex.getClass().getName().equals("jdk.nashorn.api.scripting.NashornException"))
+					{
+						e.file.pack.manager.type.console.error("Error occurred while handling scheduled event callback in " + e.file.info.location + ": " + ex);
+					}
+					else
+					{
+						ex.printStackTrace();
+					}
+				}
+			}
+		}
+
+		new ServerEventJS().post(ScriptType.SERVER, KubeJSEvents.SERVER_TICK);
+	}
 //
 //	@SubscribeEvent(priority = EventPriority.LOW)
 //	public static void command(CommandEvent event)

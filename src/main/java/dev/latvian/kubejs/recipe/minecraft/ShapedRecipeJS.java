@@ -45,7 +45,7 @@ public class ShapedRecipeJS extends RecipeJS {
 					IngredientJS ingredient = IngredientJS.of(item);
 					
 					if (!ingredient.isEmpty()) {
-						String currentId = String.valueOf('A' + (id++));
+						String currentId = String.valueOf((char) ((int) 'A' + id++));
 						horizontalPattern.append(currentId);
 						inputItems.add(ingredient);
 						key.add(currentId);

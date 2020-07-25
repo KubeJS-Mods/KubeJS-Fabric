@@ -27,7 +27,7 @@ import java.util.Map;
  * @author LatvianModder
  */
 public class KubeJSCommands {
-	public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
+	public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
 		dispatcher.register(CommandManager.literal("kubejs")
 				.then(CommandManager.literal("item_info")
 						.executes(context -> itemInfo(context.getSource().getPlayer()))
