@@ -28,6 +28,6 @@ public class BabelExecutor {
 
 	public static String process(Reader reader) throws IOException, ScriptException {
 		bindings.put("input", IOUtils.toString(reader));
-		return (String) scriptEngine.eval("Babel.transform(input, { presets: ['es2015'] }).code", bindings);
+		return (String) scriptEngine.eval("Babel.transform(input, { presets: ['es2015'], sourceMaps: 'inline' }).code", bindings);
 	}
 }
