@@ -2,11 +2,13 @@ package dev.latvian.kubejs.recipe.minecraft;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import dev.latvian.kubejs.KubeJS;
 import dev.latvian.kubejs.item.ItemStackJS;
 import dev.latvian.kubejs.item.ingredient.IngredientJS;
 import dev.latvian.kubejs.recipe.RecipeExceptionJS;
 import dev.latvian.kubejs.recipe.RecipeJS;
 import dev.latvian.kubejs.util.ListJS;
+import org.apache.logging.log4j.Level;
 
 /**
  * @author LatvianModder
@@ -17,7 +19,7 @@ public class ShapelessRecipeJS extends RecipeJS {
 		ItemStackJS result = ItemStackJS.of(args.get(0));
 		
 		if (result.isEmpty()) {
-			throw new RecipeExceptionJS("Shapeless recipe result " + args.get(0) + " is not a valid item!");
+			KubeJS.LOGGER.log(Level.WARN, "Shapeless recipe result " + args.get(0) + " is not a valid item!");
 		}
 		
 		outputItems.add(result);
@@ -25,7 +27,7 @@ public class ShapelessRecipeJS extends RecipeJS {
 		ListJS ingredients1 = ListJS.orSelf(args.get(1));
 		
 		if (ingredients1.isEmpty()) {
-			throw new RecipeExceptionJS("Shapeless recipe ingredient list is empty!");
+			KubeJS.LOGGER.log(Level.WARN, "Shapeless recipe ingredient list is empty!");
 		}
 		
 		for (Object o : ingredients1) {
@@ -34,12 +36,12 @@ public class ShapelessRecipeJS extends RecipeJS {
 			if (!in.isEmpty()) {
 				inputItems.add(in);
 			} else {
-				throw new RecipeExceptionJS("Shapeless recipe ingredient " + o + " is not a valid ingredient!");
+				KubeJS.LOGGER.log(Level.WARN, "Shapeless recipe ingredient " + o + " is not a valid ingredient!");
 			}
 		}
 		
 		if (inputItems.isEmpty()) {
-			throw new RecipeExceptionJS("Shapeless recipe ingredient list is empty!");
+			KubeJS.LOGGER.log(Level.WARN, "Shapeless recipe ingredient list is empty!");
 		}
 	}
 	
@@ -48,7 +50,7 @@ public class ShapelessRecipeJS extends RecipeJS {
 		ItemStackJS result = ItemStackJS.resultFromRecipeJson(json.get("result"));
 		
 		if (result.isEmpty()) {
-			throw new RecipeExceptionJS("Shapeless recipe result " + json.get("result") + " is not a valid item!");
+			KubeJS.LOGGER.log(Level.WARN, "Shapeless recipe result " + json.get("result") + " is not a valid item!");
 		}
 		
 		outputItems.add(result);
@@ -59,12 +61,12 @@ public class ShapelessRecipeJS extends RecipeJS {
 			if (!in.isEmpty()) {
 				inputItems.add(in);
 			} else {
-				throw new RecipeExceptionJS("Shapeless recipe ingredient " + e + " is not a valid ingredient!");
+				KubeJS.LOGGER.log(Level.WARN, "Shapeless recipe ingredient " + e + " is not a valid ingredient!");
 			}
 		}
 		
 		if (inputItems.isEmpty()) {
-			throw new RecipeExceptionJS("Shapeless recipe ingredient list is empty!");
+			KubeJS.LOGGER.log(Level.WARN, "Shapeless recipe ingredient list is empty!");
 		}
 	}
 	

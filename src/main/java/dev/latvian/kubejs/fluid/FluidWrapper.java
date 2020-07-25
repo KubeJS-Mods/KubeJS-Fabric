@@ -15,20 +15,9 @@ import java.util.List;
  * @author LatvianModder
  */
 public class FluidWrapper {
-//	public FluidStackJS of(@ID Object o)
-//	{
-//		return FluidStackJS.of(o);
-//	}
-//
-//	public FluidStackJS of(@ID Object o, Object amountOrNBT)
-//	{
-//		return FluidStackJS.of(o, amountOrNBT);
-//	}
-//
-//	public FluidStackJS of(@ID Object o, int amount, Object nbt)
-//	{
-//		return FluidStackJS.of(o, amount, nbt);
-//	}
+	public FluidStackJS of(@ID Object o, int amount) {
+		return FluidStackJS.of(o, amount);
+	}
 	
 	@MinecraftClass
 	public Fluid getType(@ID String id) {

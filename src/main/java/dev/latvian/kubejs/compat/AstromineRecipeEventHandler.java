@@ -2,6 +2,7 @@ package dev.latvian.kubejs.compat;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import dev.latvian.kubejs.KubeJS;
 import dev.latvian.kubejs.KubeJSInitializer;
 import dev.latvian.kubejs.item.ItemStackJS;
 import dev.latvian.kubejs.item.ingredient.IngredientJS;
@@ -11,6 +12,7 @@ import dev.latvian.kubejs.recipe.RecipeTypeJS;
 import dev.latvian.kubejs.recipe.RegisterRecipeHandlersEvent;
 import dev.latvian.kubejs.util.ListJS;
 import net.fabricmc.loader.api.FabricLoader;
+import org.apache.logging.log4j.Level;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -35,15 +37,15 @@ public class AstromineRecipeEventHandler implements KubeJSInitializer {
 		@Override
 		public void create(ListJS args) {
 			if (args.size() < 2) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe requires 2 arguments - output, and input!");
+				KubeJS.LOGGER.log(Level.WARN, getTypeName() + " recipe requires 2 arguments - output, and input!");
 			}
 			output = ItemStackJS.of(args.get(0));
 			if (output.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe result " + args.get(0) + " is not a valid item!");
+				KubeJS.LOGGER.log(Level.WARN, getTypeName() + " recipe result " + args.get(0) + " is not a valid item!");
 			}
 			input = IngredientJS.of(args.get(1));
 			if (input.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe input " + args.get(1) + " is not a valid item!");
+				KubeJS.LOGGER.log(Level.WARN, getTypeName() + " recipe input " + args.get(1) + " is not a valid item!");
 			}
 			
 			if (args.size() >= 3) {
@@ -89,19 +91,19 @@ public class AstromineRecipeEventHandler implements KubeJSInitializer {
 		@Override
 		public void create(ListJS args) {
 			if (args.size() < 3) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe requires 2 arguments - output, first input, and second input!");
+				KubeJS.LOGGER.log(Level.WARN, getTypeName() + " recipe requires 2 arguments - output, first input, and second input!");
 			}
 			output = IngredientJS.of(args.get(0));
 			if (output.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe result " + args.get(0) + " is not a valid item!");
+				KubeJS.LOGGER.log(Level.WARN, getTypeName() + " recipe result " + args.get(0) + " is not a valid item!");
 			}
 			firstInput = IngredientJS.of(args.get(1));
 			if (firstInput.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe first input " + args.get(1) + " is not a valid item!");
+				KubeJS.LOGGER.log(Level.WARN, getTypeName() + " recipe first input " + args.get(1) + " is not a valid item!");
 			}
 			secondInput = IngredientJS.of(args.get(2));
 			if (secondInput.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe second input " + args.get(2) + " is not a valid item!");
+				KubeJS.LOGGER.log(Level.WARN, getTypeName() + " recipe second input " + args.get(2) + " is not a valid item!");
 			}
 			
 			if (args.size() >= 4) {
@@ -122,17 +124,17 @@ public class AstromineRecipeEventHandler implements KubeJSInitializer {
 		public void deserialize() {
 			firstInput = IngredientJS.of(json.get("firstInput"));
 			if (firstInput.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe first input " + json.get("firstInput") + " is not a valid item!");
+				KubeJS.LOGGER.log(Level.WARN, getTypeName() + " recipe first input " + json.get("firstInput") + " is not a valid item!");
 			}
 			
 			secondInput = IngredientJS.of(json.get("secondInput"));
 			if (secondInput.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe second input " + json.get("secondInput") + " is not a valid item!");
+				KubeJS.LOGGER.log(Level.WARN, getTypeName() + " recipe second input " + json.get("secondInput") + " is not a valid item!");
 			}
 			
 			output = IngredientJS.of(json.get("output"));
 			if (output.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe result " + json.get("output") + " is not a valid item!");
+				KubeJS.LOGGER.log(Level.WARN, getTypeName() + " recipe result " + json.get("output") + " is not a valid item!");
 			}
 			
 			time = json.get("time").getAsInt();

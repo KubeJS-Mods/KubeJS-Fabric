@@ -9,6 +9,7 @@ import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.profiler.Profiler;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,6 +22,8 @@ import java.util.Map;
  */
 @Mixin(RecipeManager.class)
 public abstract class RecipeManagerMixin implements RecipeManagerKJS {
+	@Shadow private Map<RecipeType<?>, Map<Identifier, Recipe<?>>> recipes;
+
 	@Inject(method = "apply", at = @At("HEAD"), cancellable = true)
 	private void customRecipesHead(Map<Identifier, JsonObject> map, ResourceManager resourceManager, Profiler profiler, CallbackInfo ci) {
 		customRecipesKJS(map);

@@ -1,6 +1,7 @@
 package dev.latvian.kubejs.bindings;
 
 import dev.latvian.kubejs.KubeJS;
+import dev.latvian.kubejs.fluid.FluidWrapper;
 import dev.latvian.kubejs.script.BindingsEvent;
 import dev.latvian.kubejs.script.ScriptManager;
 import dev.latvian.kubejs.script.ScriptModData;
@@ -38,10 +39,9 @@ public class DefaultBindings {
 		event.add("block", new BlockWrapper());
 		event.add("item", new ItemWrapper());
 		event.add("ingredient", new IngredientWrapper());
+		event.add("fluid", new FluidWrapper());
 		event.add("nbt", new NBTWrapper());
 		event.add("facing", new FacingWrapper());
-
-//		event.add("fluid", new FluidWrapper());
 		
 		event.addConstant("SECOND", 1000L);
 		event.addConstant("MINUTE", 60000L);

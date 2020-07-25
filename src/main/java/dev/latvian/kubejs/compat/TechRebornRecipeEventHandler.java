@@ -2,6 +2,7 @@ package dev.latvian.kubejs.compat;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import dev.latvian.kubejs.KubeJS;
 import dev.latvian.kubejs.KubeJSInitializer;
 import dev.latvian.kubejs.item.ItemStackJS;
 import dev.latvian.kubejs.item.ingredient.IngredientJS;
@@ -11,6 +12,7 @@ import dev.latvian.kubejs.recipe.RecipeTypeJS;
 import dev.latvian.kubejs.recipe.RegisterRecipeHandlersEvent;
 import dev.latvian.kubejs.util.ListJS;
 import net.fabricmc.loader.api.FabricLoader;
+import org.apache.logging.log4j.Level;
 
 import java.util.List;
 import java.util.Set;
@@ -46,27 +48,27 @@ public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 		@Override
 		public void create(ListJS args) {
 			if (args.size() < 2) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe requires 2 arguments - output, and input!");
+				KubeJS.LOGGER.log(Level.WARN, getTypeName() + " recipe requires 2 arguments - output, and input!");
 			}
 			ListJS outputList = ListJS.of(args.get(0));
 			if (outputList.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe result " + args.get(0) + " is not a valid item!");
+				KubeJS.LOGGER.log(Level.WARN, getTypeName() + " recipe result " + args.get(0) + " is not a valid item!");
 			}
 			for (Object o : outputList) {
 				IngredientJS ingredient = IngredientJS.of(o);
 				if (ingredient.isEmpty()) {
-					throw new RecipeExceptionJS(getTypeName() + " recipe result " + o + " is not a valid item!");
+					KubeJS.LOGGER.log(Level.WARN, getTypeName() + " recipe result " + o + " is not a valid item!");
 				}
 				inputs.add(ingredient);
 			}
 			ListJS inputList = ListJS.of(args.get(1));
 			if (inputList.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe input " + args.get(1) + " is not a valid item!");
+				KubeJS.LOGGER.log(Level.WARN, getTypeName() + " recipe input " + args.get(1) + " is not a valid item!");
 			}
 			for (Object o : inputList) {
 				IngredientJS ingredient = IngredientJS.of(o);
 				if (ingredient.isEmpty()) {
-					throw new RecipeExceptionJS(getTypeName() + " recipe input " + o + " is not a valid item!");
+					KubeJS.LOGGER.log(Level.WARN, getTypeName() + " recipe input " + o + " is not a valid item!");
 				}
 				outputs.add(ingredient);
 			}
@@ -84,23 +86,23 @@ public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 		public void deserialize() {
 			ListJS outputList = ListJS.of(json.get("results"));
 			if (outputList.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe result " + json.get("results") + " is not a valid item!");
+				KubeJS.LOGGER.log(Level.WARN, getTypeName() + " recipe result " + json.get("results") + " is not a valid item!");
 			}
 			for (Object o : outputList) {
 				IngredientJS ingredient = IngredientJS.of(o);
 				if (ingredient.isEmpty()) {
-					throw new RecipeExceptionJS(getTypeName() + " recipe result " + o + " is not a valid item!");
+					KubeJS.LOGGER.log(Level.WARN, getTypeName() + " recipe result " + o + " is not a valid item!");
 				}
 				inputs.add(ingredient);
 			}
 			ListJS inputList = ListJS.of(json.get("ingredients"));
 			if (inputList.isEmpty()) {
-				throw new RecipeExceptionJS(getTypeName() + " recipe input " + json.get("ingredients") + " is not a valid item!");
+				KubeJS.LOGGER.log(Level.WARN, getTypeName() + " recipe input " + json.get("ingredients") + " is not a valid item!");
 			}
 			for (Object o : inputList) {
 				IngredientJS ingredient = IngredientJS.of(o);
 				if (ingredient.isEmpty()) {
-					throw new RecipeExceptionJS(getTypeName() + " recipe input " + o + " is not a valid item!");
+					KubeJS.LOGGER.log(Level.WARN, getTypeName() + " recipe input " + o + " is not a valid item!");
 				}
 				outputs.add(ingredient);
 			}

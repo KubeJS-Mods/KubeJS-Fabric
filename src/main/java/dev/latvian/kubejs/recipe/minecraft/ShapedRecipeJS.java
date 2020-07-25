@@ -3,12 +3,14 @@ package dev.latvian.kubejs.recipe.minecraft;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import dev.latvian.kubejs.KubeJS;
 import dev.latvian.kubejs.item.ItemStackJS;
 import dev.latvian.kubejs.item.ingredient.IngredientJS;
 import dev.latvian.kubejs.recipe.RecipeExceptionJS;
 import dev.latvian.kubejs.recipe.RecipeJS;
 import dev.latvian.kubejs.util.ListJS;
 import dev.latvian.kubejs.util.MapJS;
+import org.apache.logging.log4j.Level;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,17 +27,17 @@ public class ShapedRecipeJS extends RecipeJS {
 	public void create(ListJS args) {
 		if (args.size() < 3) {
 			if (args.size() < 2) {
-				throw new RecipeExceptionJS("Shaped recipe requires 3 arguments - result, pattern and keys!");
+				KubeJS.LOGGER.log(Level.WARN, "Shaped recipe requires 3 arguments - result, pattern and keys!");
 			}
 			// simple define
 			ItemStackJS result = ItemStackJS.of(args.get(0));
 			if (result.isEmpty()) {
-				throw new RecipeExceptionJS("Shaped recipe result " + args.get(0) + " is not a valid item!");
+				KubeJS.LOGGER.log(Level.WARN, "Shaped recipe result " + args.get(0) + " is not a valid item!");
 			}
 			outputItems.add(result);
 			ListJS vertical = ListJS.orSelf(args.get(1));
 			if (vertical.isEmpty()) {
-				throw new RecipeExceptionJS("Shaped recipe pattern is empty!");
+				KubeJS.LOGGER.log(Level.WARN, "Shaped recipe pattern is empty!");
 			}
 			int id = 0;
 			for (Object o : vertical) {
@@ -61,7 +63,7 @@ public class ShapedRecipeJS extends RecipeJS {
 		ItemStackJS result = ItemStackJS.of(args.get(0));
 		
 		if (result.isEmpty()) {
-			throw new RecipeExceptionJS("Shaped recipe result " + args.get(0) + " is not a valid item!");
+			KubeJS.LOGGER.log(Level.WARN, "Shaped recipe result " + args.get(0) + " is not a valid item!");
 		}
 		
 		outputItems.add(result);
@@ -69,7 +71,7 @@ public class ShapedRecipeJS extends RecipeJS {
 		ListJS pattern1 = ListJS.orSelf(args.get(1));
 		
 		if (pattern1.isEmpty()) {
-			throw new RecipeExceptionJS("Shaped recipe pattern is empty!");
+			KubeJS.LOGGER.log(Level.WARN, "Shaped recipe pattern is empty!");
 		}
 		
 		for (Object p : pattern1) {
@@ -79,7 +81,7 @@ public class ShapedRecipeJS extends RecipeJS {
 		MapJS key1 = MapJS.of(args.get(2));
 		
 		if (key1 == null || key1.isEmpty()) {
-			throw new RecipeExceptionJS("Shaped recipe key map is empty!");
+			KubeJS.LOGGER.log(Level.WARN, "Shaped recipe key map is empty!");
 		}
 		
 		for (String k : key1.keySet()) {
@@ -89,7 +91,7 @@ public class ShapedRecipeJS extends RecipeJS {
 				inputItems.add(i);
 				key.add(k);
 			} else {
-				throw new RecipeExceptionJS("Shaped recipe ingredient " + key1.get(k) + " with key '" + k + "' is not a valid ingredient!");
+				KubeJS.LOGGER.log(Level.WARN, "Shaped recipe ingredient " + key1.get(k) + " with key '" + k + "' is not a valid ingredient!");
 			}
 		}
 	}
@@ -99,7 +101,7 @@ public class ShapedRecipeJS extends RecipeJS {
 		ItemStackJS result = ItemStackJS.resultFromRecipeJson(json.get("result"));
 		
 		if (result.isEmpty()) {
-			throw new RecipeExceptionJS("Shaped recipe result " + json.get("result") + " is not a valid item!");
+			KubeJS.LOGGER.log(Level.WARN, "Shaped recipe result " + json.get("result") + " is not a valid item!");
 		}
 		
 		outputItems.add(result);
@@ -109,7 +111,7 @@ public class ShapedRecipeJS extends RecipeJS {
 		}
 		
 		if (pattern.isEmpty()) {
-			throw new RecipeExceptionJS("Shaped recipe pattern is empty!");
+			KubeJS.LOGGER.log(Level.WARN, "Shaped recipe pattern is empty!");
 		}
 		
 		for (Map.Entry<String, JsonElement> entry : json.get("key").getAsJsonObject().entrySet()) {
@@ -119,12 +121,12 @@ public class ShapedRecipeJS extends RecipeJS {
 				inputItems.add(i);
 				key.add(entry.getKey());
 			} else {
-				throw new RecipeExceptionJS("Shaped recipe ingredient " + entry.getValue() + " with key '" + entry.getKey() + "' is not a valid ingredient!");
+				KubeJS.LOGGER.log(Level.WARN, "Shaped recipe ingredient " + entry.getValue() + " with key '" + entry.getKey() + "' is not a valid ingredient!");
 			}
 		}
 		
 		if (key.isEmpty()) {
-			throw new RecipeExceptionJS("Shaped recipe key map is empty!");
+			KubeJS.LOGGER.log(Level.WARN, "Shaped recipe key map is empty!");
 		}
 	}
 	

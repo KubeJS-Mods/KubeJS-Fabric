@@ -2,6 +2,7 @@ package dev.latvian.kubejs.recipe.minecraft;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import dev.latvian.kubejs.KubeJS;
 import dev.latvian.kubejs.item.EmptyItemStackJS;
 import dev.latvian.kubejs.item.ItemStackJS;
 import dev.latvian.kubejs.item.ingredient.IngredientJS;
@@ -9,6 +10,7 @@ import dev.latvian.kubejs.recipe.RecipeExceptionJS;
 import dev.latvian.kubejs.recipe.RecipeJS;
 import dev.latvian.kubejs.script.ScriptType;
 import dev.latvian.kubejs.util.ListJS;
+import org.apache.logging.log4j.Level;
 
 import java.util.function.Supplier;
 
@@ -32,7 +34,7 @@ public class CustomRecipeJS extends RecipeJS {
 	
 	@Override
 	public void create(ListJS args) {
-		throw new RecipeExceptionJS("Can't create custom recipe for type " + id + "!");
+		KubeJS.LOGGER.log(Level.WARN, "Can't create custom recipe for type " + id + "!");
 	}
 	
 	private boolean addInput(String k) {

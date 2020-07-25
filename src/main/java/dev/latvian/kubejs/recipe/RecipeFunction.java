@@ -1,6 +1,7 @@
 package dev.latvian.kubejs.recipe;
 
 import com.google.gson.JsonObject;
+import dev.latvian.kubejs.KubeJS;
 import dev.latvian.kubejs.item.ItemStackJS;
 import dev.latvian.kubejs.item.ingredient.IngredientJS;
 import dev.latvian.kubejs.item.ingredient.TagIngredientJS;
@@ -11,6 +12,7 @@ import dev.latvian.kubejs.util.MapJS;
 import dev.latvian.kubejs.util.WrappedJS;
 import jdk.nashorn.api.scripting.AbstractJSObject;
 import net.minecraft.util.Identifier;
+import org.apache.logging.log4j.Level;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -33,15 +35,15 @@ public class RecipeFunction extends AbstractJSObject implements WrappedJS {
 	public RecipeJS call(Object thiz, Object... args0) {
 		try {
 			if (type == null) {
-				throw new RecipeExceptionJS("Unknown recipe type!");
+				KubeJS.LOGGER.log(Level.WARN, "Unknown recipe type!");
 			}
 			
 			ListJS args = ListJS.of(args0);
 			
 			if (args == null || args.isEmpty()) {
-				throw new RecipeExceptionJS("Recipe requires at least one argument!");
+				KubeJS.LOGGER.log(Level.WARN, "Recipe requires at least one argument!");
 			} else if (type.isCustom() && args.size() != 1) {
-				throw new RecipeExceptionJS("Custom recipe has to use a single json object argument!");
+				KubeJS.LOGGER.log(Level.WARN, "Custom recipe has to use a single JSON object argument!");
 			}
 			
 			if (args.size() == 1) {
@@ -54,7 +56,7 @@ public class RecipeFunction extends AbstractJSObject implements WrappedJS {
 					recipe.deserialize();
 					return event.addRecipe(recipe, type, args);
 				} else {
-					throw new RecipeExceptionJS("One argument recipes have to be a JSON object!");
+					KubeJS.LOGGER.log(Level.WARN, "One argument recipes have to be a JSON object!");
 				}
 			}
 			
