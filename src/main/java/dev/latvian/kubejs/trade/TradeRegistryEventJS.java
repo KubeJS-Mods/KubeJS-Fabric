@@ -37,6 +37,12 @@ public class TradeRegistryEventJS extends EventJS {
 		map.put(level.intValue(), ArrayUtils.addAll(map.getOrDefault(level.intValue(), new TradeOffers.Factory[0]), factory));
 	}
 
+	public void wandering(Integer level, TradeOffers.Factory factory) {
+		Int2ObjectMap<TradeOffers.Factory[]> map = TradeOffers.WANDERING_TRADER_TRADES;
+
+		map.put(level.intValue(), ArrayUtils.addAll(map.getOrDefault(level.intValue(), new TradeOffers.Factory[0]), factory));
+	}
+
 	public void replace(@ID String id, Integer level, Object from, Object with, boolean loose) {
 		VillagerProfession profession = Registry.VILLAGER_PROFESSION.get(new Identifier(id));
 		TradeOffers.PROFESSION_TO_LEVELED_TRADE.computeIfAbsent(profession, key -> new Int2ObjectOpenHashMap<>());
