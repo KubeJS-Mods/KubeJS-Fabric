@@ -15,12 +15,12 @@ import java.util.List;
 @Environment(EnvType.CLIENT)
 public class DebugHudMixin {
 	@Inject(at = @At("RETURN"), method = "getLeftText")
-	protected void getLeftText(CallbackInfoReturnable<List<String>> info) {
+	protected void getLeftTextKJS(CallbackInfoReturnable<List<String>> info) {
 		KubeJSClientEventHandler.ON_DEBUG_TEXT.invoker().accept(true, info.getReturnValue());
 	}
 	
 	@Inject(at = @At("RETURN"), method = "getRightText")
-	protected void getRightText(CallbackInfoReturnable<List<String>> info) {
+	protected void getRightTextKJS(CallbackInfoReturnable<List<String>> info) {
 		KubeJSClientEventHandler.ON_DEBUG_TEXT.invoker().accept(false, info.getReturnValue());
 	}
 }

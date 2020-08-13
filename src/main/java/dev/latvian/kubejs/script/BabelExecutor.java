@@ -9,13 +9,14 @@ import javax.script.SimpleBindings;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 
 public class BabelExecutor {
 	private static final ScriptEngine scriptEngine = new NashornScriptEngineFactory().getScriptEngine();
 	private static final SimpleBindings bindings = new SimpleBindings();
 
 	static {
-		try (InputStreamReader babelScript = new InputStreamReader(BabelExecutor.class.getClassLoader().getResourceAsStream("babel.min.js"))) {
+		try (InputStreamReader babelScript = new InputStreamReader(BabelExecutor.class.getClassLoader().getResourceAsStream("babel.min.js"), StandardCharsets.UTF_8)) {
 			try {
 				scriptEngine.eval(babelScript, bindings);
 			} catch (ScriptException e) {

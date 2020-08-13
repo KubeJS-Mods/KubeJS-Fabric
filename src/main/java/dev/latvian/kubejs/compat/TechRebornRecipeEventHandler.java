@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 	@Override
 	public void onKubeJSInitialization() {
-		if (!FabricLoader.getInstance().isModLoaded("astromine")) return;
+		if (!FabricLoader.getInstance().isModLoaded("techreborn")) return;
 		RegisterRecipeHandlersEvent.EVENT.register(event -> {
 			event.register(new RecipeTypeJS("techreborn:alloy_smelter", () -> new ImplementedRecipeJS("Alloy Smelter")));
 			event.register(new RecipeTypeJS("techreborn:assembling_machine", () -> new ImplementedRecipeJS("Assembling Machine")));
