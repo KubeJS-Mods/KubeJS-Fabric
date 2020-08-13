@@ -9,13 +9,23 @@ import javax.script.SimpleBindings;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 
 public class BabelExecutor {
-	private static final ScriptEngine scriptEngine = new NashornScriptEngineFactory().getScriptEngine();
-	private static final SimpleBindings bindings = new SimpleBindings();
-
-	static {
-		try (InputStreamReader babelScript = new InputStreamReader(BabelExecutor.class.getClassLoader().getResourceAsStream("babel.min.js"))) {
+	private static boolean inited = false;
+	private static ScriptEngine scriptEngine;
+	private static SimpleBindings bindings;
+	
+	private static void init() {
+		if (inited) {
+			return;
+		}
+		
+		inited = true;
+		scriptEngine = new NashornScriptEngineFactory().getScriptEngine();
+		bindings = new SimpleBindings();
+		
+		try (InputStreamReader babelScript = new InputStreamReader(BabelExecutor.class.getResourceAsStream("/data/kubejs/babel.min.js"), StandardCharsets.UTF_8)) {
 			try {
 				scriptEngine.eval(babelScript, bindings);
 			} catch (ScriptException e) {
@@ -25,9 +35,10 @@ public class BabelExecutor {
 			throw new RuntimeException(e);
 		}
 	}
-
+	
 	public static String process(Reader reader) throws IOException, ScriptException {
+		init();
 		bindings.put("input", IOUtils.toString(reader));
-		return (String) scriptEngine.eval("Babel.transform(input, { presets: ['es2015'], sourceMaps: 'inline' }).code", bindings);
+		return scriptEngine.eval("Babel.transform(input, { presets: ['es2015'], sourceMaps: 'inline' }).code", bindings).toString();
 	}
 }

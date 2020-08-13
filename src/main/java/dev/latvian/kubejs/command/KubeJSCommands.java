@@ -44,6 +44,9 @@ public class KubeJSCommands {
 				.then(CommandManager.literal("check_recipe_conflicts")
 						.executes(context -> checkRecipeConflicts(context.getSource().getPlayer()))
 				)
+				.then(CommandManager.literal("wiki")
+						.executes(context -> wiki(context.getSource()))
+				)
 		);
 	}
 	
@@ -101,6 +104,11 @@ public class KubeJSCommands {
 	
 	private static int checkRecipeConflicts(ServerPlayerEntity player) {
 		player.sendSystemMessage(new LiteralText("WIP!"), Util.NIL_UUID);
+		return Command.SINGLE_SUCCESS;
+	}
+	
+	private static int wiki(ServerCommandSource source) {
+		source.sendFeedback(new LiteralText("Click here to open the Wiki").formatted(Formatting.BLUE).styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://mods.latvian.dev/books/kubejs"))), false);
 		return Command.SINGLE_SUCCESS;
 	}
 }

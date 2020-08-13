@@ -11,10 +11,7 @@ import dev.latvian.kubejs.item.ingredient.IngredientJS;
 import dev.latvian.kubejs.script.ScriptType;
 import dev.latvian.kubejs.server.ServerEventJS;
 import dev.latvian.kubejs.server.ServerSettings;
-import dev.latvian.kubejs.util.DynamicMapJS;
-import dev.latvian.kubejs.util.ListJS;
-import dev.latvian.kubejs.util.MapJS;
-import dev.latvian.kubejs.util.UtilsJS;
+import dev.latvian.kubejs.util.*;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeManager;
@@ -27,6 +24,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * @author LatvianModder
@@ -373,5 +371,25 @@ public class RecipeEventJS extends ServerEventJS {
 	
 	public RecipeFunction getCampfireCooking() {
 		return functionMap.get(Registry.RECIPE_SERIALIZER.getId(RecipeSerializer.CAMPFIRE_COOKING));
+	}
+	
+	public void printTypes() {
+		ScriptType.SERVER.console.info("== All recipe types ==");
+		HashSet<String> list = new HashSet<>();
+		originalRecipes.forEach(r -> list.add(r.type.toString()));
+		list.stream().sorted().forEach(ScriptType.SERVER.console::info);
+		ScriptType.SERVER.console.info(list.size() + " types");
+	}
+	
+	public void printExamples(String type) {
+		List<RecipeJS> list = originalRecipes.stream().filter(recipeJS -> recipeJS.type.toString().equals(type)).collect(Collectors.toList());
+		Collections.shuffle(list);
+		
+		ScriptType.SERVER.console.info("== Random examples of '" + type + "' ==");
+		
+		for (int i = 0; i < Math.min(list.size(), 5); i++) {
+			RecipeJS r = list.get(i);
+			ScriptType.SERVER.console.info("- " + r.id + ":\n" + JsonUtilsJS.toPrettyString(r.json));
+		}
 	}
 }
