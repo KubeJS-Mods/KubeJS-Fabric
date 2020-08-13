@@ -65,7 +65,7 @@ public class BlockContainerJS {
 	}
 	
 	public String getDimension() {
-		return ((World) minecraftWorld).getDimensionRegistryKey().getValue().toString();
+		return ((World) minecraftWorld).getRegistryKey().getValue().toString();
 	}
 	
 	public int getX() {
@@ -266,7 +266,7 @@ public class BlockContainerJS {
 	public void spawnLightning(boolean effectOnly, @Nullable EntityJS player) {
 		if (minecraftWorld instanceof ServerWorld) {
 			LightningEntity e = EntityType.LIGHTNING_BOLT.create((ServerWorld) minecraftWorld);
-			e.method_29495(new Vec3d(getX() + 0.5D, getY() + 0.5D, getZ() + 0.5D));
+			e.refreshPositionAfterTeleport(new Vec3d(getX() + 0.5D, getY() + 0.5D, getZ() + 0.5D));
 			e.setChanneler(player instanceof ServerPlayerJS ? ((ServerPlayerJS) player).minecraftPlayer : null);
 			minecraftWorld.spawnEntity(e);
 		}

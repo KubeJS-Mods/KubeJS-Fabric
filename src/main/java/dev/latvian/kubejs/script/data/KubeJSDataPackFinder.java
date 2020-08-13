@@ -23,7 +23,7 @@ public class KubeJSDataPackFinder implements ResourcePackProvider {
 	}
 	
 	@Override
-	public <T extends ResourcePackProfile> void register(Consumer<T> nameToPackMap, ResourcePackProfile.Factory<T> packInfoFactory) {
+	public void register(Consumer<ResourcePackProfile> nameToPackMap, ResourcePackProfile.Factory packInfoFactory) {
 		File dataFolder = new File(folder, "data");
 		
 		if (!dataFolder.exists()) {
@@ -41,6 +41,6 @@ public class KubeJSDataPackFinder implements ResourcePackProvider {
 		
 		KubeJSResourcePack dataPack = new KubeJSResourcePack(folder, ResourceType.SERVER_DATA);
 		PackResourceMetadata dataPackMetadata = new PackResourceMetadata(new LiteralText("./kubejs/data/"), 5);
-		nameToPackMap.accept((T) new ResourcePackProfile("kubejs:data_pack", true, () -> dataPack, dataPack, dataPackMetadata, ResourcePackProfile.InsertionPosition.TOP, ResourcePackSource.PACK_SOURCE_BUILTIN));
+		nameToPackMap.accept(new ResourcePackProfile("kubejs:data_pack", true, () -> dataPack, dataPack, dataPackMetadata, ResourcePackProfile.InsertionPosition.TOP, ResourcePackSource.PACK_SOURCE_BUILTIN));
 	}
 }

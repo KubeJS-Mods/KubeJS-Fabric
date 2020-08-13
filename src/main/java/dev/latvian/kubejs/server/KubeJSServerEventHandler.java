@@ -5,7 +5,7 @@ import dev.latvian.kubejs.KubeJSEvents;
 import dev.latvian.kubejs.command.CommandRegistryEventJS;
 import dev.latvian.kubejs.command.KubeJSCommands;
 import dev.latvian.kubejs.core.ResourcePackManagerKJS;
-import dev.latvian.kubejs.player.PlayerDataJS;
+import dev.latvian.kubejs.player.ServerPlayerDataJS;
 import dev.latvian.kubejs.player.SimplePlayerEventJS;
 import dev.latvian.kubejs.script.ScriptType;
 import dev.latvian.kubejs.script.data.KubeJSDataPackFinder;
@@ -52,7 +52,7 @@ public class KubeJSServerEventHandler implements ModInitializer {
 		for (ServerWorld world : ServerJS.instance.minecraftServer.getWorlds()) {
 			if (world != ServerJS.instance.overworld.minecraftWorld) {
 				ServerWorldJS w = new ServerWorldJS(ServerJS.instance, world);
-				ServerJS.instance.worldMap.put(world.getDimensionRegistryKey().getValue().toString(), w);
+				ServerJS.instance.worldMap.put(world.getRegistryKey().getValue().toString(), w);
 			}
 		}
 		
@@ -74,7 +74,7 @@ public class KubeJSServerEventHandler implements ModInitializer {
 	}
 	
 	public static void destroyServer() {
-		for (PlayerDataJS p : new ArrayList<>(ServerJS.instance.playerMap.values())) {
+		for (ServerPlayerDataJS p : new ArrayList<>(ServerJS.instance.playerMap.values())) {
 			new SimplePlayerEventJS(p.getMinecraftPlayer()).post(KubeJSEvents.PLAYER_LOGGED_OUT);
 			ServerJS.instance.playerMap.remove(p.getId());
 		}

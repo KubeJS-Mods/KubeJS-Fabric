@@ -51,7 +51,7 @@ public class TagIngredientJS implements IngredientJS {
 	
 	@Override
 	public Set<ItemStackJS> getStacks() {
-		Tag<Item> t = ItemTags.getContainer().get(tag);
+		Tag<Item> t = ItemTags.getTagGroup().getTag(tag);
 		
 		if (t != null && t.values().size() > 0) {
 			DefaultedList<ItemStack> list = DefaultedList.of();
@@ -79,7 +79,7 @@ public class TagIngredientJS implements IngredientJS {
 	
 	@Override
 	public ItemStackJS getFirst() {
-		Tag<Item> t = ItemTags.getContainer().get(tag);
+		Tag<Item> t = ItemTags.getTagGroup().getTag(tag);
 		
 		if (t != null && t.values().size() > 0) {
 			DefaultedList<ItemStack> list = DefaultedList.of();
@@ -104,11 +104,11 @@ public class TagIngredientJS implements IngredientJS {
 	
 	@Override
 	public boolean isEmpty() {
-		if (ItemTags.getContainer().getEntries().isEmpty()) {
+		if (ItemTags.getTagGroup().getTags().isEmpty()) {
 			return false;
 		}
 		
-		Tag<Item> t = ItemTags.getContainer().get(tag);
+		Tag<Item> t = ItemTags.getTagGroup().getTag(tag);
 		return t != null && t.values().isEmpty();
 	}
 	

@@ -163,7 +163,7 @@ public abstract class Text implements Iterable<Text>, Comparable<Text>, JsonSeri
 		}
 		
 		if (hover != null) {
-			component.styled(style -> style.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover.component())));
+			component.styled(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover.component())));
 		}
 		
 		for (Text text : getSiblings()) {

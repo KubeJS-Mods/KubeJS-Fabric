@@ -34,7 +34,7 @@ import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.StringRenderable;
+import net.minecraft.text.OrderedText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import org.lwjgl.opengl.GL11;
@@ -126,7 +126,7 @@ public class KubeJSClientEventHandler {
 	private void itemTooltip(ItemStack stack, TooltipContext context, List<net.minecraft.text.Text> lines) {
 		if (ClientProperties.get().showTagNames && MinecraftClient.getInstance().options.advancedItemTooltips && Screen.hasShiftDown()) //hasShiftDown
 		{
-			for (Identifier tag : MinecraftClient.getInstance().world.getTagManager().items().getTagsFor(stack.getItem())) {
+			for (Identifier tag : MinecraftClient.getInstance().world.getTagManager().getItems().getTagsFor(stack.getItem())) {
 				lines.add(new LiteralText(" #" + tag).formatted(Formatting.DARK_GRAY));
 			}
 		}
@@ -163,7 +163,7 @@ public class KubeJSClientEventHandler {
 	}
 	
 	private int drawOverlay(MinecraftClient mc, MatrixStack matrixStack, int maxWidth, int x, int y, int p, Overlay o, boolean inv) {
-		List<StringRenderable> list = new ArrayList<>();
+		List<OrderedText> list = new ArrayList<>();
 		int l = 10;
 		
 		for (Text t : o.text) {
@@ -172,8 +172,8 @@ public class KubeJSClientEventHandler {
 		
 		int mw = 0;
 		
-		for (StringRenderable s : list) {
-			mw = Math.max(mw, mc.textRenderer.getWidth(s.getString()));
+		for (OrderedText s : list) {
+			mw = Math.max(mw, mc.textRenderer.getWidth(s));
 		}
 		
 		if (mw == 0) {

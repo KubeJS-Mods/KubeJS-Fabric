@@ -1,8 +1,8 @@
 package dev.latvian.kubejs.server;
 
 import com.mojang.serialization.Dynamic;
-import net.minecraft.datafixer.NbtOps;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.GameRules;
 
 import javax.annotation.Nullable;
@@ -25,9 +25,9 @@ public class GameRulesJS {
 		if (cache == null) {
 			cache = new HashMap<>();
 			
-			GameRules.forEachType(new GameRules.TypeConsumer() {
+			GameRules.accept(new GameRules.Visitor() {
 				@Override
-				public <T extends GameRules.Rule<T>> void accept(GameRules.Key<T> key, GameRules.Type<T> type) {
+				public <T extends GameRules.Rule<T>> void visit(GameRules.Key<T> key, GameRules.Type<T> type) {
 					cache.put(key.toString(), key);
 				}
 			});

@@ -16,7 +16,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.resource.ClientResourcePackProfile;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resource.ResourcePackManager;
@@ -36,7 +35,7 @@ public class KubeJSClient extends KubeJSCommon implements ClientModInitializer {
 	@Override
 	public void init(File folder) {
 		new KubeJSClientEventHandler().init();
-		ResourcePackManager<ClientResourcePackProfile> manager = MinecraftClient.getInstance().getResourcePackManager();
+		ResourcePackManager manager = MinecraftClient.getInstance().getResourcePackManager();
 		((ResourcePackManagerKJS) manager).addProviderKJS(new KubeJSResourcePackFinder(folder));
 		
 		ClientSidePacketRegistry.INSTANCE.register(KubeJSNet.PACKET_ID_S2C, (packetContext, packetByteBuf) -> {

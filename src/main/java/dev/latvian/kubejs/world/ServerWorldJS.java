@@ -41,11 +41,11 @@ public class ServerWorldJS extends WorldJS {
 	}
 	
 	public void setTime(long time) {
-		((LevelProperties) minecraftWorld.getLevelProperties()).method_29034(time);
+		((LevelProperties) minecraftWorld.getLevelProperties()).setTime(time);
 	}
 	
 	public void setLocalTime(long time) {
-		((LevelProperties) minecraftWorld.getLevelProperties()).method_29035(time);
+		((LevelProperties) minecraftWorld.getLevelProperties()).setTimeOfDay(time);
 	}
 	
 	@Override

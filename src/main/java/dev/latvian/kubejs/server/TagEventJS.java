@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * @author LatvianModder
@@ -43,7 +44,7 @@ public class TagEventJS<T> extends ServerEventJS {
 					ScriptType.SERVER.console.logger.info("+ " + event.type + ":" + id + " // " + w.id);
 				} else {
 					Identifier sid = new Identifier(s);
-					Optional<T> v = event.registry.getOrEmpty(sid);
+					Optional<T> v = event.registry.apply(sid);
 					
 					if (v.isPresent()) {
 						builder.add(sid, KubeJS.MOD_ID);
@@ -70,7 +71,7 @@ public class TagEventJS<T> extends ServerEventJS {
 					ScriptType.SERVER.console.logger.info("- " + event.type + ":" + id + " // " + w.id);
 				} else {
 					Identifier sid = new Identifier(s);
-					Optional<T> v = event.registry.getOrEmpty(sid);
+					Optional<T> v = event.registry.apply(sid);
 					
 					if (v.isPresent()) {
 						Tag.ObjectEntry entry = new Tag.ObjectEntry(sid);
@@ -89,12 +90,12 @@ public class TagEventJS<T> extends ServerEventJS {
 	
 	private final String type;
 	private final Map<Identifier, Tag.Builder> map;
-	private final Registry<T> registry;
+	private final Function<Identifier, Optional<T>> registry;
 	private Map<Identifier, TagWrapper<T>> tags;
 	private int addedCount;
 	private int removedCount;
 	
-	public TagEventJS(String t, Map<Identifier, Tag.Builder> m, Registry<T> r) {
+	public TagEventJS(String t, Map<Identifier, Tag.Builder> m, Function<Identifier, Optional<T>> r) {
 		type = t;
 		map = m;
 		registry = r;

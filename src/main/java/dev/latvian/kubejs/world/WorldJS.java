@@ -25,7 +25,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -72,11 +71,11 @@ public abstract class WorldJS implements WithAttachedData {
 	}
 	
 	public String getDimension() {
-		return minecraftWorld.getDimensionRegistryKey().getValue().toString();
+		return minecraftWorld.getRegistryKey().getValue().toString();
 	}
 	
 	public boolean isOverworld() {
-		return minecraftWorld.getDimension() == DimensionType.getOverworldDimensionType();
+		return minecraftWorld.getRegistryKey() == World.OVERWORLD;
 	}
 	
 	public boolean isDaytime() {
@@ -168,7 +167,7 @@ public abstract class WorldJS implements WithAttachedData {
 	public void spawnLightning(double x, double y, double z, boolean effectOnly, @Nullable EntityJS player) {
 		if (minecraftWorld instanceof ServerWorld) {
 			LightningEntity e = EntityType.LIGHTNING_BOLT.create(minecraftWorld);
-			e.method_29495(new Vec3d(x, y, z));
+			e.refreshPositionAfterTeleport(new Vec3d(x, y, z));
 			e.setChanneler(player instanceof ServerPlayerJS ? ((ServerPlayerJS) player).minecraftPlayer : null);
 			minecraftWorld.spawnEntity(e);
 		}

@@ -5,7 +5,7 @@
   "mixins": [
 	"AbstractBlockMixin", "AbstractFurnaceBlockEntityMixin", "CompoundNBTMixin",
 	"CraftingResultSlotMixin", "DataPackRegistriesMixin", "EntityMixin", "FireworkRocketEntityMixin", "ItemStackMixin",
-	"LivingEntityMixin", "NetworkTagCollectionMixin", "PlayerInteractionManagerMixin",
+	"LivingEntityMixin", "PlayerInteractionManagerMixin",
 	"RecipeManagerMixin", "ResourcePackManagerMixin", "ServerPlayerInteractionManagerMixin",
 	"SimpleReloadableResourceManagerMixin", "TagBuilderMixin", "TagCollectionMixin", "TradeOfferMixin"
   ],

@@ -25,8 +25,8 @@ public class ClientPlayNetworkHandlerMixin {
 	
 	@Inject(method = "onPlayerRespawn", at = @At(value = "INVOKE",
 	                                             target = "Lnet/minecraft/client/world/ClientWorld;addPlayer(ILnet/minecraft/client/network/AbstractClientPlayerEntity;)V",
-	                                             shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
-	private void onPlayerRespawnKJS(PlayerRespawnS2CPacket packet, CallbackInfo ci, RegistryKey registryKey, RegistryKey registryKey2, DimensionType dimensionType, ClientPlayerEntity clientPlayerEntity, int i, String string, ClientPlayerEntity clientPlayerEntity2) {
+	                                             shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILEXCEPTION)
+	private void onPlayerRespawnKJS(PlayerRespawnS2CPacket packet, CallbackInfo ci, RegistryKey registryKey, DimensionType dimensionType, ClientPlayerEntity clientPlayerEntity, int i, String string, ClientPlayerEntity clientPlayerEntity2) {
 		KubeJSClientEventHandler.ON_RESPAWN.invoker().accept(clientPlayerEntity2);
 	}
 }

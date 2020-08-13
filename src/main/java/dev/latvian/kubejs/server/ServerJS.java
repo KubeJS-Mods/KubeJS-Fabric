@@ -152,11 +152,11 @@ public class ServerJS implements MessageSender, WithAttachedData {
 	}
 	
 	public WorldJS getWorld(World minecraftWorld) {
-		ServerWorldJS world = worldMap.get(minecraftWorld.getDimensionRegistryKey().getValue().toString());
+		ServerWorldJS world = worldMap.get(minecraftWorld.getRegistryKey().getValue().toString());
 		
 		if (world == null) {
 			world = new ServerWorldJS(this, (ServerWorld) minecraftWorld);
-			worldMap.put(minecraftWorld.getDimensionRegistryKey().getValue().toString(), world);
+			worldMap.put(minecraftWorld.getRegistryKey().getValue().toString(), world);
 			updateWorldList();
 			AttachWorldDataEvent.EVENT.invoker().accept(new AttachWorldDataEvent(world));
 		}

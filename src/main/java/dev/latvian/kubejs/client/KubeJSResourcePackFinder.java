@@ -3,7 +3,6 @@ package dev.latvian.kubejs.client;
 import dev.latvian.kubejs.script.data.KubeJSResourcePack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.resource.ClientResourcePackProfile;
 import net.minecraft.resource.ResourcePackProfile;
 import net.minecraft.resource.ResourcePackProvider;
 import net.minecraft.resource.ResourcePackSource;
@@ -28,7 +27,7 @@ public class KubeJSResourcePackFinder implements ResourcePackProvider {
 	}
 	
 	@Override
-	public <T extends ResourcePackProfile> void register(Consumer<T> nameToPackMap, ResourcePackProfile.Factory<T> packInfoFactory) {
+	public void register(Consumer<ResourcePackProfile> nameToPackMap, ResourcePackProfile.Factory packInfoFactory) {
 		File assetsFolder = new File(folder, "assets");
 		
 		if (!assetsFolder.exists()) {
@@ -50,6 +49,6 @@ public class KubeJSResourcePackFinder implements ResourcePackProvider {
 		
 		KubeJSResourcePack pack = new KubeJSResourcePack(folder, ResourceType.CLIENT_RESOURCES);
 		PackResourceMetadata metadataSection = new PackResourceMetadata(new LiteralText("./kubejs/assets/"), 5);
-		nameToPackMap.accept((T) new ClientResourcePackProfile("kubejs:resource_pack", true, () -> pack, pack, metadataSection, ResourcePackProfile.InsertionPosition.TOP, ResourcePackSource.PACK_SOURCE_BUILTIN));
+		nameToPackMap.accept(new ResourcePackProfile("kubejs:resource_pack", true, () -> pack, pack, metadataSection, ResourcePackProfile.InsertionPosition.TOP, ResourcePackSource.PACK_SOURCE_BUILTIN));
 	}
 }

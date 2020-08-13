@@ -1,15 +1,17 @@
 package dev.latvian.kubejs.script;
 
 import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
+import net.fabricmc.loader.api.FabricLoader;
 import org.apache.logging.log4j.core.util.IOUtils;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import javax.script.SimpleBindings;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 public class BabelExecutor {
 	private static boolean inited = false;
@@ -25,7 +27,7 @@ public class BabelExecutor {
 		scriptEngine = new NashornScriptEngineFactory().getScriptEngine();
 		bindings = new SimpleBindings();
 		
-		try (InputStreamReader babelScript = new InputStreamReader(BabelExecutor.class.getResourceAsStream("babel.min.js"), StandardCharsets.UTF_8)) {
+		try (BufferedReader babelScript = Files.newBufferedReader(FabricLoader.getInstance().getModContainer("kubejs").get().getPath("babel.min.js"), StandardCharsets.UTF_8)) {
 			try {
 				scriptEngine.eval(babelScript, bindings);
 			} catch (ScriptException e) {

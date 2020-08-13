@@ -3,22 +3,22 @@ package dev.latvian.kubejs.core;
 import dev.latvian.kubejs.server.TagEventJS;
 import net.minecraft.tag.Tag;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * @author LatvianModder
  */
-public interface TagCollectionKJS {
-	default <T> void customTagsKJS(Map<Identifier, Tag.Builder> map) {
-		if (this instanceof NetworkTagCollectionKJS) {
-			String c = getResourceLocationPrefixKJS().substring(5);
-			String t = getItemTypeNameKJS();
-			Registry<T> r = ((NetworkTagCollectionKJS) this).getRegistryKJS();
-			new TagEventJS<T>(c, map, r).post(t + ".tags");
-		}
+public interface TagCollectionKJS<T> {
+	default void customTagsKJS(Map<Identifier, Tag.Builder> map) {
+		String c = getResourceLocationPrefixKJS().substring(5);
+		String t = getItemTypeNameKJS();
+		new TagEventJS<>(c, map, getRegistryGetterKJS()).post(t + ".tags");
 	}
+	
+	Function<Identifier, Optional<T>> getRegistryGetterKJS();
 	
 	String getResourceLocationPrefixKJS();
 	
