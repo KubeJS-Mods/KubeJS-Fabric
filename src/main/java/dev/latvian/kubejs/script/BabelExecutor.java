@@ -25,7 +25,7 @@ public class BabelExecutor {
 		scriptEngine = new NashornScriptEngineFactory().getScriptEngine();
 		bindings = new SimpleBindings();
 		
-		try (InputStreamReader babelScript = new InputStreamReader(BabelExecutor.class.getResourceAsStream("/data/kubejs/babel.min.js"), StandardCharsets.UTF_8)) {
+		try (InputStreamReader babelScript = new InputStreamReader(BabelExecutor.class.getResourceAsStream("babel.min.js"), StandardCharsets.UTF_8)) {
 			try {
 				scriptEngine.eval(babelScript, bindings);
 			} catch (ScriptException e) {

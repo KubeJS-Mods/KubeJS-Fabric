@@ -18,14 +18,14 @@ import java.util.List;
 @Mixin(ServerResourceManager.class)
 public abstract class DataPackRegistriesMixin implements DataPackRegistriesKJS {
 	@Inject(method = "<init>", at = @At("RETURN"))
-	private void init(CallbackInfo ci) {
+	private void initKJS(CallbackInfo ci) {
 		initKJS();
 	}
 	
 	@ModifyArg(method = "reload", at = @At(value = "INVOKE", ordinal = 0,
 	                                                      target = "Lnet/minecraft/resource/ReloadableResourceManager;beginReload(Ljava/util/concurrent/Executor;Ljava/util/concurrent/Executor;Ljava/util/List;Ljava/util/concurrent/CompletableFuture;)Ljava/util/concurrent/CompletableFuture;"),
 	           index = 2)
-	private static List<ResourcePack> resourcePackList(List<ResourcePack> list) {
+	private static List<ResourcePack> resourcePackListKJS(List<ResourcePack> list) {
 		return DataPackRegistriesHelper.getResourcePackListKJS(list);
 	}
 }

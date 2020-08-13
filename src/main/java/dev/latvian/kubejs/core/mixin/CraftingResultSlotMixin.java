@@ -19,7 +19,7 @@ public class CraftingResultSlotMixin {
 	@Shadow @Final private CraftingInventory input;
 	
 	@Inject(at = @At("HEAD"), method = "onCrafted(Lnet/minecraft/item/ItemStack;)V")
-	void onCraft(ItemStack stack, CallbackInfo ci) {
+	void onCraftKJS(ItemStack stack, CallbackInfo ci) {
 		ItemCraftCallback.EVENT.invoker().craft(this.player, input, stack);
 	}
 }

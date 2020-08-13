@@ -333,9 +333,9 @@ public class RecipeEventJS extends ServerEventJS {
 			if (r.replaceOutput(i, w, exact)) {
 				count[0]++;
 				
-				if (ServerSettings.instance.logAddedRecipes || ServerSettings.instance.logRemovedRecipes) {
+				//if (ServerSettings.instance.logAddedRecipes || ServerSettings.instance.logRemovedRecipes) {
 					ScriptType.SERVER.console.info("~ " + r + ": IN " + is + " -> " + ws);
-				}
+				//}
 			}
 		});
 		return count[0];

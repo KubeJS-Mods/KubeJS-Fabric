@@ -84,7 +84,7 @@ public abstract class RecipeJS {
 		
 		for (int j = 0; j < outputItems.size(); j++) {
 			if (exact ? i.equals(outputItems.get(j)) : i.test(outputItems.get(j))) {
-				outputItems.set(j, with.getCopy().count(outputItems.get(j).getCount())).chance(outputItems.get(j).getChance());
+				outputItems.set(j, with.getCopy());
 				changed = true;
 				save();
 			}
