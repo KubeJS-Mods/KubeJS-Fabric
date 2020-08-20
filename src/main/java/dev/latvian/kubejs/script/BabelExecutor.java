@@ -18,6 +18,10 @@ public class BabelExecutor {
 	private static ScriptEngine scriptEngine;
 	private static SimpleBindings bindings;
 	
+	private static boolean enabled() {
+		return !Files.exists(FabricLoader.getInstance().getGameDir().resolve("kubejs/.disablebabel"));
+	}
+	
 	private static void init() {
 		if (inited) {
 			return;
@@ -39,6 +43,8 @@ public class BabelExecutor {
 	}
 	
 	public static String process(Reader reader) throws IOException, ScriptException {
+		if (!enabled())
+			return IOUtils.toString(reader);
 		init();
 		bindings.put("input", IOUtils.toString(reader));
 		return scriptEngine.eval("Babel.transform(input, { presets: ['es2015'], sourceMaps: 'inline' }).code", bindings).toString();

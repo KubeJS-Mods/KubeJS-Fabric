@@ -1,5 +1,6 @@
 package dev.latvian.kubejs.script;
 
+import com.google.common.base.Stopwatch;
 import dev.latvian.kubejs.KubeJSEvents;
 import dev.latvian.kubejs.bindings.DefaultBindings;
 import dev.latvian.kubejs.event.EventJS;
@@ -58,6 +59,16 @@ public class ScriptManager {
 		int i = 0;
 		int t = 0;
 		
+		Stopwatch stopwatch = Stopwatch.createStarted();
+		
+		packs.values().stream()
+				.flatMap(pack -> pack.scripts.stream())
+				.parallel()
+				.forEach(file -> file.babel.get());
+		
+		System.out.println("Babel Transformer done in " + stopwatch.stop().toString());
+		stopwatch.reset().start();
+		
 		for (ScriptPack pack : packs.values()) {
 			pack.engine = new NashornScriptEngineFactory().getScriptEngine(s -> false);
 			
@@ -71,7 +82,7 @@ public class ScriptManager {
 				t++;
 				currentFile = file;
 				
-				if (file.load(b)) {
+				if (file.getError() == null && file.load(b)) {
 					i++;
 					type.console.info("Loaded script " + file.info.location);
 				} else if (file.getError() != null) {
@@ -89,9 +100,9 @@ public class ScriptManager {
 		currentFile = null;
 		
 		if (i == t) {
-			type.console.info("Loaded " + i + "/" + t + " KubeJS " + type.name + " scripts");
+			type.console.info("Loaded " + i + "/" + t + " KubeJS " + type.name + " scripts in " + stopwatch.stop().toString());
 		} else {
-			type.console.error("Loaded " + i + "/" + t + " KubeJS " + type.name + " scripts");
+			type.console.error("Loaded " + i + "/" + t + " KubeJS " + type.name + " scripts in " + stopwatch.stop().toString());
 		}
 		
 		events.postToHandlers(KubeJSEvents.LOADED, events.handlers(KubeJSEvents.LOADED), new EventJS());

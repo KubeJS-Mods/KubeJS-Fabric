@@ -60,7 +60,9 @@ public abstract class RecipeJS {
 		
 		for (int j = 0; j < inputItems.size(); j++) {
 			if (exact ? inputItems.get(j).equals(i) : inputItems.get(j).anyStackMatches(i)) {
-				inputItems.set(j, IngredientJS.of(with));
+				IngredientJS replacement = IngredientJS.of(with);
+				replacement = replacement.count(Math.max(1, inputItems.get(j).getCount()));
+				inputItems.set(j, replacement);
 				changed = true;
 				save();
 			}
@@ -84,7 +86,9 @@ public abstract class RecipeJS {
 		
 		for (int j = 0; j < outputItems.size(); j++) {
 			if (exact ? i.equals(outputItems.get(j)) : i.test(outputItems.get(j))) {
-				outputItems.set(j, with.getCopy());
+				ItemStackJS replacement = with.getCopy();
+				replacement = replacement.count(Math.max(1, inputItems.get(j).getCount()));
+				outputItems.set(j, replacement);
 				changed = true;
 				save();
 			}

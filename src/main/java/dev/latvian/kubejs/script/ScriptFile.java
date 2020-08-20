@@ -1,5 +1,7 @@
 package dev.latvian.kubejs.script;
 
+import net.minecraft.util.Lazy;
+
 import javax.annotation.Nullable;
 import javax.script.Bindings;
 import java.io.Reader;
@@ -11,6 +13,7 @@ public class ScriptFile implements Comparable<ScriptFile> {
 	public final ScriptPack pack;
 	public final ScriptFileInfo info;
 	public final ScriptSource source;
+	public final Lazy<String> babel = new Lazy<>(this::loadBabel);
 	
 	private Throwable error;
 	
@@ -25,16 +28,30 @@ public class ScriptFile implements Comparable<ScriptFile> {
 		return error;
 	}
 	
-	public boolean load(Bindings bindings) {
+	private String loadBabel() {
 		error = null;
 		
 		try (Reader reader = source.createReader(info)) {
-			pack.engine.eval(BabelExecutor.process(reader), bindings);
-			return true;
+			return BabelExecutor.process(reader);
 		} catch (Throwable ex) {
 			error = ex;
-			return false;
+			return null;
 		}
+	}
+	
+	public boolean load(Bindings bindings) {
+		error = null;
+		
+		String s = babel.get();
+		if (s != null) {
+			try {
+				pack.engine.eval(s, bindings);
+				return true;
+			} catch (Throwable ex) {
+				error = ex;
+			}
+		}
+		return false;
 	}
 	
 	@Override
