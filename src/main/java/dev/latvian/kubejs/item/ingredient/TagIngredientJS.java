@@ -121,6 +121,9 @@ public class TagIngredientJS implements IngredientJS {
 	public JsonElement toJson() {
 		JsonObject json = new JsonObject();
 		json.addProperty("tag", tag.toString());
+		if (count != 1) {
+			json.addProperty("count", getCount());
+		}
 		return json;
 	}
 	

@@ -491,6 +491,10 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 		if (!getNbt().isEmpty()) {
 			json.addProperty("tag", getNbt().toNBT().toString());
 		}
+		
+		if (getCount() != 1) {
+			json.addProperty("count", getCount());
+		}
 
 		return json;
 	}

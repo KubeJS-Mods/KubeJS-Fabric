@@ -67,8 +67,8 @@ public class AstromineRecipeEventHandler implements KubeJSInitializer {
 		
 		@Override
 		public void serialize() {
-			json.add("input", inputItems.get(0).getStacks().size() > 1 ? toJsonArray(inputItems.get(0)) : inputItems.get(0).toJson());
-			json.add("output", outputItems.get(0).getStacks().size() > 1 ? toJsonArray(outputItems.get(0)) : outputItems.get(0).toResultJson());
+			json.add("input", inputItems.get(0).toJson());
+			json.add("output", outputItems.get(0).toResultJson());
 			json.addProperty("time", time);
 			json.addProperty("energy_consumed", energyConsumed);
 		}
