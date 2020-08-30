@@ -1,7 +1,7 @@
 package dev.latvian.kubejs.core;
 
-import net.minecraft.resource.NamespaceResourceManager;
-import net.minecraft.resource.ResourceReloadListener;
+import net.minecraft.server.packs.resources.FallbackResourceManager;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 
 import java.util.List;
 import java.util.Map;
@@ -10,9 +10,9 @@ import java.util.Map;
  * @author LatvianModder
  */
 public interface SimpleReloadableResourceManagerKJS {
-	Map<String, NamespaceResourceManager> getNamespaceResourceManagersKJS();
+	Map<String, FallbackResourceManager> getNamespaceResourceManagersKJS();
 	
-	List<ResourceReloadListener> getReloadListenersKJS();
+	List<PreparableReloadListener> getReloadListenersKJS();
 	
-	List<ResourceReloadListener> getInitTaskQueueKJS();
+	List<PreparableReloadListener> getInitTaskQueueKJS();
 }

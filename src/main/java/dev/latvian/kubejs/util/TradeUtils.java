@@ -3,13 +3,13 @@ package dev.latvian.kubejs.util;
 import dev.latvian.kubejs.item.EmptyItemStackJS;
 import dev.latvian.kubejs.item.ItemStackJS;
 import dev.latvian.kubejs.trade.TradeOfferFactory;
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.village.TradeOffers;
+import net.minecraft.world.entity.npc.VillagerTrades;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 
 public class TradeUtils {
-	public static TradeOffers.Factory of(Object data) {
+	public static VillagerTrades.ItemListing of(Object data) {
 		MapJS mapJS = MapJS.of(data);
 
 		ItemStack stack = ItemStackJS.of(mapJS.getOrDefault("stack", EmptyItemStackJS.INSTANCE)).getItemStack();

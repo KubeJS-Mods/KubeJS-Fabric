@@ -2,7 +2,7 @@ package dev.latvian.kubejs.net;
 
 import dev.latvian.kubejs.KubeJS;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.function.Supplier;
 
@@ -16,12 +16,12 @@ public class MessageCloseOverlay {
 		overlay = o;
 	}
 	
-	public MessageCloseOverlay(PacketByteBuf buf) {
-		overlay = buf.readString(5000);
+	public MessageCloseOverlay(FriendlyByteBuf buf) {
+		overlay = buf.readUtf(5000);
 	}
 	
-	public void write(PacketByteBuf buf) {
-		buf.writeString(overlay, 5000);
+	public void write(FriendlyByteBuf buf) {
+		buf.writeUtf(overlay, 5000);
 	}
 	
 	public void handle(Supplier<PacketContext> context) {

@@ -10,7 +10,7 @@ import dev.latvian.kubejs.util.ListJS;
 import dev.latvian.kubejs.util.MapJS;
 import dev.latvian.kubejs.util.WrappedJS;
 import jdk.nashorn.api.scripting.AbstractJSObject;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -20,10 +20,10 @@ import java.util.Map;
  */
 public class RecipeFunction extends AbstractJSObject implements WrappedJS {
 	private final RecipeEventJS event;
-	public final Identifier typeID;
+	public final ResourceLocation typeID;
 	public final RecipeTypeJS type;
 	
-	public RecipeFunction(RecipeEventJS e, Identifier id, @Nullable RecipeTypeJS t) {
+	public RecipeFunction(RecipeEventJS e, ResourceLocation id, @Nullable RecipeTypeJS t) {
 		event = e;
 		typeID = id;
 		type = t;
@@ -81,7 +81,7 @@ public class RecipeFunction extends AbstractJSObject implements WrappedJS {
 			String s = (String) o;
 			
 			if (s.length() >= 4 && s.startsWith("#") && s.indexOf(':') != -1) {
-				return new TagIngredientJS(new Identifier(s.substring(1)), 1).toJson();
+				return new TagIngredientJS(new ResourceLocation(s.substring(1)), 1).toJson();
 			}
 			
 			return o;

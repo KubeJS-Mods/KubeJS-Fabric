@@ -10,18 +10,18 @@ import dev.latvian.kubejs.util.AttachedData;
 import dev.latvian.kubejs.util.Overlay;
 import dev.latvian.kubejs.util.WithAttachedData;
 import dev.latvian.kubejs.world.WorldJS;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 
 /**
  * @author LatvianModder
  */
-public abstract class PlayerJS<E extends PlayerEntity> extends LivingEntityJS implements WithAttachedData {
+public abstract class PlayerJS<E extends Player> extends LivingEntityJS implements WithAttachedData {
 	@MinecraftClass
 	public final E minecraftPlayer;
 	
@@ -72,12 +72,12 @@ public abstract class PlayerJS<E extends PlayerEntity> extends LivingEntityJS im
 	}
 	
 	public void sendInventoryUpdate() {
-		minecraftPlayer.inventory.markDirty();
-		minecraftPlayer.playerScreenHandler.sendContentUpdates();
+		minecraftPlayer.inventory.setChanged();
+		minecraftPlayer.inventoryMenu.broadcastChanges();
 	}
 	
 	public void give(Object item) {
-		minecraftPlayer.inventory.insertStack(ItemStackJS.of(item).getItemStack());
+		minecraftPlayer.inventory.add(ItemStackJS.of(item).getItemStack());
 //		ItemHandlerHelper.giveItemToPlayer(minecraftPlayer, ItemStackJS.of(item).getItemStack());
 	}
 	
@@ -88,33 +88,33 @@ public abstract class PlayerJS<E extends PlayerEntity> extends LivingEntityJS im
 	}
 	
 	public int getSelectedSlot() {
-		return minecraftPlayer.inventory.selectedSlot;
+		return minecraftPlayer.inventory.selected;
 	}
 	
 	public void setSelectedSlot(int index) {
-		minecraftPlayer.inventory.selectedSlot = MathHelper.clamp(index, 0, 8);
+		minecraftPlayer.inventory.selected = Mth.clamp(index, 0, 8);
 	}
 	
 	public ItemStackJS getMouseItem() {
-		return ItemStackJS.of(minecraftPlayer.inventory.getCursorStack());
+		return ItemStackJS.of(minecraftPlayer.inventory.getCarried());
 	}
 	
 	public void setMouseItem(Object item) {
-		minecraftPlayer.inventory.setCursorStack(ItemStackJS.of(item).getItemStack());
+		minecraftPlayer.inventory.setCarried(ItemStackJS.of(item).getItemStack());
 	}
 	
 	@Override
 	public void setPositionAndRotation(double x, double y, double z, float yaw, float pitch) {
 		super.setPositionAndRotation(x, y, z, yaw, pitch);
 		
-		if (minecraftPlayer instanceof ServerPlayerEntity) {
-			((ServerPlayerEntity) minecraftPlayer).networkHandler.requestTeleport(x, y, z, yaw, pitch);
+		if (minecraftPlayer instanceof ServerPlayer) {
+			((ServerPlayer) minecraftPlayer).connection.teleport(x, y, z, yaw, pitch);
 		}
 	}
 	
 	@Override
 	public void setStatusMessage(Object message) {
-		minecraftPlayer.sendMessage(Text.of(message).component(), true);
+		minecraftPlayer.displayClientMessage(Text.of(message).component(), true);
 	}
 	
 	public boolean isCreativeMode() {
@@ -162,34 +162,34 @@ public abstract class PlayerJS<E extends PlayerEntity> extends LivingEntityJS im
 	}
 	
 	public void addFood(int f, float m) {
-		minecraftPlayer.getHungerManager().add(f, m);
+		minecraftPlayer.getFoodData().eat(f, m);
 	}
 	
 	public int getFoodLevel() {
-		return minecraftPlayer.getHungerManager().getFoodLevel();
+		return minecraftPlayer.getFoodData().getFoodLevel();
 	}
 	
 	public void setFoodLevel(int foodLevel) {
-		minecraftPlayer.getHungerManager().setFoodLevel(foodLevel);
+		minecraftPlayer.getFoodData().setFoodLevel(foodLevel);
 	}
 	
 	public void addExhaustion(float exhaustion) {
-		minecraftPlayer.addExhaustion(exhaustion);
+		minecraftPlayer.causeFoodExhaustion(exhaustion);
 	}
 	
 	public void addXP(int xp) {
-		minecraftPlayer.addExperience(xp);
+		minecraftPlayer.giveExperiencePoints(xp);
 	}
 	
 	public void addXPLevels(int l) {
-		minecraftPlayer.addExperienceLevels(l);
+		minecraftPlayer.giveExperienceLevels(l);
 	}
 	
 	public void setXp(int xp) {
 		minecraftPlayer.totalExperience = 0;
 		minecraftPlayer.experienceProgress = 0F;
 		minecraftPlayer.experienceLevel = 0;
-		minecraftPlayer.addExperience(xp);
+		minecraftPlayer.giveExperiencePoints(xp);
 	}
 	
 	public int getXp() {
@@ -200,7 +200,7 @@ public abstract class PlayerJS<E extends PlayerEntity> extends LivingEntityJS im
 		minecraftPlayer.totalExperience = 0;
 		minecraftPlayer.experienceProgress = 0F;
 		minecraftPlayer.experienceLevel = 0;
-		minecraftPlayer.addExperienceLevels(l);
+		minecraftPlayer.giveExperienceLevels(l);
 	}
 	
 	public int getXpLevel() {
@@ -217,21 +217,21 @@ public abstract class PlayerJS<E extends PlayerEntity> extends LivingEntityJS im
 	
 	public void boostElytraFlight() {
 		if (minecraftPlayer.isFallFlying()) {
-			Vec3d v = minecraftPlayer.getRotationVector();
+			Vec3 v = minecraftPlayer.getLookAngle();
 			double d0 = 1.5D;
 			double d1 = 0.1D;
-			Vec3d m = minecraftPlayer.getVelocity();
-			minecraftPlayer.setVelocity(m.add(v.x * 0.1D + (v.x * 1.5D - m.x) * 0.5D, v.y * 0.1D + (v.y * 1.5D - m.y) * 0.5D, v.z * 0.1D + (v.z * 1.5D - m.z) * 0.5D));
+			Vec3 m = minecraftPlayer.getDeltaMovement();
+			minecraftPlayer.setDeltaMovement(m.add(v.x * 0.1D + (v.x * 1.5D - m.x) * 0.5D, v.y * 0.1D + (v.y * 1.5D - m.y) * 0.5D, v.z * 0.1D + (v.z * 1.5D - m.z) * 0.5D));
 		}
 	}
 	
 	public void closeInventory() {
-		minecraftPlayer.currentScreenHandler = minecraftPlayer.playerScreenHandler;
+		minecraftPlayer.containerMenu = minecraftPlayer.inventoryMenu;
 	}
 	
 	@MinecraftClass
-	public ScreenHandler getOpenInventory() {
-		return minecraftPlayer.currentScreenHandler;
+	public AbstractContainerMenu getOpenInventory() {
+		return minecraftPlayer.containerMenu;
 	}
 	
 	public abstract boolean isMiningBlock();

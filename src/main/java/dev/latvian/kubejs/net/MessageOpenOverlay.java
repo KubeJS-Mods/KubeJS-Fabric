@@ -4,7 +4,7 @@ import dev.latvian.kubejs.KubeJS;
 import dev.latvian.kubejs.text.Text;
 import dev.latvian.kubejs.util.Overlay;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.function.Supplier;
 
@@ -18,8 +18,8 @@ public class MessageOpenOverlay {
 		overlay = o;
 	}
 	
-	public MessageOpenOverlay(PacketByteBuf buffer) {
-		overlay = new Overlay(buffer.readString(5000));
+	public MessageOpenOverlay(FriendlyByteBuf buffer) {
+		overlay = new Overlay(buffer.readUtf(5000));
 		overlay.color = buffer.readInt();
 		overlay.alwaysOnTop = buffer.readBoolean();
 		int s = buffer.readUnsignedByte();
@@ -29,8 +29,8 @@ public class MessageOpenOverlay {
 		}
 	}
 	
-	public void write(PacketByteBuf buffer) {
-		buffer.writeString(overlay.id, 5000);
+	public void write(FriendlyByteBuf buffer) {
+		buffer.writeUtf(overlay.id, 5000);
 		buffer.writeInt(overlay.color);
 		buffer.writeBoolean(overlay.alwaysOnTop);
 		buffer.writeByte(overlay.text.size());

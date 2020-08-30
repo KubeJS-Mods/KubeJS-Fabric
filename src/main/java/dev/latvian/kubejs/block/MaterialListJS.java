@@ -1,7 +1,7 @@
 package dev.latvian.kubejs.block;
 
-import net.minecraft.block.Material;
-import net.minecraft.sound.BlockSoundGroup;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.material.Material;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,34 +17,34 @@ public class MaterialListJS {
 	
 	private MaterialListJS() {
 		map = new HashMap<>();
-		air = add("air", Material.AIR, BlockSoundGroup.STONE);
-		add("wood", Material.WOOD, BlockSoundGroup.WOOD);
-		add("rock", Material.STONE, BlockSoundGroup.STONE);
-		add("iron", Material.METAL, BlockSoundGroup.METAL);
-		add("organic", Material.SOLID_ORGANIC, BlockSoundGroup.GRASS);
-		add("earth", Material.SOIL, BlockSoundGroup.GRAVEL);
-		add("water", Material.WATER, BlockSoundGroup.STONE);
-		add("lava", Material.LAVA, BlockSoundGroup.STONE);
-		add("leaves", Material.LEAVES, BlockSoundGroup.GRASS);
-		add("plants", Material.PLANT, BlockSoundGroup.GRASS);
-		add("sponge", Material.SPONGE, BlockSoundGroup.GRASS);
-		add("wool", Material.WOOL, BlockSoundGroup.WOOL);
-		add("sand", Material.AGGREGATE, BlockSoundGroup.SAND);
-		add("glass", Material.GLASS, BlockSoundGroup.GLASS);
-		add("tnt", Material.TNT, BlockSoundGroup.GRASS);
-		add("coral", Material.UNUSED_PLANT, BlockSoundGroup.CORAL);
-		add("ice", Material.ICE, BlockSoundGroup.GLASS);
-		add("snow", Material.SNOW_LAYER, BlockSoundGroup.SNOW);
-		add("clay", Material.ORGANIC_PRODUCT, BlockSoundGroup.GRAVEL);
-		add("gourd", Material.GOURD, BlockSoundGroup.GRASS);
-		add("dragon_egg", Material.EGG, BlockSoundGroup.STONE);
-		add("portal", Material.PORTAL, BlockSoundGroup.STONE);
-		add("cake", Material.CAKE, BlockSoundGroup.WOOL);
-		add("web", Material.COBWEB, BlockSoundGroup.WOOL);
-		add("slime", Material.ORGANIC_PRODUCT, BlockSoundGroup.SLIME);
-		add("honey", Material.ORGANIC_PRODUCT, BlockSoundGroup.HONEY);
-		add("berry_bush", Material.PLANT, BlockSoundGroup.SWEET_BERRY_BUSH);
-		add("lantern", Material.METAL, BlockSoundGroup.LANTERN);
+		air = add("air", Material.AIR, SoundType.STONE);
+		add("wood", Material.WOOD, SoundType.WOOD);
+		add("rock", Material.STONE, SoundType.STONE);
+		add("iron", Material.METAL, SoundType.METAL);
+		add("organic", Material.GRASS, SoundType.GRASS);
+		add("earth", Material.DIRT, SoundType.GRAVEL);
+		add("water", Material.WATER, SoundType.STONE);
+		add("lava", Material.LAVA, SoundType.STONE);
+		add("leaves", Material.LEAVES, SoundType.GRASS);
+		add("plants", Material.PLANT, SoundType.GRASS);
+		add("sponge", Material.SPONGE, SoundType.GRASS);
+		add("wool", Material.WOOL, SoundType.WOOL);
+		add("sand", Material.SAND, SoundType.SAND);
+		add("glass", Material.GLASS, SoundType.GLASS);
+		add("tnt", Material.EXPLOSIVE, SoundType.GRASS);
+		add("coral", Material.CORAL, SoundType.CORAL_BLOCK);
+		add("ice", Material.ICE, SoundType.GLASS);
+		add("snow", Material.TOP_SNOW, SoundType.SNOW);
+		add("clay", Material.CLAY, SoundType.GRAVEL);
+		add("gourd", Material.VEGETABLE, SoundType.GRASS);
+		add("dragon_egg", Material.EGG, SoundType.STONE);
+		add("portal", Material.PORTAL, SoundType.STONE);
+		add("cake", Material.CAKE, SoundType.WOOL);
+		add("web", Material.WEB, SoundType.WOOL);
+		add("slime", Material.CLAY, SoundType.SLIME_BLOCK);
+		add("honey", Material.CLAY, SoundType.HONEY_BLOCK);
+		add("berry_bush", Material.PLANT, SoundType.SWEET_BERRY_BUSH);
+		add("lantern", Material.METAL, SoundType.LANTERN);
 	}
 	
 	public MaterialJS add(MaterialJS m) {
@@ -52,7 +52,7 @@ public class MaterialListJS {
 		return m;
 	}
 	
-	public MaterialJS add(String s, Material m, BlockSoundGroup e) {
+	public MaterialJS add(String s, Material m, SoundType e) {
 		return add(new MaterialJS(s, m, e));
 	}
 	

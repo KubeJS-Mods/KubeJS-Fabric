@@ -2,8 +2,8 @@ package dev.latvian.kubejs.recipe;
 
 import dev.latvian.kubejs.docs.ID;
 import dev.latvian.kubejs.util.UtilsJS;
-import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.Registry;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -27,7 +27,7 @@ public class RecipeTypeJS {
 	}
 	
 	public RecipeTypeJS(RecipeSerializer s, Supplier<RecipeJS> f) {
-		this(s, Objects.requireNonNull(Registry.RECIPE_SERIALIZER.getId(s)).toString(), f);
+		this(s, Objects.requireNonNull(Registry.RECIPE_SERIALIZER.getKey(s)).toString(), f);
 	}
 	
 	public boolean isCustom() {

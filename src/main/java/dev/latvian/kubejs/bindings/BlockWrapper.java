@@ -8,11 +8,11 @@ import dev.latvian.kubejs.block.predicate.BlockPredicate;
 import dev.latvian.kubejs.docs.ID;
 import dev.latvian.kubejs.docs.MinecraftClass;
 import dev.latvian.kubejs.util.UtilsJS;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,7 +72,7 @@ public class BlockWrapper {
 	public List<String> getTypeList() {
 		List<String> list = new ArrayList<>();
 		
-		for (Identifier block : Registry.BLOCK.getIds()) {
+		for (ResourceLocation block : Registry.BLOCK.keySet()) {
 			list.add(block.toString());
 		}
 		

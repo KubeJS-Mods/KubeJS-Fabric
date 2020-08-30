@@ -18,8 +18,8 @@ import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -43,16 +43,16 @@ public class KubeJSServerEventHandler implements ModInitializer {
 		}
 		
 		ServerJS.instance = new ServerJS(server, ServerScriptManager.instance);
-		new CommandRegistryEventJS(server.isSinglePlayer(), server.getCommandManager().getDispatcher()).post(ScriptType.SERVER, KubeJSEvents.COMMAND_REGISTRY);
+		new CommandRegistryEventJS(server.isSingleplayer(), server.getCommands().getDispatcher()).post(ScriptType.SERVER, KubeJSEvents.COMMAND_REGISTRY);
 		
-		ServerJS.instance.overworld = new ServerWorldJS(ServerJS.instance, ServerJS.instance.minecraftServer.getWorld(World.OVERWORLD));
+		ServerJS.instance.overworld = new ServerWorldJS(ServerJS.instance, ServerJS.instance.minecraftServer.getLevel(Level.OVERWORLD));
 		ServerJS.instance.worldMap.put("minecraft:overworld", ServerJS.instance.overworld);
 		ServerJS.instance.worlds.add(ServerJS.instance.overworld);
 		
-		for (ServerWorld world : ServerJS.instance.minecraftServer.getWorlds()) {
+		for (ServerLevel world : ServerJS.instance.minecraftServer.getAllLevels()) {
 			if (world != ServerJS.instance.overworld.minecraftWorld) {
 				ServerWorldJS w = new ServerWorldJS(ServerJS.instance, world);
-				ServerJS.instance.worldMap.put(world.getRegistryKey().getValue().toString(), w);
+				ServerJS.instance.worldMap.put(world.dimension().location().toString(), w);
 			}
 		}
 		
@@ -66,7 +66,7 @@ public class KubeJSServerEventHandler implements ModInitializer {
 			new SimpleWorldEventJS(ServerJS.instance.getOverworld()).post(KubeJSEvents.WORLD_LOAD);
 		}
 		
-		((ResourcePackManagerKJS) server.getDataPackManager()).addProviderKJS(new KubeJSDataPackFinder(KubeJS.getGameDirectory().resolve("kubejs").toFile()));
+		((ResourcePackManagerKJS) server.getPackRepository()).addProviderKJS(new KubeJSDataPackFinder(KubeJS.getGameDirectory().resolve("kubejs").toFile()));
 	}
 	
 	public void serverStopping(MinecraftServer server) {

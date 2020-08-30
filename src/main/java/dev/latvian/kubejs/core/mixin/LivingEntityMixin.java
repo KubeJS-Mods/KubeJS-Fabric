@@ -2,12 +2,12 @@ package dev.latvian.kubejs.core.mixin;
 
 import dev.latvian.kubejs.callback.item.ItemEntityPickupCallback;
 import dev.latvian.kubejs.core.LivingEntityKJS;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -19,15 +19,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  */
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin implements LivingEntityKJS {
-	@Inject(method = "eatFood", at = @At("HEAD"))
-	private void foodEaten(World world, ItemStack item, CallbackInfoReturnable<ItemStack> ci) {
+	@Inject(method = "eat", at = @At("HEAD"))
+	private void foodEaten(Level world, ItemStack item, CallbackInfoReturnable<ItemStack> ci) {
 		foodEatenKJS(item);
 	}
 	
-	@Inject(at = @At("HEAD"), method = "sendPickup(Lnet/minecraft/entity/Entity;I)V")
+	@Inject(at = @At("HEAD"), method = "take")
 	void onPickupStack(Entity entity, int count, CallbackInfo callbackInformation) {
-		if (!((Object) this instanceof PlayerEntity) || !(entity instanceof ItemEntity)) return;
+		if (!((Object) this instanceof Player) || !(entity instanceof ItemEntity)) return;
 		
-		ItemEntityPickupCallback.EVENT.invoker().pickup((PlayerEntity) (Object) this, (ItemEntity) entity);
+		ItemEntityPickupCallback.EVENT.invoker().pickup((Player) (Object) this, (ItemEntity) entity);
 	}
 }

@@ -3,12 +3,12 @@ package dev.latvian.kubejs.client;
 import dev.latvian.kubejs.script.data.KubeJSResourcePack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.resource.ResourcePackProfile;
-import net.minecraft.resource.ResourcePackProvider;
-import net.minecraft.resource.ResourcePackSource;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.resource.metadata.PackResourceMetadata;
-import net.minecraft.text.LiteralText;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.server.packs.repository.RepositorySource;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -19,7 +19,7 @@ import java.util.function.Consumer;
  * @author LatvianModder
  */
 @Environment(EnvType.CLIENT)
-public class KubeJSResourcePackFinder implements ResourcePackProvider {
+public class KubeJSResourcePackFinder implements RepositorySource {
 	private final File folder;
 	
 	public KubeJSResourcePackFinder(File f) {
@@ -27,7 +27,7 @@ public class KubeJSResourcePackFinder implements ResourcePackProvider {
 	}
 	
 	@Override
-	public void register(Consumer<ResourcePackProfile> nameToPackMap, ResourcePackProfile.Factory packInfoFactory) {
+	public void loadPacks(Consumer<Pack> nameToPackMap, Pack.PackConstructor packInfoFactory) {
 		File assetsFolder = new File(folder, "assets");
 		
 		if (!assetsFolder.exists()) {
@@ -47,8 +47,8 @@ public class KubeJSResourcePackFinder implements ResourcePackProvider {
 			}
 		}
 		
-		KubeJSResourcePack pack = new KubeJSResourcePack(folder, ResourceType.CLIENT_RESOURCES);
-		PackResourceMetadata metadataSection = new PackResourceMetadata(new LiteralText("./kubejs/assets/"), 5);
-		nameToPackMap.accept(new ResourcePackProfile("kubejs:resource_pack", true, () -> pack, pack, metadataSection, ResourcePackProfile.InsertionPosition.TOP, ResourcePackSource.PACK_SOURCE_BUILTIN));
+		KubeJSResourcePack pack = new KubeJSResourcePack(folder, PackType.CLIENT_RESOURCES);
+		PackMetadataSection metadataSection = new PackMetadataSection(new TextComponent("./kubejs/assets/"), 5);
+		nameToPackMap.accept(new Pack("kubejs:resource_pack", true, () -> pack, pack, metadataSection, Pack.Position.TOP, PackSource.BUILT_IN));
 	}
 }

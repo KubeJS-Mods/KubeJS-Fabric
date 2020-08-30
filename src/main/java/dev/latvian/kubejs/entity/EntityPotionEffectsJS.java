@@ -2,9 +2,9 @@ package dev.latvian.kubejs.entity;
 
 import dev.latvian.kubejs.docs.ID;
 import dev.latvian.kubejs.util.UtilsJS;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.LivingEntity;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -21,26 +21,26 @@ public class EntityPotionEffectsJS {
 	}
 	
 	public void clear() {
-		entity.clearStatusEffects();
+		entity.removeAllEffects();
 	}
 	
-	public Collection<StatusEffectInstance> getActive() {
-		return entity.getStatusEffects();
+	public Collection<MobEffectInstance> getActive() {
+		return entity.getActiveEffects();
 	}
 	
-	public Map<StatusEffect, StatusEffectInstance> getMap() {
-		return entity.getActiveStatusEffects();
+	public Map<MobEffect, MobEffectInstance> getMap() {
+		return entity.getActiveEffectsMap();
 	}
 	
 	public boolean isActive(@ID String potion) {
-		StatusEffect p = UtilsJS.getPotion(potion);
-		return p != null && entity.hasStatusEffect(p);
+		MobEffect p = UtilsJS.getPotion(potion);
+		return p != null && entity.hasEffect(p);
 	}
 	
 	@Nullable
-	public StatusEffectInstance getActive(@ID String potion) {
-		StatusEffect p = UtilsJS.getPotion(potion);
-		return p == null ? null : entity.getStatusEffect(p);
+	public MobEffectInstance getActive(@ID String potion) {
+		MobEffect p = UtilsJS.getPotion(potion);
+		return p == null ? null : entity.getEffect(p);
 	}
 	
 	public void add(@ID String potion) {
@@ -56,14 +56,14 @@ public class EntityPotionEffectsJS {
 	}
 	
 	public void add(@ID String potion, int duration, int amplifier, boolean ambient, boolean showParticles) {
-		StatusEffect p = UtilsJS.getPotion(potion);
+		MobEffect p = UtilsJS.getPotion(potion);
 		
 		if (p != null) {
-			entity.addStatusEffect(new StatusEffectInstance(p, duration, amplifier, ambient, showParticles));
+			entity.addEffect(new MobEffectInstance(p, duration, amplifier, ambient, showParticles));
 		}
 	}
 	
-	public boolean isApplicable(StatusEffectInstance effect) {
-		return entity.canHaveStatusEffect(effect);
+	public boolean isApplicable(MobEffectInstance effect) {
+		return entity.canBeAffected(effect);
 	}
 }

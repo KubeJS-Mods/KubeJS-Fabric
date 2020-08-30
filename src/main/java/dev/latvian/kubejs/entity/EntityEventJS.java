@@ -2,7 +2,7 @@ package dev.latvian.kubejs.entity;
 
 import dev.latvian.kubejs.world.WorldEventJS;
 import dev.latvian.kubejs.world.WorldJS;
-import net.minecraft.entity.Entity;
+import net.minecraft.world.entity.Entity;
 
 /**
  * @author LatvianModder

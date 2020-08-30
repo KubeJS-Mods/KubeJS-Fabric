@@ -1,17 +1,17 @@
 package dev.latvian.kubejs.item;
 
 import dev.latvian.kubejs.event.EventJS;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * @author LatvianModder
  */
 public class ItemSmeltedEventJS extends EventJS {
-	public final Inventory inventory;
+	public final Container inventory;
 	public final ItemStack result;
 	
-	public ItemSmeltedEventJS(Inventory inventory, ItemStack result) {
+	public ItemSmeltedEventJS(Container inventory, ItemStack result) {
 		this.inventory = inventory;
 		this.result = result;
 	}

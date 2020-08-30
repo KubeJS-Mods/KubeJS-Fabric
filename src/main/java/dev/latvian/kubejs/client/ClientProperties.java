@@ -3,7 +3,7 @@ package dev.latvian.kubejs.client;
 import dev.latvian.kubejs.KubeJS;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 import javax.annotation.Nullable;
 import java.io.InputStream;
@@ -162,7 +162,7 @@ public class ClientProperties {
 				try (InputStream stream16 = Files.newInputStream(icon);
 				     InputStream stream32 = Files.newInputStream(icon)) {
 					tempIconCancel = false;
-					MinecraftClient.getInstance().getWindow().setIcon(stream16, stream32);
+					Minecraft.getInstance().getWindow().setIcon(stream16, stream32);
 					tempIconCancel = true;
 				} catch (Exception ex) {
 					ex.printStackTrace();

@@ -3,8 +3,8 @@ package dev.latvian.kubejs.world;
 import dev.latvian.kubejs.event.EventJS;
 import dev.latvian.kubejs.server.ServerJS;
 import dev.latvian.kubejs.util.UtilsJS;
-import net.minecraft.entity.Entity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 
@@ -19,12 +19,12 @@ public abstract class WorldEventJS extends EventJS {
 		return getWorld().getServer();
 	}
 	
-	protected WorldJS worldOf(World world) {
+	protected WorldJS worldOf(Level world) {
 		return UtilsJS.getWorld(world);
 	}
 	
 	protected WorldJS worldOf(Entity entity) {
-		return worldOf(entity.world);
+		return worldOf(entity.level);
 	}
 	
 	public final boolean post(String id) {

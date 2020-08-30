@@ -11,12 +11,12 @@ import dev.latvian.kubejs.item.ingredient.IngredientJS;
 import dev.latvian.kubejs.item.ingredient.TagIngredientJS;
 import dev.latvian.kubejs.text.Text;
 import dev.latvian.kubejs.util.*;
-import net.minecraft.item.*;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.*;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -37,25 +37,25 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 		} else if (o instanceof ItemStack) {
 			ItemStack stack = (ItemStack) o;
 			return stack.isEmpty() ? EmptyItemStackJS.INSTANCE : new BoundItemStackJS(stack);
-		} else if (o instanceof Identifier) {
-			return new UnboundItemStackJS((Identifier) o);
+		} else if (o instanceof ResourceLocation) {
+			return new UnboundItemStackJS((ResourceLocation) o);
 		} else if (o instanceof Item) {
-			return new UnboundItemStackJS(Registry.ITEM.getId(((Item) o)));
+			return new UnboundItemStackJS(Registry.ITEM.getKey(((Item) o)));
 		} else if (o instanceof CharSequence) {
 			String s = o.toString();
 			
 			if (s.startsWith("#")) {
-				return new TagIngredientJS(new Identifier(s.substring(1)), 1).getFirst();
+				return new TagIngredientJS(new ResourceLocation(s.substring(1)), 1).getFirst();
 			}
 			
-			return new UnboundItemStackJS(new Identifier(s));
+			return new UnboundItemStackJS(new ResourceLocation(s));
 		}
 		
 		MapJS map = MapJS.of(o);
 		
 		if (map != null) {
 			if (map.containsKey("item")) {
-				ItemStackJS stack = new UnboundItemStackJS(new Identifier(KubeJS.appendModId(map.get("item").toString())));
+				ItemStackJS stack = new UnboundItemStackJS(new ResourceLocation(KubeJS.appendModId(map.get("item").toString())));
 				
 				if (map.get("count") instanceof Number) {
 					stack.setCount(((Number) map.get("count")).intValue());
@@ -71,7 +71,7 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 				if (map.containsKey("count")) {
 					count = UtilsJS.parseInt(map.get("count"), 1);
 				}
-				ItemStackJS stack = new TagIngredientJS(new Identifier(map.get("tag").toString()), count).getFirst();
+				ItemStackJS stack = new TagIngredientJS(new ResourceLocation(map.get("tag").toString()), count).getFirst();
 				
 				if (map.containsKey("count")) {
 					stack.setCount(UtilsJS.parseInt(map.get("count"), 1));
@@ -88,10 +88,10 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 		}
 		
 		if (s.startsWith("#")) {
-			return new TagIngredientJS(new Identifier(s.substring(1)), 1).getFirst();
+			return new TagIngredientJS(new ResourceLocation(s.substring(1)), 1).getFirst();
 		}
 		
-		return new UnboundItemStackJS(new Identifier(s));
+		return new UnboundItemStackJS(new ResourceLocation(s));
 	}
 	
 	public static ItemStackJS of(@Nullable Object o, @Nullable Object countOrNBT) {
@@ -164,10 +164,10 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 		}
 		
 		LinkedHashSet<ItemStackJS> set = new LinkedHashSet<>();
-		DefaultedList<ItemStack> stackList = DefaultedList.of();
+		NonNullList<ItemStack> stackList = NonNullList.create();
 		
 		for (Item item : Registry.ITEM) {
-			item.appendStacks(ItemGroup.SEARCH, stackList);
+			item.fillItemCategory(CreativeModeTab.TAB_SEARCH, stackList);
 		}
 		
 		for (ItemStack stack : stackList) {
@@ -187,7 +187,7 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 	public static List<String> getTypeList() {
 		List<String> list = new ArrayList<>();
 		
-		for (Identifier id : Registry.ITEM.getIds()) {
+		for (ResourceLocation id : Registry.ITEM.keySet()) {
 			list.add(id.toString());
 		}
 		
@@ -203,7 +203,7 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 	
 	@ID
 	public String getId() {
-		return Registry.ITEM.getId(getItem()).toString();
+		return Registry.ITEM.getKey(getItem()).toString();
 	}
 	
 	public abstract ItemStackJS getCopy();
@@ -245,7 +245,7 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 	}
 	
 	public void setChance(double c) {
-		chance = MathHelper.clamp(c, 0D, 1D);
+		chance = Mth.clamp(c, 0D, 1D);
 	}
 	
 	public double getChance() {
@@ -258,7 +258,7 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 	}
 	
 	public Text getName() {
-		return Text.of(getItemStack().getName());
+		return Text.of(getItemStack().getHoverName());
 	}
 	
 	public void setName(@Nullable Object displayName) {
@@ -375,7 +375,7 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 			for (Map.Entry<String, Object> entry : o.entrySet()) {
 				if (entry.getValue() instanceof Number && ((Number) entry.getValue()).intValue() > 0) {
 					MapJS ench = new MapJS(2);
-					ench.put("id", new Identifier(entry.getKey()).toString());
+					ench.put("id", new ResourceLocation(entry.getKey()).toString());
 					ench.put("lvl", entry.getValue());
 					list.add(ench);
 				}
@@ -409,7 +409,7 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 	}
 	
 	public String getMod() {
-		return Registry.ITEM.getId(getItem()).getNamespace();
+		return Registry.ITEM.getKey(getItem()).getNamespace();
 	}
 	
 	public ListJS getLore() {
@@ -423,7 +423,7 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 				ListJS lore1 = new ListJS(lore.size());
 				
 				for (Object o1 : lore) {
-					lore1.add(net.minecraft.text.Text.Serializer.toJson(Text.of(o1).component()));
+					lore1.add(net.minecraft.network.chat.Component.Serializer.toJson(Text.of(o1).component()));
 				}
 				
 				nbt.put("Lore", lore1);
@@ -435,7 +435,7 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 		if (list != null) {
 			for (Object o : list) {
 				try {
-					lore.add(net.minecraft.text.Text.Serializer.fromLenientJson(o.toString()));
+					lore.add(net.minecraft.network.chat.Component.Serializer.fromJsonLenient(o.toString()));
 				} catch (JsonParseException var19) {
 				}
 			}
@@ -519,7 +519,7 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 	
 	@Override
 	public CompoundTag toNBT() {
-		return getItemStack().toTag(new CompoundTag());
+		return getItemStack().save(new CompoundTag());
 	}
 	
 	@Override

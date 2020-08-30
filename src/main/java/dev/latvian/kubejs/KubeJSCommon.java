@@ -3,8 +3,8 @@ package dev.latvian.kubejs;
 import dev.latvian.kubejs.script.BindingsEvent;
 import dev.latvian.kubejs.util.Overlay;
 import dev.latvian.kubejs.world.WorldJS;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -23,7 +23,7 @@ public class KubeJSCommon {
 	}
 	
 	@Nullable
-	public PlayerEntity getClientPlayer() {
+	public Player getClientPlayer() {
 		return null;
 	}
 	

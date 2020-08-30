@@ -1,13 +1,13 @@
 package dev.latvian.kubejs.client;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.latvian.kubejs.docs.MinecraftClass;
 import dev.latvian.kubejs.player.ClientPlayerJS;
 import dev.latvian.kubejs.world.ClientWorldJS;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.InputUtil;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 
 import javax.annotation.Nullable;
 
@@ -17,8 +17,8 @@ import javax.annotation.Nullable;
 @Environment(EnvType.CLIENT)
 public class ClientWrapper {
 	@MinecraftClass
-	public MinecraftClient getMinecraft() {
-		return MinecraftClient.getInstance();
+	public Minecraft getMinecraft() {
+		return Minecraft.getInstance();
 	}
 	
 	@Nullable
@@ -37,27 +37,27 @@ public class ClientWrapper {
 	
 	@Nullable
 	public Screen getCurrentGui() {
-		return getMinecraft().currentScreen;
+		return getMinecraft().screen;
 	}
 	
 	public void setCurrentGui(Screen gui) {
-		getMinecraft().openScreen(gui);
+		getMinecraft().setScreen(gui);
 	}
 	
 	public void setTitle(String t) {
 		ClientProperties.get().title = t.trim();
-		getMinecraft().updateWindowTitle();
+		getMinecraft().updateTitle();
 	}
 	
 	public String getCurrentWorldName() {
-		if (getMinecraft().getCurrentServerEntry() != null) {
-			return getMinecraft().getCurrentServerEntry().name;
+		if (getMinecraft().getCurrentServer() != null) {
+			return getMinecraft().getCurrentServer().name;
 		}
 		
 		return "Singleplayer";
 	}
 	
 	public boolean isKeyDown(int key) {
-		return InputUtil.isKeyPressed(getMinecraft().getWindow().getHandle(), key);
+		return InputConstants.isKeyDown(getMinecraft().getWindow().getWindow(), key);
 	}
 }

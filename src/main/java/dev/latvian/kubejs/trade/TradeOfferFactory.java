@@ -1,16 +1,16 @@
 package dev.latvian.kubejs.trade;
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.village.TradeOffer;
-import net.minecraft.village.TradeOffers;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.npc.VillagerTrades;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.trading.MerchantOffer;
+import net.minecraft.world.level.block.Block;
 
 import java.util.Random;
 
-public class TradeOfferFactory implements TradeOffers.Factory {
+public class TradeOfferFactory implements VillagerTrades.ItemListing {
 	private final ItemStack sell;
 	private final int price;
 	private final int count;
@@ -40,7 +40,7 @@ public class TradeOfferFactory implements TradeOffers.Factory {
 	}
 
 	@Override
-	public TradeOffer create(Entity entity, Random random) {
-		return new TradeOffer(new ItemStack(Items.EMERALD, this.price), new ItemStack(this.sell.getItem(), this.count), this.maxUses, this.experience, this.multiplier);
+	public MerchantOffer getOffer(Entity entity, Random random) {
+		return new MerchantOffer(new ItemStack(Items.EMERALD, this.price), new ItemStack(this.sell.getItem(), this.count), this.maxUses, this.experience, this.multiplier);
 	}
 }

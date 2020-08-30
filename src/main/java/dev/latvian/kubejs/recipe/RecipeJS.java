@@ -8,8 +8,8 @@ import dev.latvian.kubejs.item.ItemStackJS;
 import dev.latvian.kubejs.item.ingredient.IngredientJS;
 import dev.latvian.kubejs.util.ListJS;
 import dev.latvian.kubejs.util.UtilsJS;
-import net.minecraft.recipe.Recipe;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.Recipe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ import java.util.List;
  * @author LatvianModder
  */
 public abstract class RecipeJS {
-	public Identifier id;
+	public ResourceLocation id;
 	public RecipeTypeJS type;
 	public JsonObject json = null;
 	public Recipe<?> originalRecipe = null;

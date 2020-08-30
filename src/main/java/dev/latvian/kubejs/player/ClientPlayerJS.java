@@ -7,9 +7,9 @@ import dev.latvian.kubejs.util.MapJS;
 import dev.latvian.kubejs.util.Overlay;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
 
@@ -17,10 +17,10 @@ import javax.annotation.Nullable;
  * @author LatvianModder
  */
 @Environment(EnvType.CLIENT)
-public class ClientPlayerJS extends PlayerJS<PlayerEntity> {
+public class ClientPlayerJS extends PlayerJS<Player> {
 	private final boolean isSelf;
 	
-	public ClientPlayerJS(ClientPlayerDataJS d, PlayerEntity p, boolean s) {
+	public ClientPlayerJS(ClientPlayerDataJS d, Player p, boolean s) {
 		super(d, d.getWorld(), p);
 		isSelf = s;
 	}
@@ -35,7 +35,7 @@ public class ClientPlayerJS extends PlayerJS<PlayerEntity> {
 			throw new IllegalStateException("Can't access other player stats!");
 		}
 		
-		return new PlayerStatsJS(this, ((ClientPlayerEntity) minecraftPlayer).getStatHandler());
+		return new PlayerStatsJS(this, ((LocalPlayer) minecraftPlayer).getStats());
 	}
 	
 	@Override
@@ -54,7 +54,7 @@ public class ClientPlayerJS extends PlayerJS<PlayerEntity> {
 	
 	@Override
 	public boolean isMiningBlock() {
-		return isSelf() && MinecraftClient.getInstance().interactionManager.isBreakingBlock();
+		return isSelf() && Minecraft.getInstance().gameMode.isDestroying();
 	}
 	
 	@Override

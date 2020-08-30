@@ -8,12 +8,12 @@ import dev.latvian.kubejs.world.ClientWorldJS;
 import dev.latvian.kubejs.world.WorldJS;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.stat.Stat;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.stats.Stat;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.level.Level;
 import org.apache.logging.log4j.LogManager;
 
 import javax.annotation.Nullable;
@@ -60,11 +60,11 @@ public class UtilsWrapper {
 		return new CountingMap();
 	}
 	
-	public Identifier id(String namespace, String path) {
-		return new Identifier(namespace, path);
+	public ResourceLocation id(String namespace, String path) {
+		return new ResourceLocation(namespace, path);
 	}
 	
-	public Identifier id(@ID String id) {
+	public ResourceLocation id(@ID String id) {
 		return UtilsJS.getMCID(id);
 	}
 	
@@ -98,16 +98,16 @@ public class UtilsWrapper {
 		return UtilsJS.parseDouble(object, def);
 	}
 	
-	public Stat<Identifier> getStat(@ID String id) {
+	public Stat<ResourceLocation> getStat(@ID String id) {
 		return UtilsJS.getStat(id);
 	}
 	
-	public Identifier getToolType(String id) {
+	public ResourceLocation getToolType(String id) {
 		return UtilsJS.getToolType(id);
 	}
 	
-	public WorldJS getWorld(World world) {
-		if (world.isClient()) {
+	public WorldJS getWorld(Level world) {
+		if (world.isClientSide()) {
 			return getClientWorld();
 		} else {
 			return ServerJS.instance.getWorld(world);
@@ -151,7 +151,7 @@ public class UtilsWrapper {
 	}
 	
 	@Nullable
-	public StatusEffect getPotion(@ID String id) {
+	public MobEffect getPotion(@ID String id) {
 		return UtilsJS.getPotion(id);
 	}
 	

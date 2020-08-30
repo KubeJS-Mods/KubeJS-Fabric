@@ -12,11 +12,11 @@ import dev.latvian.kubejs.text.TextTranslate;
 import dev.latvian.kubejs.util.MapJS;
 import dev.latvian.kubejs.util.Overlay;
 import dev.latvian.kubejs.world.ServerWorldJS;
-import net.minecraft.advancement.AdvancementProgress;
-import net.minecraft.network.packet.s2c.play.HeldItemChangeS2CPacket;
-import net.minecraft.server.BannedPlayerEntry;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.world.GameMode;
+import net.minecraft.advancements.AdvancementProgress;
+import net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.UserBanListEntry;
+import net.minecraft.world.level.GameType;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -25,11 +25,11 @@ import java.util.Date;
 /**
  * @author LatvianModder
  */
-public class ServerPlayerJS extends PlayerJS<ServerPlayerEntity> {
+public class ServerPlayerJS extends PlayerJS<ServerPlayer> {
 	public final ServerJS server;
 	private final boolean hasClientMod;
 	
-	public ServerPlayerJS(ServerPlayerDataJS d, ServerWorldJS w, ServerPlayerEntity p) {
+	public ServerPlayerJS(ServerPlayerDataJS d, ServerWorldJS w, ServerPlayer p) {
 		super(d, w, p);
 		server = w.getServer();
 		hasClientMod = d.hasClientMod();
@@ -37,7 +37,7 @@ public class ServerPlayerJS extends PlayerJS<ServerPlayerEntity> {
 	
 	@Override
 	public PlayerStatsJS getStats() {
-		return new PlayerStatsJS(this, minecraftPlayer.getStatHandler());
+		return new PlayerStatsJS(this, minecraftPlayer.getStats());
 	}
 	
 	@Override
@@ -52,32 +52,32 @@ public class ServerPlayerJS extends PlayerJS<ServerPlayerEntity> {
 	
 	@Override
 	public boolean isMiningBlock() {
-		return ((PlayerInteractionManagerKJS) minecraftPlayer.interactionManager).isDestroyingBlockKJS();
+		return ((PlayerInteractionManagerKJS) minecraftPlayer.gameMode).isDestroyingBlockKJS();
 	}
 	
 	public void setCreativeMode(boolean mode) {
-		minecraftPlayer.interactionManager.method_30118(mode ? GameMode.CREATIVE : GameMode.SURVIVAL);
+		minecraftPlayer.gameMode.setGameModeForPlayer(mode ? GameType.CREATIVE : GameType.SURVIVAL);
 	}
 	
 	public void setGameMode(String mode) {
 		if (mode.equals("survival")) {
-			minecraftPlayer.interactionManager.method_30118(GameMode.SURVIVAL);
+			minecraftPlayer.gameMode.setGameModeForPlayer(GameType.SURVIVAL);
 		} else if (mode.equals("creative")) {
-			minecraftPlayer.interactionManager.method_30118(GameMode.CREATIVE);
+			minecraftPlayer.gameMode.setGameModeForPlayer(GameType.CREATIVE);
 		} else if (mode.equals("adventure")) {
-			minecraftPlayer.interactionManager.method_30118(GameMode.ADVENTURE);
+			minecraftPlayer.gameMode.setGameModeForPlayer(GameType.ADVENTURE);
 		} else if (mode.equals("spectator")) {
-			minecraftPlayer.interactionManager.method_30118(GameMode.SPECTATOR);
+			minecraftPlayer.gameMode.setGameModeForPlayer(GameType.SPECTATOR);
 		}
 	}
 	
 	
 	public boolean isOP() {
-		return server.minecraftServer.getPlayerManager().isOperator(minecraftPlayer.getGameProfile());
+		return server.minecraftServer.getPlayerList().isOp(minecraftPlayer.getGameProfile());
 	}
 	
 	public void kick(Object reason) {
-		minecraftPlayer.networkHandler.disconnect(Text.of(reason).component());
+		minecraftPlayer.connection.disconnect(Text.of(reason).component());
 	}
 	
 	public void kick() {
@@ -86,8 +86,8 @@ public class ServerPlayerJS extends PlayerJS<ServerPlayerEntity> {
 	
 	public void ban(String banner, String reason, long expiresInMillis) {
 		Date date = new Date();
-		BannedPlayerEntry userlistbansentry = new BannedPlayerEntry(minecraftPlayer.getGameProfile(), date, banner, new Date(date.getTime() + (expiresInMillis <= 0L ? 315569260000L : expiresInMillis)), reason);
-		server.minecraftServer.getPlayerManager().getUserBanList().add(userlistbansentry);
+		UserBanListEntry userlistbansentry = new UserBanListEntry(minecraftPlayer.getGameProfile(), date, banner, new Date(date.getTime() + (expiresInMillis <= 0L ? 315569260000L : expiresInMillis)), reason);
+		server.minecraftServer.getPlayerList().getBans().add(userlistbansentry);
 		kick(new TextTranslate("multiplayer.disconnect.banned"));
 	}
 	
@@ -99,10 +99,10 @@ public class ServerPlayerJS extends PlayerJS<ServerPlayerEntity> {
 		AdvancementJS a = ServerJS.instance.getAdvancement(id);
 		
 		if (a != null) {
-			AdvancementProgress advancementprogress = minecraftPlayer.getAdvancementTracker().getProgress(a.advancement);
+			AdvancementProgress advancementprogress = minecraftPlayer.getAdvancements().getOrStartProgress(a.advancement);
 			
-			for (String s : advancementprogress.getUnobtainedCriteria()) {
-				minecraftPlayer.getAdvancementTracker().grantCriterion(a.advancement, s);
+			for (String s : advancementprogress.getRemainingCriteria()) {
+				minecraftPlayer.getAdvancements().award(a.advancement, s);
 			}
 		}
 	}
@@ -111,11 +111,11 @@ public class ServerPlayerJS extends PlayerJS<ServerPlayerEntity> {
 		AdvancementJS a = ServerJS.instance.getAdvancement(id);
 		
 		if (a != null) {
-			AdvancementProgress advancementprogress = minecraftPlayer.getAdvancementTracker().getProgress(a.advancement);
+			AdvancementProgress advancementprogress = minecraftPlayer.getAdvancements().getOrStartProgress(a.advancement);
 			
-			if (advancementprogress.isAnyObtained()) {
-				for (String s : advancementprogress.getObtainedCriteria()) {
-					minecraftPlayer.getAdvancementTracker().revokeCriterion(a.advancement, s);
+			if (advancementprogress.hasProgress()) {
+				for (String s : advancementprogress.getCompletedCriteria()) {
+					minecraftPlayer.getAdvancements().revoke(a.advancement, s);
 				}
 			}
 		}
@@ -127,8 +127,8 @@ public class ServerPlayerJS extends PlayerJS<ServerPlayerEntity> {
 		super.setSelectedSlot(index);
 		int n = getSelectedSlot();
 		
-		if (p != n && minecraftPlayer.networkHandler != null) {
-			minecraftPlayer.networkHandler.sendPacket(new HeldItemChangeS2CPacket(n));
+		if (p != n && minecraftPlayer.connection != null) {
+			minecraftPlayer.connection.send(new ClientboundSetCarriedItemPacket(n));
 		}
 	}
 	
@@ -136,8 +136,8 @@ public class ServerPlayerJS extends PlayerJS<ServerPlayerEntity> {
 	public void setMouseItem(Object item) {
 		super.setMouseItem(item);
 		
-		if (minecraftPlayer.networkHandler != null) {
-			minecraftPlayer.updateCursorStack();
+		if (minecraftPlayer.connection != null) {
+			minecraftPlayer.broadcastCarriedItem();
 		}
 	}
 	

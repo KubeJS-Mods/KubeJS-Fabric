@@ -1,7 +1,7 @@
 package dev.latvian.kubejs.recipe;
 
 import dev.latvian.kubejs.recipe.minecraft.CustomRecipeJS;
-import net.minecraft.recipe.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 
 /**
  * @author LatvianModder

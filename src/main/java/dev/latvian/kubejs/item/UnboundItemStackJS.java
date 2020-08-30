@@ -2,12 +2,12 @@ package dev.latvian.kubejs.item;
 
 import dev.latvian.kubejs.docs.ID;
 import dev.latvian.kubejs.util.MapJS;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import javax.annotation.Nullable;
 
@@ -16,12 +16,12 @@ import javax.annotation.Nullable;
  */
 public class UnboundItemStackJS extends ItemStackJS {
 	private final String item;
-	private final Identifier itemRL;
+	private final ResourceLocation itemRL;
 	private int count;
 	private MapJS nbt;
 	private ItemStack cached;
 	
-	public UnboundItemStackJS(Identifier i) {
+	public UnboundItemStackJS(ResourceLocation i) {
 		item = i.toString();
 		itemRL = i;
 		count = 1;
@@ -31,7 +31,7 @@ public class UnboundItemStackJS extends ItemStackJS {
 	
 	@Override
 	public Item getItem() {
-		Item i = Registry.ITEM.get(new Identifier(item));
+		Item i = Registry.ITEM.get(new ResourceLocation(item));
 		
 		if (i != null) {
 			return i;
@@ -81,7 +81,7 @@ public class UnboundItemStackJS extends ItemStackJS {
 	
 	@Override
 	public void setCount(int c) {
-		count = MathHelper.clamp(c, 0, 64);
+		count = Mth.clamp(c, 0, 64);
 		cached = null;
 	}
 	
@@ -111,7 +111,7 @@ public class UnboundItemStackJS extends ItemStackJS {
 	
 	@Override
 	public boolean areItemsEqual(ItemStack stack) {
-		return itemRL.equals(Registry.ITEM.getId(stack.getItem()));
+		return itemRL.equals(Registry.ITEM.getKey(stack.getItem()));
 	}
 	
 	@Override

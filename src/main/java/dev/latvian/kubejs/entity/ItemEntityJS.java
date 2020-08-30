@@ -2,8 +2,8 @@ package dev.latvian.kubejs.entity;
 
 import dev.latvian.kubejs.item.ItemStackJS;
 import dev.latvian.kubejs.world.WorldJS;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -22,12 +22,12 @@ public class ItemEntityJS extends EntityJS {
 	@Override
 	@Nullable
 	public ItemStackJS getItem() {
-		ItemStack stack = itemEntity.getStack();
+		ItemStack stack = itemEntity.getItem();
 		return stack.isEmpty() ? null : ItemStackJS.of(stack);
 	}
 	
 	public void setItem(Object item) {
-		itemEntity.setStack(ItemStackJS.of(item).getItemStack());
+		itemEntity.setItem(ItemStackJS.of(item).getItemStack());
 	}
 	
 	public int getLifespan() {
@@ -69,10 +69,10 @@ public class ItemEntityJS extends EntityJS {
 	}
 	
 	public void setPickupDelay(int ticks) {
-		itemEntity.setPickupDelay(ticks);
+		itemEntity.setPickUpDelay(ticks);
 	}
 	
 	public void setNoDespawn() {
-		itemEntity.setCovetedItem();
+		itemEntity.setExtendedLifetime();
 	}
 }

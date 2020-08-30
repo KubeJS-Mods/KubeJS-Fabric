@@ -6,14 +6,14 @@ import dev.latvian.kubejs.KubeJSObjects;
 import dev.latvian.kubejs.core.AfterScriptLoadCallback;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
 
 /**
  * @author LatvianModder
@@ -47,18 +47,18 @@ public class KubeJSBlockEventHandler implements KubeJSInitializer {
 //		}
 	}
 	
-	private ActionResult rightClick(PlayerEntity player, World world, Hand hand, BlockHitResult hitResult) {
+	private InteractionResult rightClick(Player player, Level world, InteractionHand hand, BlockHitResult hitResult) {
 		if (new BlockRightClickEventJS(player, world, hand, hitResult).post(KubeJSEvents.BLOCK_RIGHT_CLICK)) {
-			return ActionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		}
-		return ActionResult.PASS;
+		return InteractionResult.PASS;
 	}
 	
-	private ActionResult leftClick(PlayerEntity player, World world, Hand hand, BlockPos pos, Direction direction) {
+	private InteractionResult leftClick(Player player, Level world, InteractionHand hand, BlockPos pos, Direction direction) {
 		if (new BlockLeftClickEventJS(player, world, hand, pos, direction).post(KubeJSEvents.BLOCK_LEFT_CLICK)) {
-			return ActionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		}
-		return ActionResult.PASS;
+		return InteractionResult.PASS;
 	}
 
 	/* TODO

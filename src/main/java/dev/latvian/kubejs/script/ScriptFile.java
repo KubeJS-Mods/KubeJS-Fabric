@@ -1,6 +1,6 @@
 package dev.latvian.kubejs.script;
 
-import net.minecraft.util.Lazy;
+import net.minecraft.util.LazyLoadedValue;
 
 import javax.annotation.Nullable;
 import javax.script.Bindings;
@@ -13,7 +13,7 @@ public class ScriptFile implements Comparable<ScriptFile> {
 	public final ScriptPack pack;
 	public final ScriptFileInfo info;
 	public final ScriptSource source;
-	public final Lazy<String> babel = new Lazy<>(this::loadBabel);
+	public final LazyLoadedValue<String> babel = new LazyLoadedValue<>(this::loadBabel);
 	
 	private Throwable error;
 	

@@ -10,16 +10,16 @@ import dev.latvian.kubejs.util.*;
 import dev.latvian.kubejs.world.AttachWorldDataEvent;
 import dev.latvian.kubejs.world.ServerWorldJS;
 import dev.latvian.kubejs.world.WorldJS;
-import net.minecraft.advancement.Advancement;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.Util;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Util;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -85,15 +85,15 @@ public class ServerJS implements MessageSender, WithAttachedData {
 	}
 	
 	public boolean isSinglePlayer() {
-		return minecraftServer.isSinglePlayer();
+		return minecraftServer.isSingleplayer();
 	}
 	
 	public boolean isDedicated() {
-		return minecraftServer.isDedicated();
+		return minecraftServer.isDedicatedServer();
 	}
 	
 	public String getMotd() {
-		return minecraftServer.getServerMotd();
+		return minecraftServer.getMotd();
 	}
 	
 	public void setMotd(Object text) {
@@ -106,43 +106,43 @@ public class ServerJS implements MessageSender, WithAttachedData {
 	
 	@Override
 	public Text getName() {
-		return Text.of(minecraftServer.getName());
+		return Text.of(minecraftServer.name());
 	}
 	
 	@Override
 	public Text getDisplayName() {
-		return Text.of(minecraftServer.getCommandSource().getDisplayName());
+		return Text.of(minecraftServer.createCommandSourceStack().getDisplayName());
 	}
 	
 	@Override
 	public void tell(Object message) {
-		net.minecraft.text.Text component = Text.of(message).component();
-		minecraftServer.sendSystemMessage(component, Util.NIL_UUID);
+		net.minecraft.network.chat.Component component = Text.of(message).component();
+		minecraftServer.sendMessage(component, Util.NIL_UUID);
 		
-		for (ServerPlayerEntity player : minecraftServer.getPlayerManager().getPlayerList()) {
-			player.sendSystemMessage(component, Util.NIL_UUID);
+		for (ServerPlayer player : minecraftServer.getPlayerList().getPlayers()) {
+			player.sendMessage(component, Util.NIL_UUID);
 		}
 	}
 	
 	@Override
 	public void setStatusMessage(Object message) {
-		net.minecraft.text.Text component = Text.of(message).component();
+		net.minecraft.network.chat.Component component = Text.of(message).component();
 		
-		for (ServerPlayerEntity player : minecraftServer.getPlayerManager().getPlayerList()) {
-			player.sendMessage(component, true);
+		for (ServerPlayer player : minecraftServer.getPlayerList().getPlayers()) {
+			player.displayClientMessage(component, true);
 		}
 	}
 	
 	@Override
 	public int runCommand(String command) {
-		return minecraftServer.getCommandManager().execute(minecraftServer.getCommandSource(), command);
+		return minecraftServer.getCommands().performCommand(minecraftServer.createCommandSourceStack(), command);
 	}
 	
 	public WorldJS getWorld(String dimension) {
 		ServerWorldJS world = worldMap.get(dimension);
 		
 		if (world == null) {
-			world = new ServerWorldJS(this, minecraftServer.getWorld(RegistryKey.of(Registry.DIMENSION, new Identifier(dimension))));
+			world = new ServerWorldJS(this, minecraftServer.getLevel(ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(dimension))));
 			worldMap.put(dimension, world);
 			updateWorldList();
 			AttachWorldDataEvent.EVENT.invoker().accept(new AttachWorldDataEvent(world));
@@ -151,12 +151,12 @@ public class ServerJS implements MessageSender, WithAttachedData {
 		return world;
 	}
 	
-	public WorldJS getWorld(World minecraftWorld) {
-		ServerWorldJS world = worldMap.get(minecraftWorld.getRegistryKey().getValue().toString());
+	public WorldJS getWorld(Level minecraftWorld) {
+		ServerWorldJS world = worldMap.get(minecraftWorld.dimension().location().toString());
 		
 		if (world == null) {
-			world = new ServerWorldJS(this, (ServerWorld) minecraftWorld);
-			worldMap.put(minecraftWorld.getRegistryKey().getValue().toString(), world);
+			world = new ServerWorldJS(this, (ServerLevel) minecraftWorld);
+			worldMap.put(minecraftWorld.dimension().location().toString(), world);
 			updateWorldList();
 			AttachWorldDataEvent.EVENT.invoker().accept(new AttachWorldDataEvent(world));
 		}
@@ -205,12 +205,12 @@ public class ServerJS implements MessageSender, WithAttachedData {
 	}
 	
 	@Nullable
-	public ServerPlayerJS getPlayer(PlayerEntity minecraftPlayer) {
-		return getPlayer(minecraftPlayer.getUuid());
+	public ServerPlayerJS getPlayer(Player minecraftPlayer) {
+		return getPlayer(minecraftPlayer.getUUID());
 	}
 	
 	public EntityArrayList getPlayers() {
-		return new EntityArrayList(overworld, minecraftServer.getPlayerManager().getPlayerList());
+		return new EntityArrayList(overworld, minecraftServer.getPlayerList().getPlayers());
 	}
 	
 	public EntityArrayList getEntities() {
@@ -260,11 +260,11 @@ public class ServerJS implements MessageSender, WithAttachedData {
 	
 	@Nullable
 	public AdvancementJS getAdvancement(@ID String id) {
-		Advancement a = minecraftServer.getAdvancementLoader().get(UtilsJS.getMCID(id));
+		Advancement a = minecraftServer.getAdvancements().getAdvancement(UtilsJS.getMCID(id));
 		return a == null ? null : new AdvancementJS(a);
 	}
 	
 	public void sendDataToAll(String channel, @Nullable Object data) {
-		KubeJSNet.sendToPlayers(minecraftServer.getPlayerManager().getPlayerList(), new MessageSendDataFromServer(channel, MapJS.nbt(data)));
+		KubeJSNet.sendToPlayers(minecraftServer.getPlayerList().getPlayers(), new MessageSendDataFromServer(channel, MapJS.nbt(data)));
 	}
 }

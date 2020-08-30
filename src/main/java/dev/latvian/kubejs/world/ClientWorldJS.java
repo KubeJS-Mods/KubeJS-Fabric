@@ -7,10 +7,10 @@ import dev.latvian.kubejs.player.EntityArrayList;
 import dev.latvian.kubejs.script.ScriptType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 
 /**
  * @author LatvianModder
@@ -19,20 +19,20 @@ import net.minecraft.entity.player.PlayerEntity;
 public class ClientWorldJS extends WorldJS {
 	public static ClientWorldJS instance;
 	
-	private final MinecraftClient minecraft;
+	private final Minecraft minecraft;
 	@MinecraftClass
-	public final ClientPlayerEntity minecraftPlayer;
+	public final LocalPlayer minecraftPlayer;
 	public final ClientPlayerDataJS clientPlayerData;
 	
-	public ClientWorldJS(MinecraftClient mc, ClientPlayerEntity e) {
-		super(e.world);
+	public ClientWorldJS(Minecraft mc, LocalPlayer e) {
+		super(e.level);
 		minecraft = mc;
 		minecraftPlayer = e;
 		clientPlayerData = new ClientPlayerDataJS(this, minecraftPlayer, true);
 	}
 	
 	@MinecraftClass
-	public MinecraftClient getMinecraft() {
+	public Minecraft getMinecraft() {
 		return minecraft;
 	}
 	
@@ -42,8 +42,8 @@ public class ClientWorldJS extends WorldJS {
 	}
 	
 	@Override
-	public ClientPlayerDataJS getPlayerData(PlayerEntity player) {
-		if (player == minecraftPlayer || player.getUuid().equals(clientPlayerData.getId())) {
+	public ClientPlayerDataJS getPlayerData(Player player) {
+		if (player == minecraftPlayer || player.getUUID().equals(clientPlayerData.getId())) {
 			return clientPlayerData;
 		} else {
 			return new ClientPlayerDataJS(this, player, false);
@@ -57,6 +57,6 @@ public class ClientWorldJS extends WorldJS {
 	
 	@Override
 	public EntityArrayList getEntities() {
-		return new EntityArrayList(this, Lists.newArrayList(((ClientWorld) minecraftWorld).getEntities()));
+		return new EntityArrayList(this, Lists.newArrayList(((ClientLevel) minecraftWorld).entitiesForRendering()));
 	}
 }

@@ -3,7 +3,7 @@ package dev.latvian.kubejs.recipe;
 import dev.latvian.kubejs.util.UtilsJS;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -17,9 +17,9 @@ public class RegisterRecipeHandlersEvent {
 			consumer.accept(event);
 		}
 	});
-	private final Map<Identifier, RecipeTypeJS> map;
+	private final Map<ResourceLocation, RecipeTypeJS> map;
 	
-	public RegisterRecipeHandlersEvent(Map<Identifier, RecipeTypeJS> m) {
+	public RegisterRecipeHandlersEvent(Map<ResourceLocation, RecipeTypeJS> m) {
 		map = m;
 	}
 	

@@ -1,11 +1,11 @@
 package dev.latvian.kubejs.script.data;
 
-import net.minecraft.resource.ResourcePackProfile;
-import net.minecraft.resource.ResourcePackProvider;
-import net.minecraft.resource.ResourcePackSource;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.resource.metadata.PackResourceMetadata;
-import net.minecraft.text.LiteralText;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.server.packs.repository.RepositorySource;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 /**
  * @author LatvianModder
  */
-public class KubeJSDataPackFinder implements ResourcePackProvider {
+public class KubeJSDataPackFinder implements RepositorySource {
 	private final File folder;
 	
 	public KubeJSDataPackFinder(File f) {
@@ -23,7 +23,7 @@ public class KubeJSDataPackFinder implements ResourcePackProvider {
 	}
 	
 	@Override
-	public void register(Consumer<ResourcePackProfile> nameToPackMap, ResourcePackProfile.Factory packInfoFactory) {
+	public void loadPacks(Consumer<Pack> nameToPackMap, Pack.PackConstructor packInfoFactory) {
 		File dataFolder = new File(folder, "data");
 		
 		if (!dataFolder.exists()) {
@@ -39,8 +39,8 @@ public class KubeJSDataPackFinder implements ResourcePackProvider {
 			}
 		}
 		
-		KubeJSResourcePack dataPack = new KubeJSResourcePack(folder, ResourceType.SERVER_DATA);
-		PackResourceMetadata dataPackMetadata = new PackResourceMetadata(new LiteralText("./kubejs/data/"), 5);
-		nameToPackMap.accept(new ResourcePackProfile("kubejs:data_pack", true, () -> dataPack, dataPack, dataPackMetadata, ResourcePackProfile.InsertionPosition.TOP, ResourcePackSource.PACK_SOURCE_BUILTIN));
+		KubeJSResourcePack dataPack = new KubeJSResourcePack(folder, PackType.SERVER_DATA);
+		PackMetadataSection dataPackMetadata = new PackMetadataSection(new TextComponent("./kubejs/data/"), 5);
+		nameToPackMap.accept(new Pack("kubejs:data_pack", true, () -> dataPack, dataPack, dataPackMetadata, Pack.Position.TOP, PackSource.BUILT_IN));
 	}
 }

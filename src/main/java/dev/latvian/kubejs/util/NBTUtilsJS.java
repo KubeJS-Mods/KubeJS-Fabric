@@ -49,23 +49,23 @@ public class NBTUtilsJS {
 		if (o instanceof NBTSerializable) {
 			return ((NBTSerializable) o).toNBT();
 		} else if (o instanceof String || o instanceof Character) {
-			return StringTag.of(o.toString());
+			return StringTag.valueOf(o.toString());
 		} else if (o instanceof Boolean) {
-			return ByteTag.of((Boolean) o ? (byte) 1 : (byte) 0);
+			return ByteTag.valueOf((Boolean) o ? (byte) 1 : (byte) 0);
 		} else if (o instanceof Number) {
 			Number number = (Number) o;
 			
 			if (number instanceof Byte) {
-				return ByteTag.of(number.byteValue());
+				return ByteTag.valueOf(number.byteValue());
 			} else if (number instanceof Short) {
-				return ShortTag.of(number.shortValue());
+				return ShortTag.valueOf(number.shortValue());
 			} else if (number instanceof Integer) {
-				return IntTag.of(number.intValue());
+				return IntTag.valueOf(number.intValue());
 			} else if (number instanceof Float) {
-				return FloatTag.of(number.floatValue());
+				return FloatTag.valueOf(number.floatValue());
 			}
 			
-			return DoubleTag.of(number.doubleValue());
+			return DoubleTag.valueOf(number.doubleValue());
 		}
 		
 		return null;

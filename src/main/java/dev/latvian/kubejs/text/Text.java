@@ -4,11 +4,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.latvian.kubejs.util.*;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.MutableText;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -114,8 +114,8 @@ public abstract class Text implements Iterable<Text>, Comparable<Text>, JsonSeri
 		return text;
 	}
 	
-	public static Text read(PacketByteBuf buffer) {
-		return Text.of(buffer.readText());
+	public static Text read(FriendlyByteBuf buffer) {
+		return Text.of(buffer.readComponent());
 	}
 	
 	private TextColor color;
@@ -129,41 +129,41 @@ public abstract class Text implements Iterable<Text>, Comparable<Text>, JsonSeri
 	private Text hover;
 	private List<Text> siblings;
 	
-	public abstract MutableText rawComponent();
+	public abstract MutableComponent rawComponent();
 	
 	public abstract Text rawCopy();
 	
 	@Override
 	public abstract JsonElement toJson();
 	
-	public final net.minecraft.text.Text component() {
-		MutableText component = rawComponent();
+	public final net.minecraft.network.chat.Component component() {
+		MutableComponent component = rawComponent();
 		
 		if (color != null) {
-			component.styled(style -> style.withFormatting(color.textFormatting));
+			component.withStyle(style -> style.applyFormat(color.textFormatting));
 		}
 		
-		component.styled(style -> style.withBold(bold));
-		component.styled(style -> style.withItalic(italic));
-		component.styled(style -> style.withFormatting(underlined ? new Formatting[]{Formatting.UNDERLINE} : new Formatting[0]));
-		component.styled(style -> style.withFormatting(strikethrough ? new Formatting[]{Formatting.STRIKETHROUGH} : new Formatting[0]));
-		component.styled(style -> style.withFormatting(obfuscated ? new Formatting[]{Formatting.OBFUSCATED} : new Formatting[0]));
-		component.styled(style -> style.withInsertion(insertion));
+		component.withStyle(style -> style.withBold(bold));
+		component.withStyle(style -> style.withItalic(italic));
+		component.withStyle(style -> style.applyFormats(underlined ? new ChatFormatting[]{ChatFormatting.UNDERLINE} : new ChatFormatting[0]));
+		component.withStyle(style -> style.applyFormats(strikethrough ? new ChatFormatting[]{ChatFormatting.STRIKETHROUGH} : new ChatFormatting[0]));
+		component.withStyle(style -> style.applyFormats(obfuscated ? new ChatFormatting[]{ChatFormatting.OBFUSCATED} : new ChatFormatting[0]));
+		component.withStyle(style -> style.withInsertion(insertion));
 		
 		if (click != null) {
 			if (click.startsWith("command:")) {
-				component.styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, click.substring(8))));
+				component.withStyle(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, click.substring(8))));
 			} else if (click.startsWith("suggest_command:")) {
-				component.styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, click.substring(16))));
+				component.withStyle(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, click.substring(16))));
 			} else if (click.startsWith("copy:")) {
-				component.styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, click.substring(5))));
+				component.withStyle(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, click.substring(5))));
 			} else {
-				component.styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, click)));
+				component.withStyle(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, click)));
 			}
 		}
 		
 		if (hover != null) {
-			component.styled(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover.component())));
+			component.withStyle(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover.component())));
 		}
 		
 		for (Text text : getSiblings()) {
@@ -442,7 +442,7 @@ public abstract class Text implements Iterable<Text>, Comparable<Text>, JsonSeri
 		return toString().compareTo(toString());
 	}
 	
-	public void write(PacketByteBuf buffer) {
-		buffer.writeText(component());
+	public void write(FriendlyByteBuf buffer) {
+		buffer.writeComponent(component());
 	}
 }

@@ -4,11 +4,11 @@ import dev.latvian.kubejs.docs.MinecraftClass;
 import dev.latvian.kubejs.item.ItemStackJS;
 import dev.latvian.kubejs.item.ingredient.IngredientJS;
 import dev.latvian.kubejs.world.WorldJS;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -52,15 +52,15 @@ public class LivingEntityJS extends EntityJS {
 	}
 	
 	public void setMaxHealth(float hp) {
-		minecraftLivingEntity.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(hp);
+		minecraftLivingEntity.getAttribute(Attributes.MAX_HEALTH).setBaseValue(hp);
 	}
 	
 	public boolean isUndead() {
-		return minecraftLivingEntity.isUndead();
+		return minecraftLivingEntity.isInvertedHealAndHarm();
 	}
 	
 	public boolean isOnLadder() {
-		return minecraftLivingEntity.isClimbing();
+		return minecraftLivingEntity.onClimbable();
 	}
 	
 	public boolean isSleeping() {
@@ -73,28 +73,28 @@ public class LivingEntityJS extends EntityJS {
 	
 	@Nullable
 	public LivingEntityJS getRevengeTarget() {
-		return getWorld().getLivingEntity(minecraftLivingEntity.getAttacker());
+		return getWorld().getLivingEntity(minecraftLivingEntity.getLastHurtByMob());
 	}
 	
 	public int getRevengeTimer() {
-		return minecraftLivingEntity.getLastAttackedTime();
+		return minecraftLivingEntity.getLastHurtByMobTimestamp();
 	}
 	
 	public void setRevengeTarget(@Nullable LivingEntityJS target) {
-		minecraftLivingEntity.setAttacker(target == null ? null : target.minecraftLivingEntity);
+		minecraftLivingEntity.setLastHurtByMob(target == null ? null : target.minecraftLivingEntity);
 	}
 	
 	@Nullable
 	public LivingEntityJS getLastAttackedEntity() {
-		return getWorld().getLivingEntity(minecraftLivingEntity.getAttacking());
+		return getWorld().getLivingEntity(minecraftLivingEntity.getLastHurtMob());
 	}
 	
 	public int getLastAttackedEntityTime() {
-		return minecraftLivingEntity.getLastAttackTime();
+		return minecraftLivingEntity.getLastHurtMobTimestamp();
 	}
 	
 	public int getIdleTime() {
-		return minecraftLivingEntity.getDespawnCounter();
+		return minecraftLivingEntity.getNoActionTime();
 	}
 	
 	public EntityPotionEffectsJS getPotionEffects() {
@@ -103,81 +103,81 @@ public class LivingEntityJS extends EntityJS {
 	
 	@Nullable
 	public DamageSourceJS getLastDamageSource() {
-		return minecraftLivingEntity.getRecentDamageSource() == null ? null : new DamageSourceJS(getWorld(), minecraftLivingEntity.getRecentDamageSource());
+		return minecraftLivingEntity.getLastDamageSource() == null ? null : new DamageSourceJS(getWorld(), minecraftLivingEntity.getLastDamageSource());
 	}
 	
 	@Nullable
 	public LivingEntityJS getAttackingEntity() {
-		return getWorld().getLivingEntity(minecraftLivingEntity.getPrimeAdversary());
+		return getWorld().getLivingEntity(minecraftLivingEntity.getKillCredit());
 	}
 	
-	public void swingArm(Hand hand) {
-		minecraftLivingEntity.swingHand(hand);
+	public void swingArm(InteractionHand hand) {
+		minecraftLivingEntity.swing(hand);
 	}
 	
 	public ItemStackJS getEquipment(EquipmentSlot slot) {
-		return ItemStackJS.of(minecraftLivingEntity.getEquippedStack(slot));
+		return ItemStackJS.of(minecraftLivingEntity.getItemBySlot(slot));
 	}
 	
 	public void setEquipment(EquipmentSlot slot, Object item) {
-		minecraftLivingEntity.equipStack(slot, ItemStackJS.of(item).getItemStack());
+		minecraftLivingEntity.setItemSlot(slot, ItemStackJS.of(item).getItemStack());
 	}
 	
-	public ItemStackJS getStackInHand(Hand hand) {
-		return ItemStackJS.of(minecraftLivingEntity.getStackInHand(hand));
+	public ItemStackJS getStackInHand(InteractionHand hand) {
+		return ItemStackJS.of(minecraftLivingEntity.getItemInHand(hand));
 	}
 	
-	public void setHeldItem(Hand hand, Object item) {
-		minecraftLivingEntity.setStackInHand(hand, ItemStackJS.of(item).getItemStack());
+	public void setHeldItem(InteractionHand hand, Object item) {
+		minecraftLivingEntity.setItemInHand(hand, ItemStackJS.of(item).getItemStack());
 	}
 	
 	public ItemStackJS getMainHandItem() {
-		return getStackInHand(Hand.MAIN_HAND);
+		return getStackInHand(InteractionHand.MAIN_HAND);
 	}
 	
 	public void setMainHandItem(Object item) {
-		setHeldItem(Hand.MAIN_HAND, item);
+		setHeldItem(InteractionHand.MAIN_HAND, item);
 	}
 	
 	public ItemStackJS getOffHandItem() {
-		return getStackInHand(Hand.OFF_HAND);
+		return getStackInHand(InteractionHand.OFF_HAND);
 	}
 	
 	public void setOffHandItem(Object item) {
-		setHeldItem(Hand.OFF_HAND, item);
+		setHeldItem(InteractionHand.OFF_HAND, item);
 	}
 	
-	public void damageHeldItem(Hand hand, int amount, Consumer<ItemStackJS> onBroken) {
-		ItemStack stack = minecraftLivingEntity.getStackInHand(hand);
+	public void damageHeldItem(InteractionHand hand, int amount, Consumer<ItemStackJS> onBroken) {
+		ItemStack stack = minecraftLivingEntity.getItemInHand(hand);
 		
 		if (!stack.isEmpty()) {
-			stack.damage(amount, minecraftLivingEntity, livingEntity -> onBroken.accept(ItemStackJS.of(stack)));
+			stack.hurtAndBreak(amount, minecraftLivingEntity, livingEntity -> onBroken.accept(ItemStackJS.of(stack)));
 			
 			if (stack.isEmpty()) {
-				minecraftLivingEntity.setStackInHand(hand, ItemStack.EMPTY);
+				minecraftLivingEntity.setItemInHand(hand, ItemStack.EMPTY);
 			}
 		}
 	}
 	
-	public void damageHeldItem(Hand hand, int amount) {
+	public void damageHeldItem(InteractionHand hand, int amount) {
 		damageHeldItem(hand, amount, stack -> {});
 	}
 	
 	public void damageHeldItem() {
-		damageHeldItem(Hand.MAIN_HAND, 1);
+		damageHeldItem(InteractionHand.MAIN_HAND, 1);
 	}
 	
 	public boolean isHoldingInAnyHand(Object ingredient) {
 		IngredientJS i = IngredientJS.of(ingredient);
-		return i.testVanilla(minecraftLivingEntity.getStackInHand(Hand.MAIN_HAND)) || i.testVanilla(minecraftLivingEntity.getStackInHand(Hand.OFF_HAND));
+		return i.testVanilla(minecraftLivingEntity.getItemInHand(InteractionHand.MAIN_HAND)) || i.testVanilla(minecraftLivingEntity.getItemInHand(InteractionHand.OFF_HAND));
 	}
 	
 	public float getMovementSpeed() {
-		return minecraftLivingEntity.getMovementSpeed();
+		return minecraftLivingEntity.getSpeed();
 	}
 	
 	public void setMovementSpeed(float speed) {
-		minecraftLivingEntity.setMovementSpeed(speed);
+		minecraftLivingEntity.setSpeed(speed);
 	}
 	
 	public boolean canEntityBeSeen(EntityJS entity) {

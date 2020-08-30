@@ -1,8 +1,8 @@
 package dev.latvian.kubejs.item;
 
 import dev.latvian.kubejs.block.BlockItemBuilder;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * @author LatvianModder
@@ -16,7 +16,7 @@ public class BlockItemJS extends BlockItem {
 	}
 	
 	@Override
-	public boolean hasGlint(ItemStack stack) {
-		return properties.glow || super.hasGlint(stack);
+	public boolean isFoil(ItemStack stack) {
+		return properties.glow || super.isFoil(stack);
 	}
 }

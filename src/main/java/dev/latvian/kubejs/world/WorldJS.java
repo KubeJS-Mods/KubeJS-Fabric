@@ -16,15 +16,19 @@ import dev.latvian.kubejs.server.ServerJS;
 import dev.latvian.kubejs.util.AttachedData;
 import dev.latvian.kubejs.util.UtilsJS;
 import dev.latvian.kubejs.util.WithAttachedData;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.*;
-import net.minecraft.entity.decoration.ItemFrameEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -34,11 +38,11 @@ import java.util.Collection;
  */
 public abstract class WorldJS implements WithAttachedData {
 	@MinecraftClass
-	public final World minecraftWorld;
+	public final Level minecraftWorld;
 	
 	private AttachedData data;
 	
-	public WorldJS(World w) {
+	public WorldJS(Level w) {
 		minecraftWorld = w;
 	}
 	
@@ -63,19 +67,19 @@ public abstract class WorldJS implements WithAttachedData {
 	}
 	
 	public long getTime() {
-		return minecraftWorld.getTime();
+		return minecraftWorld.getGameTime();
 	}
 	
 	public long getLocalTime() {
-		return minecraftWorld.getTimeOfDay();
+		return minecraftWorld.getDayTime();
 	}
 	
 	public String getDimension() {
-		return minecraftWorld.getRegistryKey().getValue().toString();
+		return minecraftWorld.dimension().location().toString();
 	}
 	
 	public boolean isOverworld() {
-		return minecraftWorld.getRegistryKey() == World.OVERWORLD;
+		return minecraftWorld.dimension() == Level.OVERWORLD;
 	}
 	
 	public boolean isDaytime() {
@@ -91,7 +95,7 @@ public abstract class WorldJS implements WithAttachedData {
 	}
 	
 	public void setRainStrength(float strength) {
-		minecraftWorld.setRainGradient(strength);
+		minecraftWorld.setRainLevel(strength);
 	}
 	
 	public BlockContainerJS getBlock(int x, int y, int z) {
@@ -103,23 +107,23 @@ public abstract class WorldJS implements WithAttachedData {
 	}
 	
 	public BlockContainerJS getBlock(BlockEntity blockEntity) {
-		return getBlock(blockEntity.getPos());
+		return getBlock(blockEntity.getBlockPos());
 	}
 	
-	public abstract PlayerDataJS getPlayerData(PlayerEntity player);
+	public abstract PlayerDataJS getPlayerData(Player player);
 	
 	@Nullable
 	public EntityJS getEntity(@Nullable Entity e) {
 		if (e == null) {
 			return null;
-		} else if (e instanceof PlayerEntity) {
-			return getPlayerData((PlayerEntity) e).getPlayer();
+		} else if (e instanceof Player) {
+			return getPlayerData((Player) e).getPlayer();
 		} else if (e instanceof LivingEntity) {
 			return new LivingEntityJS(this, (LivingEntity) e);
 		} else if (e instanceof ItemEntity) {
 			return new ItemEntityJS(this, (ItemEntity) e);
-		} else if (e instanceof ItemFrameEntity) {
-			return new ItemFrameEntityJS(this, (ItemFrameEntity) e);
+		} else if (e instanceof ItemFrame) {
+			return new ItemFrameEntityJS(this, (ItemFrame) e);
 		}
 		
 		return new EntityJS(this, e);
@@ -142,7 +146,7 @@ public abstract class WorldJS implements WithAttachedData {
 	}
 	
 	public EntityArrayList getPlayers() {
-		return createEntityList(minecraftWorld.getPlayers());
+		return createEntityList(minecraftWorld.players());
 	}
 	
 	public EntityArrayList getEntities() {
@@ -165,11 +169,11 @@ public abstract class WorldJS implements WithAttachedData {
 	}
 	
 	public void spawnLightning(double x, double y, double z, boolean effectOnly, @Nullable EntityJS player) {
-		if (minecraftWorld instanceof ServerWorld) {
-			LightningEntity e = EntityType.LIGHTNING_BOLT.create(minecraftWorld);
-			e.refreshPositionAfterTeleport(new Vec3d(x, y, z));
-			e.setChanneler(player instanceof ServerPlayerJS ? ((ServerPlayerJS) player).minecraftPlayer : null);
-			minecraftWorld.spawnEntity(e);
+		if (minecraftWorld instanceof ServerLevel) {
+			LightningBolt e = EntityType.LIGHTNING_BOLT.create(minecraftWorld);
+			e.moveTo(new Vec3(x, y, z));
+			e.setCause(player instanceof ServerPlayerJS ? ((ServerPlayerJS) player).minecraftPlayer : null);
+			minecraftWorld.addFreshEntity(e);
 		}
 	}
 	
@@ -178,6 +182,6 @@ public abstract class WorldJS implements WithAttachedData {
 	}
 	
 	public void spawnFireworks(double x, double y, double z, FireworksJS f) {
-		minecraftWorld.spawnEntity(f.createFireworkRocket(minecraftWorld, x, y, z));
+		minecraftWorld.addFreshEntity(f.createFireworkRocket(minecraftWorld, x, y, z));
 	}
 }

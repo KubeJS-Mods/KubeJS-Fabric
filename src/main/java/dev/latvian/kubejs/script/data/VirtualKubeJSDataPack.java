@@ -3,10 +3,10 @@ package dev.latvian.kubejs.script.data;
 import com.google.common.collect.Lists;
 import dev.latvian.kubejs.script.ScriptType;
 import dev.latvian.kubejs.server.ServerSettings;
-import net.minecraft.resource.AbstractFileResourcePack;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.resource.metadata.ResourceMetadataReader;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.AbstractPackResources;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 
 import javax.annotation.Nullable;
 import java.io.*;
@@ -17,9 +17,9 @@ import java.util.function.Predicate;
 /**
  * @author LatvianModder
  */
-public class VirtualKubeJSDataPack extends AbstractFileResourcePack {
+public class VirtualKubeJSDataPack extends AbstractPackResources {
 	public final boolean first;
-	private final Map<Identifier, String> locationToData;
+	private final Map<ResourceLocation, String> locationToData;
 	private final Map<String, String> pathToData;
 	private final Set<String> namespaces;
 	
@@ -31,7 +31,7 @@ public class VirtualKubeJSDataPack extends AbstractFileResourcePack {
 		namespaces = new HashSet<>();
 	}
 	
-	public void addData(Identifier id, String data) {
+	public void addData(ResourceLocation id, String data) {
 		locationToData.put(id, data);
 		pathToData.put("data/" + id.getNamespace() + "/" + id.getPath(), data);
 		namespaces.add(id.getNamespace());
@@ -44,7 +44,7 @@ public class VirtualKubeJSDataPack extends AbstractFileResourcePack {
 	}
 	
 	@Override
-	public InputStream openFile(String path) throws IOException {
+	public InputStream getResource(String path) throws IOException {
 		String s = pathToData.get(path);
 		
 		if (s != null) {
@@ -59,7 +59,7 @@ public class VirtualKubeJSDataPack extends AbstractFileResourcePack {
 	}
 	
 	@Override
-	public InputStream open(ResourceType type, Identifier location) throws IOException {
+	public InputStream getResource(PackType type, ResourceLocation location) throws IOException {
 		String s = locationToData.get(location);
 		
 		if (s != null) {
@@ -74,20 +74,20 @@ public class VirtualKubeJSDataPack extends AbstractFileResourcePack {
 	}
 	
 	@Override
-	public boolean containsFile(String path) {
+	public boolean hasResource(String path) {
 		return pathToData.containsKey(path);
 	}
 	
 	@Override
-	public boolean contains(ResourceType type, Identifier location) {
-		return type == ResourceType.SERVER_DATA && locationToData.containsKey(location);
+	public boolean hasResource(PackType type, ResourceLocation location) {
+		return type == PackType.SERVER_DATA && locationToData.containsKey(location);
 	}
 	
 	@Override
-	public Collection<Identifier> findResources(ResourceType type, String namespace, String path, int maxDepth, Predicate<String> filter) {
-		List<Identifier> list = Lists.newArrayList();
+	public Collection<ResourceLocation> getResources(PackType type, String namespace, String path, int maxDepth, Predicate<String> filter) {
+		List<ResourceLocation> list = Lists.newArrayList();
 		
-		for (Identifier key : locationToData.keySet()) {
+		for (ResourceLocation key : locationToData.keySet()) {
 			if (namespace.equals(key.getNamespace())) {
 				try {
 					int i = key.getPath().lastIndexOf('/');
@@ -105,13 +105,13 @@ public class VirtualKubeJSDataPack extends AbstractFileResourcePack {
 	}
 	
 	@Override
-	public Set<String> getNamespaces(ResourceType type) {
+	public Set<String> getNamespaces(PackType type) {
 		return new HashSet<>(namespaces);
 	}
 	
 	@Nullable
 	@Override
-	public <T> T parseMetadata(ResourceMetadataReader<T> serializer) {
+	public <T> T getMetadataSection(MetadataSectionSerializer<T> serializer) {
 		return null;
 	}
 	

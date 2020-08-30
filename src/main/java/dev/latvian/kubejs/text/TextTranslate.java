@@ -3,8 +3,8 @@ package dev.latvian.kubejs.text;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.latvian.kubejs.util.JsonUtilsJS;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Objects;
 
@@ -42,20 +42,20 @@ public class TextTranslate extends Text {
 	}
 	
 	@Override
-	public MutableText rawComponent() {
+	public MutableComponent rawComponent() {
 		Object[] o = new Object[objects.length];
 		
 		for (int i = 0; i < objects.length; i++) {
 			if (objects[i] instanceof Text) {
 				o[i] = ((Text) objects[i]).component();
-			} else if (objects[i] instanceof net.minecraft.text.Text) {
-				o[i] = ((net.minecraft.text.Text) objects[i]).shallowCopy();
+			} else if (objects[i] instanceof net.minecraft.network.chat.Component) {
+				o[i] = ((net.minecraft.network.chat.Component) objects[i]).copy();
 			} else {
 				o[i] = objects[i];
 			}
 		}
 		
-		return new TranslatableText(key, o);
+		return new TranslatableComponent(key, o);
 	}
 	
 	@Override
@@ -65,8 +65,8 @@ public class TextTranslate extends Text {
 		for (int i = 0; i < objects.length; i++) {
 			if (objects[i] instanceof Text) {
 				o[i] = ((Text) objects[i]).copy();
-			} else if (objects[i] instanceof net.minecraft.text.Text) {
-				o[i] = ((net.minecraft.text.Text) objects[i]).shallowCopy();
+			} else if (objects[i] instanceof net.minecraft.network.chat.Component) {
+				o[i] = ((net.minecraft.network.chat.Component) objects[i]).copy();
 			} else {
 				o[i] = objects[i];
 			}

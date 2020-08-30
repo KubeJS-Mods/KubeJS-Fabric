@@ -1,7 +1,7 @@
 package dev.latvian.kubejs.core;
 
-import net.minecraft.resource.ResourcePackProvider;
+import net.minecraft.server.packs.repository.RepositorySource;
 
 public interface ResourcePackManagerKJS {
-	void addProviderKJS(ResourcePackProvider provider);
+	void addProviderKJS(RepositorySource provider);
 }

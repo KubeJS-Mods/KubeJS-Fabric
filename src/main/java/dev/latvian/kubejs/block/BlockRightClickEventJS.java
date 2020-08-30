@@ -4,24 +4,24 @@ import dev.latvian.kubejs.entity.EntityJS;
 import dev.latvian.kubejs.item.ItemStackJS;
 import dev.latvian.kubejs.player.PlayerEventJS;
 import dev.latvian.kubejs.world.BlockContainerJS;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
 
 /**
  * @author LatvianModder
  */
 public class BlockRightClickEventJS extends PlayerEventJS {
-	public final PlayerEntity player;
-	public final World world;
-	public final Hand hand;
+	public final Player player;
+	public final Level world;
+	public final InteractionHand hand;
 	public final BlockHitResult blockHitResult;
 	private BlockContainerJS block;
 	private ItemStackJS item;
 	
-	public BlockRightClickEventJS(PlayerEntity player, World world, Hand hand, BlockHitResult hitResult) {
+	public BlockRightClickEventJS(Player player, Level world, InteractionHand hand, BlockHitResult hitResult) {
 		this.player = player;
 		this.world = world;
 		this.hand = hand;
@@ -46,19 +46,19 @@ public class BlockRightClickEventJS extends PlayerEventJS {
 		return block;
 	}
 	
-	public Hand getHand() {
+	public InteractionHand getHand() {
 		return hand;
 	}
 	
 	public ItemStackJS getItem() {
 		if (item == null) {
-			item = ItemStackJS.of(player.getStackInHand(hand));
+			item = ItemStackJS.of(player.getItemInHand(hand));
 		}
 		
 		return item;
 	}
 	
 	public Direction getFacing() {
-		return blockHitResult.getSide();
+		return blockHitResult.getDirection();
 	}
 }

@@ -2,17 +2,17 @@ package dev.latvian.kubejs.item;
 
 import dev.latvian.kubejs.entity.EntityJS;
 import dev.latvian.kubejs.player.PlayerEventJS;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * @author LatvianModder
  */
 public class ItemFoodEatenEventJS extends PlayerEventJS {
-	private final ServerPlayerEntity player;
+	private final ServerPlayer player;
 	public final ItemStackJS item;
 	
-	public ItemFoodEatenEventJS(ServerPlayerEntity p, ItemStack is) {
+	public ItemFoodEatenEventJS(ServerPlayer p, ItemStack is) {
 		player = p;
 		item = ItemStackJS.of(is);
 	}

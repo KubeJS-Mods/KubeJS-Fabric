@@ -2,16 +2,16 @@ package dev.latvian.kubejs.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import dev.latvian.kubejs.server.ServerEventJS;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.CommandSourceStack;
 
 /**
  * @author LatvianModder
  */
 public class CommandRegistryEventJS extends ServerEventJS {
 	private final boolean singlePlayer;
-	private final CommandDispatcher<ServerCommandSource> dispatcher;
+	private final CommandDispatcher<CommandSourceStack> dispatcher;
 	
-	public CommandRegistryEventJS(boolean s, CommandDispatcher<ServerCommandSource> c) {
+	public CommandRegistryEventJS(boolean s, CommandDispatcher<CommandSourceStack> c) {
 		singlePlayer = s;
 		dispatcher = c;
 	}
@@ -20,7 +20,7 @@ public class CommandRegistryEventJS extends ServerEventJS {
 		return singlePlayer;
 	}
 	
-	public CommandDispatcher<ServerCommandSource> getDispatcher() {
+	public CommandDispatcher<CommandSourceStack> getDispatcher() {
 		return dispatcher;
 	}
 }

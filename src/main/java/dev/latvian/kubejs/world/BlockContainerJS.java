@@ -12,22 +12,22 @@ import dev.latvian.kubejs.util.MapJS;
 import dev.latvian.kubejs.util.UtilsJS;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LightningEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.property.Property;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -38,15 +38,15 @@ import java.util.Map;
  * @author LatvianModder
  */
 public class BlockContainerJS {
-	private static final Identifier AIR_ID = new Identifier("minecraft:air");
+	private static final ResourceLocation AIR_ID = new ResourceLocation("minecraft:air");
 	
-	public final WorldAccess minecraftWorld;
+	public final LevelAccessor minecraftWorld;
 	private final BlockPos pos;
 	
 	private BlockState cachedState;
 	private BlockEntity cachedEntity;
 	
-	public BlockContainerJS(WorldAccess w, BlockPos p) {
+	public BlockContainerJS(LevelAccessor w, BlockPos p) {
 		minecraftWorld = w;
 		pos = p;
 	}
@@ -57,7 +57,7 @@ public class BlockContainerJS {
 	}
 	
 	public WorldJS getWorld() {
-		return UtilsJS.getWorld((World) minecraftWorld);
+		return UtilsJS.getWorld((Level) minecraftWorld);
 	}
 	
 	public BlockPos getPos() {
@@ -65,7 +65,7 @@ public class BlockContainerJS {
 	}
 	
 	public String getDimension() {
-		return ((World) minecraftWorld).getRegistryKey().getValue().toString();
+		return ((Level) minecraftWorld).dimension().location().toString();
 	}
 	
 	public int getX() {
@@ -81,7 +81,7 @@ public class BlockContainerJS {
 	}
 	
 	public BlockContainerJS offset(Direction f, int d) {
-		return new BlockContainerJS(minecraftWorld, getPos().offset(f, d));
+		return new BlockContainerJS(minecraftWorld, getPos().relative(f, d));
 	}
 	
 	public BlockContainerJS offset(Direction f) {
@@ -89,7 +89,7 @@ public class BlockContainerJS {
 	}
 	
 	public BlockContainerJS offset(int x, int y, int z) {
-		return new BlockContainerJS(minecraftWorld, getPos().add(x, y, z));
+		return new BlockContainerJS(minecraftWorld, getPos().offset(x, y, z));
 	}
 	
 	public BlockContainerJS getDown() {
@@ -127,18 +127,18 @@ public class BlockContainerJS {
 	
 	@MinecraftClass
 	public void setBlockState(BlockState state, int flags) {
-		minecraftWorld.setBlockState(getPos(), state, flags);
+		minecraftWorld.setBlock(getPos(), state, flags);
 		clearCache();
 	}
 	
 	@ID
 	public String getId() {
-		return Registry.BLOCK.getId(getBlockState().getBlock()).toString();
+		return Registry.BLOCK.getKey(getBlockState().getBlock()).toString();
 	}
 	
 	public void set(@ID String id, Map<?, ?> properties, int flags) {
 		Block block = Registry.BLOCK.get(UtilsJS.getMCID(id));
-		BlockState state = (block == null ? Blocks.AIR : block).getDefaultState();
+		BlockState state = (block == null ? Blocks.AIR : block).defaultBlockState();
 		
 		if (!properties.isEmpty() && state.getBlock() != Blocks.AIR) {
 			Map<String, Property> pmap = new HashMap<>();
@@ -151,7 +151,7 @@ public class BlockContainerJS {
 				Property<?> property = pmap.get(String.valueOf(entry.getKey()));
 				
 				if (property != null) {
-					state = state.with(property, UtilsJS.cast(property.parse(String.valueOf(entry.getValue())).get()));
+					state = state.setValue(property, UtilsJS.cast(property.getValue(String.valueOf(entry.getValue())).get()));
 				}
 			}
 		}
@@ -172,7 +172,7 @@ public class BlockContainerJS {
 		BlockState state = getBlockState();
 		
 		for (Property property : state.getProperties()) {
-			map.put(property.getName(), property.name(state.get(property)));
+			map.put(property.getName(), property.getName(state.getValue(property)));
 		}
 		
 		return map;
@@ -191,7 +191,7 @@ public class BlockContainerJS {
 	@ID
 	public String getEntityId() {
 		BlockEntity entity = getEntity();
-		return entity == null ? "minecraft:air" : Registry.BLOCK_ENTITY_TYPE.getId(entity.getType()).toString();
+		return entity == null ? "minecraft:air" : Registry.BLOCK_ENTITY_TYPE.getKey(entity.getType()).toString();
 	}
 	
 	@Nullable
@@ -199,10 +199,10 @@ public class BlockContainerJS {
 		final BlockEntity entity = getEntity();
 		
 		if (entity != null) {
-			MapJS entityData = MapJS.of(entity.toTag(new CompoundTag()));
+			MapJS entityData = MapJS.of(entity.save(new CompoundTag()));
 			
 			if (entityData != null) {
-				entityData.changeListener = o -> entity.fromTag(entity.getCachedState(), MapJS.nbt(o));
+				entityData.changeListener = o -> entity.load(entity.getBlockState(), MapJS.nbt(o));
 				return entityData;
 			}
 		}
@@ -211,11 +211,11 @@ public class BlockContainerJS {
 	}
 	
 	public int getLight() {
-		return minecraftWorld.getLightLevel(pos);
+		return minecraftWorld.getMaxLocalRawBrightness(pos);
 	}
 	
 	public boolean getCanSeeSky() {
-		return minecraftWorld.isSkyVisible(pos);
+		return minecraftWorld.canSeeSky(pos);
 	}
 	
 	@Override
@@ -264,11 +264,11 @@ public class BlockContainerJS {
 	}
 	
 	public void spawnLightning(boolean effectOnly, @Nullable EntityJS player) {
-		if (minecraftWorld instanceof ServerWorld) {
-			LightningEntity e = EntityType.LIGHTNING_BOLT.create((ServerWorld) minecraftWorld);
-			e.refreshPositionAfterTeleport(new Vec3d(getX() + 0.5D, getY() + 0.5D, getZ() + 0.5D));
-			e.setChanneler(player instanceof ServerPlayerJS ? ((ServerPlayerJS) player).minecraftPlayer : null);
-			minecraftWorld.spawnEntity(e);
+		if (minecraftWorld instanceof ServerLevel) {
+			LightningBolt e = EntityType.LIGHTNING_BOLT.create((ServerLevel) minecraftWorld);
+			e.moveTo(new Vec3(getX() + 0.5D, getY() + 0.5D, getZ() + 0.5D));
+			e.setCause(player instanceof ServerPlayerJS ? ((ServerPlayerJS) player).minecraftPlayer : null);
+			minecraftWorld.addFreshEntity(e);
 		}
 	}
 	
@@ -277,8 +277,8 @@ public class BlockContainerJS {
 	}
 	
 	public void spawnFireworks(FireworksJS fireworks) {
-		if (minecraftWorld instanceof World) {
-			minecraftWorld.spawnEntity(fireworks.createFireworkRocket((World) minecraftWorld, getX() + 0.5D, getY() + 0.5D, getZ() + 0.5D));
+		if (minecraftWorld instanceof Level) {
+			minecraftWorld.addFreshEntity(fireworks.createFireworkRocket((Level) minecraftWorld, getX() + 0.5D, getY() + 0.5D, getZ() + 0.5D));
 		}
 	}
 	
@@ -308,14 +308,14 @@ public class BlockContainerJS {
 	@Environment(EnvType.CLIENT)
 	public ItemStackJS getItem() {
 		BlockState state = getBlockState();
-		return ItemStackJS.of(state.getBlock().getPickStack(minecraftWorld, pos, state));
+		return ItemStackJS.of(state.getBlock().getCloneItemStack(minecraftWorld, pos, state));
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) {
 			return true;
-		} else if (obj instanceof CharSequence || obj instanceof Identifier) {
+		} else if (obj instanceof CharSequence || obj instanceof ResourceLocation) {
 			return getId().equals(obj.toString());
 		}
 		

@@ -4,11 +4,11 @@ import dev.latvian.kubejs.entity.EntityJS;
 import dev.latvian.kubejs.item.ItemStackJS;
 import dev.latvian.kubejs.player.PlayerEventJS;
 import dev.latvian.kubejs.world.BlockContainerJS;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 
@@ -16,13 +16,13 @@ import javax.annotation.Nullable;
  * @author LatvianModder
  */
 public class BlockLeftClickEventJS extends PlayerEventJS {
-	public final PlayerEntity player;
-	public final World world;
+	public final Player player;
+	public final Level world;
 	public final BlockPos pos;
-	public final Hand hand;
+	public final InteractionHand hand;
 	public final Direction direction;
 	
-	public BlockLeftClickEventJS(PlayerEntity player, World world, Hand hand, BlockPos pos, Direction direction) {
+	public BlockLeftClickEventJS(Player player, Level world, InteractionHand hand, BlockPos pos, Direction direction) {
 		this.player = player;
 		this.world = world;
 		this.pos = pos;
@@ -45,7 +45,7 @@ public class BlockLeftClickEventJS extends PlayerEventJS {
 	}
 	
 	public ItemStackJS getItem() {
-		return ItemStackJS.of(player.getStackInHand(hand));
+		return ItemStackJS.of(player.getItemInHand(hand));
 	}
 	
 	@Nullable

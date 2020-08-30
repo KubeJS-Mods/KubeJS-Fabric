@@ -1,10 +1,10 @@
 package dev.latvian.kubejs.core.mixin;
 
 import dev.latvian.kubejs.core.TagCollectionKJS;
-import net.minecraft.tag.Tag;
-import net.minecraft.tag.TagGroup;
-import net.minecraft.tag.TagGroupLoader;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagCollection;
+import net.minecraft.tags.TagLoader;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,22 +18,22 @@ import java.util.function.Function;
 /**
  * @author LatvianModder
  */
-@Mixin(TagGroupLoader.class)
+@Mixin(TagLoader.class)
 public abstract class TagCollectionMixin<T> implements TagCollectionKJS<T> {
-	@Inject(method = "applyReload", at = @At("HEAD"))
-	private void customTags(Map<Identifier, Tag.Builder> tags, CallbackInfoReturnable<TagGroup<T>> cir) {
+	@Inject(method = "load", at = @At("HEAD"))
+	private void customTags(Map<ResourceLocation, Tag.Builder> tags, CallbackInfoReturnable<TagCollection<T>> cir) {
 		customTagsKJS(tags);
 	}
 	
 	@Override
-	@Accessor("registryGetter")
-	public abstract Function<Identifier, Optional<T>> getRegistryGetterKJS();
+	@Accessor("idToValue")
+	public abstract Function<ResourceLocation, Optional<T>> getRegistryGetterKJS();
 	
 	@Override
-	@Accessor("dataType")
+	@Accessor("directory")
 	public abstract String getResourceLocationPrefixKJS();
 	
 	@Override
-	@Accessor("entryType")
+	@Accessor("name")
 	public abstract String getItemTypeNameKJS();
 }

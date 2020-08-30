@@ -2,10 +2,10 @@ package dev.latvian.kubejs.callback.item;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 public interface ItemRightClickAirCallback {
 	Event<ItemRightClickAirCallback> EVENT = EventFactory.createArrayBacked(ItemRightClickAirCallback.class, (listeners) -> {
@@ -16,5 +16,5 @@ public interface ItemRightClickAirCallback {
 		};
 	});
 	
-	void rightClick(PlayerEntity player, ItemStack stack, Hand hand, BlockPos position);
+	void rightClick(Player player, ItemStack stack, InteractionHand hand, BlockPos position);
 }

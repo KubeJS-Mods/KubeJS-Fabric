@@ -1,13 +1,13 @@
 package dev.latvian.kubejs.core.mixin;
 
 import dev.latvian.kubejs.core.BlockKJS;
-import net.minecraft.block.AbstractBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.spongepowered.asm.mixin.Mixin;
 
 /**
  * @author LatvianModder
  */
-@Mixin(AbstractBlock.class)
+@Mixin(BlockBehaviour.class)
 public abstract class AbstractBlockMixin implements BlockKJS {
 	/* FIXME
 	@Override

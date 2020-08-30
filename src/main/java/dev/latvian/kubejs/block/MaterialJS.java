@@ -1,8 +1,8 @@
 package dev.latvian.kubejs.block;
 
 import dev.latvian.kubejs.docs.MinecraftClass;
-import net.minecraft.block.Material;
-import net.minecraft.sound.BlockSoundGroup;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.material.Material;
 
 /**
  * @author LatvianModder
@@ -10,9 +10,9 @@ import net.minecraft.sound.BlockSoundGroup;
 public class MaterialJS {
 	private final String id;
 	private final Material minecraftMaterial;
-	private final BlockSoundGroup sound;
+	private final SoundType sound;
 	
-	public MaterialJS(String i, Material m, BlockSoundGroup s) {
+	public MaterialJS(String i, Material m, SoundType s) {
 		id = i;
 		minecraftMaterial = m;
 		sound = s;
@@ -28,7 +28,7 @@ public class MaterialJS {
 	}
 	
 	@MinecraftClass
-	public BlockSoundGroup getSound() {
+	public SoundType getSound() {
 		return sound;
 	}
 }

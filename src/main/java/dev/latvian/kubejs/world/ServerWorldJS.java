@@ -9,11 +9,11 @@ import dev.latvian.kubejs.player.FakeServerPlayerDataJS;
 import dev.latvian.kubejs.player.ServerPlayerDataJS;
 import dev.latvian.kubejs.script.ScriptType;
 import dev.latvian.kubejs.server.ServerJS;
-import net.minecraft.command.EntitySelectorReader;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.level.LevelProperties;
+import net.minecraft.commands.arguments.selector.EntitySelectorParser;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.storage.PrimaryLevelData;
 
 /**
  * @author LatvianModder
@@ -21,7 +21,7 @@ import net.minecraft.world.level.LevelProperties;
 public class ServerWorldJS extends WorldJS {
 	private final ServerJS server;
 	
-	public ServerWorldJS(ServerJS s, ServerWorld w) {
+	public ServerWorldJS(ServerJS s, ServerLevel w) {
 		super(w);
 		server = s;
 	}
@@ -37,33 +37,33 @@ public class ServerWorldJS extends WorldJS {
 	}
 	
 	public long getSeed() {
-		return ((ServerWorld) minecraftWorld).getSeed();
+		return ((ServerLevel) minecraftWorld).getSeed();
 	}
 	
 	public void setTime(long time) {
-		((LevelProperties) minecraftWorld.getLevelProperties()).setTime(time);
+		((PrimaryLevelData) minecraftWorld.getLevelData()).setGameTime(time);
 	}
 	
 	public void setLocalTime(long time) {
-		((LevelProperties) minecraftWorld.getLevelProperties()).setTimeOfDay(time);
+		((PrimaryLevelData) minecraftWorld.getLevelData()).setDayTime(time);
 	}
 	
 	@Override
-	public ServerPlayerDataJS getPlayerData(PlayerEntity player) {
-		ServerPlayerDataJS data = server.playerMap.get(player.getUuid());
+	public ServerPlayerDataJS getPlayerData(Player player) {
+		ServerPlayerDataJS data = server.playerMap.get(player.getUUID());
 		
 		if (data != null) {
 			return data;
 		}
 		
-		FakeServerPlayerDataJS fakeData = server.fakePlayerMap.get(player.getUuid());
+		FakeServerPlayerDataJS fakeData = server.fakePlayerMap.get(player.getUUID());
 		
 		if (fakeData == null) {
-			fakeData = new FakeServerPlayerDataJS(server, (ServerPlayerEntity) player);
+			fakeData = new FakeServerPlayerDataJS(server, (ServerPlayer) player);
 			AttachPlayerDataEvent.EVENT.invoker().accept(new AttachPlayerDataEvent(fakeData));
 		}
 		
-		fakeData.player = (ServerPlayerEntity) player;
+		fakeData.player = (ServerPlayer) player;
 		return fakeData;
 	}
 	
@@ -74,12 +74,12 @@ public class ServerWorldJS extends WorldJS {
 	
 	@Override
 	public EntityArrayList getEntities() {
-		return new EntityArrayList(this, Lists.newArrayList(((ServerWorld) minecraftWorld).iterateEntities()));
+		return new EntityArrayList(this, Lists.newArrayList(((ServerLevel) minecraftWorld).getAllEntities()));
 	}
 	
 	public EntityArrayList getEntities(String filter) {
 		try {
-			return createEntityList(new EntitySelectorReader(new StringReader(filter), true).build().getEntities(new WorldCommandSender(this)));
+			return createEntityList(new EntitySelectorParser(new StringReader(filter), true).getSelector().findEntities(new WorldCommandSender(this)));
 		} catch (CommandSyntaxException e) {
 			return new EntityArrayList(this, 0);
 		}

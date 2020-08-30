@@ -2,18 +2,18 @@ package dev.latvian.kubejs.player;
 
 import dev.latvian.kubejs.entity.EntityJS;
 import dev.latvian.kubejs.item.ItemStackJS;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * @author LatvianModder
  */
 public class InventoryChangedEventJS extends PlayerEventJS {
-	private final ServerPlayerEntity player;
+	private final ServerPlayer player;
 	private final ItemStack item;
 	private final int slot;
 	
-	public InventoryChangedEventJS(ServerPlayerEntity p, ItemStack is, int s) {
+	public InventoryChangedEventJS(ServerPlayer p, ItemStack is, int s) {
 		player = p;
 		item = is;
 		slot = s;

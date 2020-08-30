@@ -1,6 +1,6 @@
 package dev.latvian.kubejs.bindings;
 
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,27 +39,27 @@ public class FacingWrapper {
 	}
 	
 	public int x(Direction facing) {
-		return facing.getOffsetX();
+		return facing.getStepX();
 	}
 	
 	public int y(Direction facing) {
-		return facing.getOffsetY();
+		return facing.getStepY();
 	}
 	
 	public int z(Direction facing) {
-		return facing.getOffsetZ();
+		return facing.getStepZ();
 	}
 	
 	public int getIndex(Direction facing) {
-		return facing.getId();
+		return facing.get3DDataValue();
 	}
 	
 	public int getHorizontalIndex(Direction facing) {
-		return facing.getHorizontal();
+		return facing.get2DDataValue();
 	}
 	
 	public float getYaw(Direction facing) {
-		return facing.asRotation();
+		return facing.toYRot();
 	}
 	
 	public float getPitch(Direction facing) {
@@ -67,6 +67,6 @@ public class FacingWrapper {
 	}
 	
 	public Direction rotateY(Direction facing) {
-		return facing.rotateYClockwise();
+		return facing.getClockWise();
 	}
 }

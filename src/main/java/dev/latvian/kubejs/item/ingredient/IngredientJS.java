@@ -8,8 +8,8 @@ import dev.latvian.kubejs.item.BoundItemStackJS;
 import dev.latvian.kubejs.item.EmptyItemStackJS;
 import dev.latvian.kubejs.item.ItemStackJS;
 import dev.latvian.kubejs.util.*;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 import java.util.LinkedHashSet;
@@ -32,7 +32,7 @@ public interface IngredientJS extends JsonSerializable, WrappedJS {
 			String s = o.toString();
 			
 			if (s.startsWith("#")) {
-				return new TagIngredientJS(new Identifier(s.substring(1)), 1);
+				return new TagIngredientJS(new ResourceLocation(s.substring(1)), 1);
 			} else if (s.startsWith("mod:")) {
 				return new ModIngredientJS(s.substring(4));
 			} else if (s.startsWith("regex:")) {
@@ -83,7 +83,7 @@ public interface IngredientJS extends JsonSerializable, WrappedJS {
 				if (map.containsKey("count")) {
 					count = UtilsJS.parseInt(map.get("count"), 1);
 				}
-				return new TagIngredientJS(new Identifier(map.get("tag").toString()), count);
+				return new TagIngredientJS(new ResourceLocation(map.get("tag").toString()), count);
 			} else if (map.containsKey("mod")) {
 				return new ModIngredientJS(map.get("mod").toString());
 			} else if (map.containsKey("regex")) {
@@ -127,7 +127,7 @@ public interface IngredientJS extends JsonSerializable, WrappedJS {
 				if (o.has("count")) {
 					count = UtilsJS.parseInt(o.get("count"), 1);
 				}
-				return new TagIngredientJS(new Identifier(o.get("tag").getAsString()), count);
+				return new TagIngredientJS(new ResourceLocation(o.get("tag").getAsString()), count);
 			} else if (o.has("item")) {
 				ItemStackJS stack = ItemStackJS.of(o.get("item").getAsString());
 				

@@ -2,8 +2,8 @@ package dev.latvian.kubejs.entity;
 
 import dev.latvian.kubejs.item.ItemStackJS;
 import dev.latvian.kubejs.world.WorldJS;
-import net.minecraft.entity.decoration.ItemFrameEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 
@@ -11,9 +11,9 @@ import javax.annotation.Nullable;
  * @author LatvianModder
  */
 public class ItemFrameEntityJS extends EntityJS {
-	private final ItemFrameEntity itemFrameEntity;
+	private final ItemFrame itemFrameEntity;
 	
-	public ItemFrameEntityJS(WorldJS w, ItemFrameEntity e) {
+	public ItemFrameEntityJS(WorldJS w, ItemFrame e) {
 		super(w, e);
 		itemFrameEntity = e;
 	}
@@ -26,12 +26,12 @@ public class ItemFrameEntityJS extends EntityJS {
 	@Override
 	@Nullable
 	public ItemStackJS getItem() {
-		ItemStack stack = itemFrameEntity.getHeldItemStack();
+		ItemStack stack = itemFrameEntity.getItem();
 		return stack.isEmpty() ? null : ItemStackJS.of(stack);
 	}
 	
 	public void setItem(Object item) {
-		itemFrameEntity.setHeldItemStack(ItemStackJS.of(item).getItemStack());
+		itemFrameEntity.setItem(ItemStackJS.of(item).getItemStack());
 	}
 	
 	public int getFrameRotation() {

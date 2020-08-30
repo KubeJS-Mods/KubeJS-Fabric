@@ -8,12 +8,12 @@ import dev.latvian.kubejs.util.MapJS;
 import dev.latvian.kubejs.util.MessageSender;
 import dev.latvian.kubejs.util.UtilsJS;
 import dev.latvian.kubejs.world.WorldJS;
-import net.minecraft.entity.Entity;
+import net.minecraft.Util;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Util;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.Entity;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -55,20 +55,20 @@ public class EntityArrayList extends ArrayList<EntityJS> implements MessageSende
 	
 	@Override
 	public void tell(Object message) {
-		net.minecraft.text.Text component = Text.of(message).component();
+		net.minecraft.network.chat.Component component = Text.of(message).component();
 		
 		for (EntityJS entity : this) {
-			entity.minecraftEntity.sendSystemMessage(component, Util.NIL_UUID);
+			entity.minecraftEntity.sendMessage(component, Util.NIL_UUID);
 		}
 	}
 	
 	@Override
 	public void setStatusMessage(Object message) {
-		net.minecraft.text.Text component = Text.of(message).component();
+		net.minecraft.network.chat.Component component = Text.of(message).component();
 		
 		for (EntityJS entity : this) {
-			if (entity.minecraftEntity instanceof ServerPlayerEntity) {
-				((ServerPlayerEntity) entity.minecraftEntity).sendMessage(component, true);
+			if (entity.minecraftEntity instanceof ServerPlayer) {
+				((ServerPlayer) entity.minecraftEntity).displayClientMessage(component, true);
 			}
 		}
 	}
@@ -95,7 +95,7 @@ public class EntityArrayList extends ArrayList<EntityJS> implements MessageSende
 		
 		if (event != null) {
 			for (EntityJS entity : this) {
-				entity.minecraftEntity.world.playSound(null, entity.getX(), entity.getY(), entity.getZ(), event, entity.minecraftEntity.getSoundCategory(), volume, pitch);
+				entity.minecraftEntity.level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), event, entity.minecraftEntity.getSoundSource(), volume, pitch);
 			}
 		}
 	}

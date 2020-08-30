@@ -3,7 +3,7 @@ package dev.latvian.kubejs.net;
 import dev.latvian.kubejs.entity.EntityJS;
 import dev.latvian.kubejs.player.PlayerEventJS;
 import dev.latvian.kubejs.util.MapJS;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
 
@@ -11,11 +11,11 @@ import javax.annotation.Nullable;
  * @author LatvianModder
  */
 public class NetworkEventJS extends PlayerEventJS {
-	private final PlayerEntity player;
+	private final Player player;
 	private final String channel;
 	private final MapJS data;
 	
-	public NetworkEventJS(PlayerEntity p, String c, @Nullable MapJS d) {
+	public NetworkEventJS(Player p, String c, @Nullable MapJS d) {
 		player = p;
 		channel = c;
 		data = d;

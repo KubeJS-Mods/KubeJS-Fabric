@@ -410,7 +410,7 @@ public class ListJS extends ArrayList<Object> implements WrappedJSObject, Wrappe
 	}
 	
 	@Override
-	public AbstractListTag<?> toNBT() {
+	public CollectionTag<?> toNBT() {
 		if (isEmpty()) {
 			return new ListTag();
 		}
@@ -424,8 +424,8 @@ public class ListJS extends ArrayList<Object> implements WrappedJSObject, Wrappe
 			
 			if (values[s] != null) {
 				if (commmonId == -1) {
-					commmonId = values[s].getType();
-				} else if (commmonId != values[s].getType()) {
+					commmonId = values[s].getId();
+				} else if (commmonId != values[s].getId()) {
 					commmonId = 0;
 				}
 				
@@ -437,7 +437,7 @@ public class ListJS extends ArrayList<Object> implements WrappedJSObject, Wrappe
 			int[] array = new int[s];
 			
 			for (int i = 0; i < s; i++) {
-				array[i] = ((AbstractNumberTag) values[i]).getInt();
+				array[i] = ((NumericTag) values[i]).getAsInt();
 			}
 			
 			return new IntArrayTag(array);
@@ -445,7 +445,7 @@ public class ListJS extends ArrayList<Object> implements WrappedJSObject, Wrappe
 			byte[] array = new byte[s];
 			
 			for (int i = 0; i < s; i++) {
-				array[i] = ((AbstractNumberTag) values[i]).getByte();
+				array[i] = ((NumericTag) values[i]).getAsByte();
 			}
 			
 			return new ByteArrayTag(array);
@@ -453,7 +453,7 @@ public class ListJS extends ArrayList<Object> implements WrappedJSObject, Wrappe
 			long[] array = new long[s];
 			
 			for (int i = 0; i < s; i++) {
-				array[i] = ((AbstractNumberTag) values[i]).getLong();
+				array[i] = ((NumericTag) values[i]).getAsLong();
 			}
 			
 			return new LongArrayTag(array);

@@ -1,6 +1,6 @@
 package dev.latvian.kubejs.core;
 
-import net.minecraft.tag.Tag;
+import net.minecraft.tags.Tag;
 
 import java.util.List;
 
@@ -8,5 +8,5 @@ import java.util.List;
  * @author LatvianModder
  */
 public interface TagBuilderKJS {
-	List<Tag.TrackedEntry> getProxyListKJS();
+	List<Tag.BuilderEntry> getProxyListKJS();
 }

@@ -3,8 +3,8 @@ package dev.latvian.kubejs.text;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.MutableText;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
 
 import javax.annotation.Nullable;
 
@@ -23,8 +23,8 @@ public class TextString extends Text {
 	}
 	
 	@Override
-	public MutableText rawComponent() {
-		return new LiteralText(string);
+	public MutableComponent rawComponent() {
+		return new TextComponent(string);
 	}
 	
 	@Override

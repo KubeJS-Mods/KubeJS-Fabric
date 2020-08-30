@@ -5,7 +5,7 @@ import dev.latvian.kubejs.KubeJSInitializer;
 import dev.latvian.kubejs.script.ScriptType;
 import dev.latvian.kubejs.server.ServerJS;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
 
 /**
  * @author LatvianModder
@@ -46,8 +46,8 @@ public class KubeJSWorldEventHandler implements KubeJSInitializer {
 //		}
 //	}
 	
-	private void worldTick(ServerWorld world) {
-		if (!world.isClient) {
+	private void worldTick(ServerLevel world) {
+		if (!world.isClientSide) {
 			WorldJS w = ServerJS.instance.getWorld(world);
 			new SimpleWorldEventJS(w).post(ScriptType.SERVER, KubeJSEvents.WORLD_TICK);
 		}

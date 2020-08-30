@@ -4,17 +4,17 @@ import dev.latvian.kubejs.KubeJSEvents;
 import dev.latvian.kubejs.item.ItemFoodEatenEventJS;
 import dev.latvian.kubejs.item.ItemJS;
 import dev.latvian.kubejs.script.ScriptType;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * @author LatvianModder
  */
 public interface LivingEntityKJS {
 	default void foodEatenKJS(ItemStack is) {
-		if (this instanceof ServerPlayerEntity) {
-			ItemFoodEatenEventJS event = new ItemFoodEatenEventJS((ServerPlayerEntity) this, is);
+		if (this instanceof ServerPlayer) {
+			ItemFoodEatenEventJS event = new ItemFoodEatenEventJS((ServerPlayer) this, is);
 			Item i = is.getItem();
 			
 			if (i instanceof ItemJS) {

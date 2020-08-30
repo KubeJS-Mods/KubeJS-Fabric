@@ -1,7 +1,7 @@
 package dev.latvian.kubejs.entity;
 
 import dev.latvian.kubejs.world.WorldJS;
-import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.world.damagesource.DamageSource;
 
 import javax.annotation.Nullable;
 
@@ -22,16 +22,16 @@ public class DamageSourceJS {
 	}
 	
 	public String getType() {
-		return source.name;
+		return source.msgId;
 	}
 	
 	@Nullable
 	public EntityJS getImmediate() {
-		return getWorld().getEntity(source.getSource());
+		return getWorld().getEntity(source.getDirectEntity());
 	}
 	
 	@Nullable
 	public EntityJS getActual() {
-		return getWorld().getEntity(source.getAttacker());
+		return getWorld().getEntity(source.getEntity());
 	}
 }

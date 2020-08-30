@@ -14,16 +14,16 @@ import dev.latvian.kubejs.world.WorldJS;
 import jdk.nashorn.api.scripting.JSObject;
 import jdk.nashorn.internal.runtime.ScriptFunction;
 import jdk.nashorn.internal.runtime.ScriptObject;
-import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.*;
-import net.minecraft.stat.Stat;
-import net.minecraft.stat.Stats;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.stats.Stat;
+import net.minecraft.stats.Stats;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -93,22 +93,22 @@ public class UtilsJS {
 		//Primitives and already normalized objects
 		if (o == null || o instanceof WrappedJS || o instanceof Number || o instanceof Character || o instanceof String || o instanceof Enum || o.getClass().isPrimitive() && !o.getClass().isArray()) {
 			return o;
-		} else if (o instanceof CharSequence || o instanceof Identifier) {
+		} else if (o instanceof CharSequence || o instanceof ResourceLocation) {
 			return o.toString();
 		}
 		// Vanilla text component
 		else if (o instanceof Text) {
 			Text t = new TextString("");
 			
-			List<net.minecraft.text.Text> list = new ArrayList<>();
-			list.add((net.minecraft.text.Text) o);
-			list.addAll(((net.minecraft.text.Text) o).getSiblings());
+			List<net.minecraft.network.chat.Component> list = new ArrayList<>();
+			list.add((net.minecraft.network.chat.Component) o);
+			list.addAll(((net.minecraft.network.chat.Component) o).getSiblings());
 			
-			for (net.minecraft.text.Text c : list) {
+			for (net.minecraft.network.chat.Component c : list) {
 				Text t1;
 				
-				if (c instanceof TranslatableText) {
-					t1 = new TextTranslate(((TranslatableText) c).getKey(), ((TranslatableText) c).getArgs());
+				if (c instanceof TranslatableComponent) {
+					t1 = new TextTranslate(((TranslatableComponent) c).getKey(), ((TranslatableComponent) c).getArgs());
 				} else {
 					t1 = new TextString(c.getString());
 				}
@@ -260,17 +260,17 @@ public class UtilsJS {
 			
 			CompoundTag nbt = (CompoundTag) o;
 			
-			MapJS map = new MapJS(nbt.getSize());
+			MapJS map = new MapJS(nbt.size());
 			
-			for (String s : nbt.getKeys()) {
+			for (String s : nbt.getAllKeys()) {
 				map.put(s, nbt.get(s));
 			}
 			
 			return map;
-		} else if (o instanceof AbstractNumberTag) {
-			return ((AbstractNumberTag) o).getNumber();
+		} else if (o instanceof NumericTag) {
+			return ((NumericTag) o).getAsNumber();
 		} else if (o instanceof StringTag) {
-			return ((StringTag) o).asString();
+			return ((StringTag) o).getAsString();
 		}
 		
 		return o;
@@ -341,16 +341,16 @@ public class UtilsJS {
 		}
 	}
 	
-	public static Stat<Identifier> getStat(@ID String id) {
-		return Stats.CUSTOM.getOrCreateStat(getMCID(id));
+	public static Stat<ResourceLocation> getStat(@ID String id) {
+		return Stats.CUSTOM.get(getMCID(id));
 	}
 	
-	public static Identifier getToolType(String id) {
-		return Identifier.tryParse(id);
+	public static ResourceLocation getToolType(String id) {
+		return ResourceLocation.tryParse(id);
 	}
 	
-	public static WorldJS getWorld(World world) {
-		if (world.isClient()) {
+	public static WorldJS getWorld(Level world) {
+		if (world.isClientSide()) {
 			return getClientWorld();
 		} else {
 			return ServerJS.instance.getWorld(world);
@@ -362,8 +362,8 @@ public class UtilsJS {
 	}
 	
 	@Nullable
-	public static StatusEffect getPotion(@ID String id) {
-		return Registry.STATUS_EFFECT.get(getMCID(id));
+	public static MobEffect getPotion(@ID String id) {
+		return Registry.MOB_EFFECT.get(getMCID(id));
 	}
 	
 	@ID
@@ -379,12 +379,12 @@ public class UtilsJS {
 		return s;
 	}
 	
-	public static Identifier getMCID(@ID @Nullable String s) {
+	public static ResourceLocation getMCID(@ID @Nullable String s) {
 		if (s == null || s.isEmpty()) {
-			return new Identifier("minecraft:air");
+			return new ResourceLocation("minecraft:air");
 		}
 		
-		return new Identifier(s);
+		return new ResourceLocation(s);
 	}
 	
 	public static String getNamespace(@ID @Nullable String s) {
@@ -405,7 +405,7 @@ public class UtilsJS {
 		return i == -1 ? s : s.substring(i + 1);
 	}
 	
-	public static <T> Function<Identifier, Optional<T>> valueGetter(Registry<T> registry, @Nullable T def) {
+	public static <T> Function<ResourceLocation, Optional<T>> valueGetter(Registry<T> registry, @Nullable T def) {
 		return id -> {
 			T value = registry.get(id);
 			

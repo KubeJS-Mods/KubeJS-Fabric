@@ -2,8 +2,8 @@ package dev.latvian.kubejs.player;
 
 import dev.latvian.kubejs.text.Text;
 import dev.latvian.kubejs.text.TextString;
-import net.minecraft.advancement.Advancement;
-import net.minecraft.util.Identifier;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.util.LinkedHashSet;
@@ -34,7 +34,7 @@ public class AdvancementJS {
 		return advancement.getId().toString();
 	}
 	
-	public Identifier id() {
+	public ResourceLocation id() {
 		return advancement.getId();
 	}
 	
@@ -58,7 +58,7 @@ public class AdvancementJS {
 	}
 	
 	public Text getDisplayText() {
-		return Text.of(advancement.toHoverableText());
+		return Text.of(advancement.getChatComponent());
 	}
 	
 	public boolean hasDisplay() {

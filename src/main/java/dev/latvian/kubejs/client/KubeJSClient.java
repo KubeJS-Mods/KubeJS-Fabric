@@ -15,10 +15,10 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resource.ResourcePackManager;
+import net.minecraft.server.packs.repository.PackRepository;
+import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -35,7 +35,7 @@ public class KubeJSClient extends KubeJSCommon implements ClientModInitializer {
 	@Override
 	public void init(File folder) {
 		new KubeJSClientEventHandler().init();
-		ResourcePackManager manager = MinecraftClient.getInstance().getResourcePackManager();
+		PackRepository manager = Minecraft.getInstance().getResourcePackRepository();
 		((ResourcePackManagerKJS) manager).addProviderKJS(new KubeJSResourcePackFinder(folder));
 		
 		ClientSidePacketRegistry.INSTANCE.register(KubeJSNet.PACKET_ID_S2C, (packetContext, packetByteBuf) -> {
@@ -69,13 +69,13 @@ public class KubeJSClient extends KubeJSCommon implements ClientModInitializer {
 	
 	@Override
 	public void handleDataToClientPacket(String channel, @Nullable CompoundTag data) {
-		new NetworkEventJS(MinecraftClient.getInstance().player, channel, MapJS.of(data)).post(KubeJSEvents.PLAYER_DATA_FROM_SERVER, channel);
+		new NetworkEventJS(Minecraft.getInstance().player, channel, MapJS.of(data)).post(KubeJSEvents.PLAYER_DATA_FROM_SERVER, channel);
 	}
 	
 	@Override
 	@Nullable
-	public PlayerEntity getClientPlayer() {
-		return MinecraftClient.getInstance().player;
+	public Player getClientPlayer() {
+		return Minecraft.getInstance().player;
 	}
 	
 	@Override

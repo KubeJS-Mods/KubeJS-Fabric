@@ -6,9 +6,9 @@ import dev.latvian.kubejs.item.EmptyItemStackJS;
 import dev.latvian.kubejs.item.ItemStackJS;
 import dev.latvian.kubejs.util.UtilsJS;
 import dev.latvian.kubejs.world.FireworksJS;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.Registry;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 
 import java.util.List;
 import java.util.Map;

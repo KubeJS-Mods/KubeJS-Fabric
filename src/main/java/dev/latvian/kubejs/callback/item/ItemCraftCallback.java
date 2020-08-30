@@ -2,9 +2,9 @@ package dev.latvian.kubejs.callback.item;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 public interface ItemCraftCallback {
 	Event<ItemCraftCallback> EVENT = EventFactory.createArrayBacked(ItemCraftCallback.class, (listeners) -> {
@@ -15,5 +15,5 @@ public interface ItemCraftCallback {
 		};
 	});
 	
-	void craft(PlayerEntity player, Inventory inventory, ItemStack result);
+	void craft(Player player, Container inventory, ItemStack result);
 }

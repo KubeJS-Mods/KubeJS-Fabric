@@ -3,7 +3,7 @@ package dev.latvian.kubejs.server;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.world.GameRules;
+import net.minecraft.world.level.GameRules;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -25,9 +25,9 @@ public class GameRulesJS {
 		if (cache == null) {
 			cache = new HashMap<>();
 			
-			GameRules.accept(new GameRules.Visitor() {
+			GameRules.visitGameRuleTypes(new GameRules.GameRuleTypeVisitor() {
 				@Override
-				public <T extends GameRules.Rule<T>> void visit(GameRules.Key<T> key, GameRules.Type<T> type) {
+				public <T extends GameRules.Value<T>> void visit(GameRules.Key<T> key, GameRules.Type<T> type) {
 					cache.put(key.toString(), key);
 				}
 			});
@@ -39,7 +39,7 @@ public class GameRulesJS {
 	@Nullable
 	private Object get(String rule) {
 		GameRules.Key key = getKey(rule);
-		return key == null ? null : rules.get(key);
+		return key == null ? null : rules.getRule(key);
 	}
 	
 	public String getString(String rule) {
@@ -58,7 +58,7 @@ public class GameRulesJS {
 	}
 	
 	public void set(String rule, Object value) {
-		CompoundTag nbt = rules.toNbt();
+		CompoundTag nbt = rules.createTag();
 		nbt.putString(rule, String.valueOf(value));
 		rules = new GameRules(new Dynamic<>(NbtOps.INSTANCE, nbt)); //TODO: Check if works
 	}

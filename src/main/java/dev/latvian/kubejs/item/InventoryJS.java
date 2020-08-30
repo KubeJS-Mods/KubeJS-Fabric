@@ -5,9 +5,9 @@ import dev.latvian.kubejs.item.ingredient.IngredientJS;
 import dev.latvian.kubejs.item.ingredient.MatchAllIngredientJS;
 import dev.latvian.kubejs.world.BlockContainerJS;
 import dev.latvian.kubejs.world.WorldJS;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nullable;
 import java.util.LinkedList;
@@ -17,22 +17,22 @@ import java.util.LinkedList;
  */
 public class InventoryJS {
 	@MinecraftClass
-	public final Inventory minecraftInventory;
+	public final Container minecraftInventory;
 	
-	public InventoryJS(Inventory h) {
+	public InventoryJS(Container h) {
 		minecraftInventory = h;
 	}
 	
 	public int getSize() {
-		return minecraftInventory.size();
+		return minecraftInventory.getContainerSize();
 	}
 	
 	public ItemStackJS get(int slot) {
-		return ItemStackJS.of(minecraftInventory.getStack(slot));
+		return ItemStackJS.of(minecraftInventory.getItem(slot));
 	}
 	
 	public void set(int slot, Object item) {
-		minecraftInventory.setStack(slot, ItemStackJS.of(item).getItemStack());
+		minecraftInventory.setItem(slot, ItemStackJS.of(item).getItemStack());
 	}
 	
 	// TODO
@@ -47,15 +47,15 @@ public class InventoryJS {
 //	}
 	
 	public int getSlotLimit(int slot) {
-		return minecraftInventory.getMaxCountPerStack();
+		return minecraftInventory.getMaxStackSize();
 	}
 	
 	public boolean isItemValid(int slot, Object item) {
-		return minecraftInventory.isValid(slot, ItemStackJS.of(item).getItemStack());
+		return minecraftInventory.canPlaceItem(slot, ItemStackJS.of(item).getItemStack());
 	}
 	
 	public void clear() {
-		minecraftInventory.clear();
+		minecraftInventory.clearContent();
 	}
 	
 	public void clear(Object o) {
@@ -65,16 +65,16 @@ public class InventoryJS {
 			clear();
 		}
 		
-		for (int i = minecraftInventory.size(); i >= 0; i--) {
-			if (ingredient.testVanilla(minecraftInventory.getStack(i))) {
-				minecraftInventory.removeStack(i, minecraftInventory.getStack(i).getCount());
+		for (int i = minecraftInventory.getContainerSize(); i >= 0; i--) {
+			if (ingredient.testVanilla(minecraftInventory.getItem(i))) {
+				minecraftInventory.removeItem(i, minecraftInventory.getItem(i).getCount());
 			}
 		}
 	}
 	
 	public int find() {
-		for (int i = 0; i < minecraftInventory.size(); i++) {
-			ItemStack stack1 = minecraftInventory.getStack(i);
+		for (int i = 0; i < minecraftInventory.getContainerSize(); i++) {
+			ItemStack stack1 = minecraftInventory.getItem(i);
 			
 			if (!stack1.isEmpty()) {
 				return i;
@@ -91,8 +91,8 @@ public class InventoryJS {
 			return find();
 		}
 		
-		for (int i = 0; i < minecraftInventory.size(); i++) {
-			ItemStack stack1 = minecraftInventory.getStack(i);
+		for (int i = 0; i < minecraftInventory.getContainerSize(); i++) {
+			ItemStack stack1 = minecraftInventory.getItem(i);
 			
 			if (ingredient.testVanilla(stack1)) {
 				return i;
@@ -105,8 +105,8 @@ public class InventoryJS {
 	public int count() {
 		int count = 0;
 		
-		for (int i = 0; i < minecraftInventory.size(); i++) {
-			count += minecraftInventory.getStack(i).getCount();
+		for (int i = 0; i < minecraftInventory.getContainerSize(); i++) {
+			count += minecraftInventory.getItem(i).getCount();
 		}
 		
 		return count;
@@ -121,8 +121,8 @@ public class InventoryJS {
 		
 		int count = 0;
 		
-		for (int i = 0; i < minecraftInventory.size(); i++) {
-			ItemStack stack1 = minecraftInventory.getStack(i);
+		for (int i = 0; i < minecraftInventory.getContainerSize(); i++) {
+			ItemStack stack1 = minecraftInventory.getItem(i);
 			
 			if (ingredient.testVanilla(stack1)) {
 				count += stack1.getCount();
@@ -135,8 +135,8 @@ public class InventoryJS {
 	public int countNonEmpty() {
 		int count = 0;
 		
-		for (int i = 0; i < minecraftInventory.size(); i++) {
-			if (!minecraftInventory.getStack(i).isEmpty()) {
+		for (int i = 0; i < minecraftInventory.getContainerSize(); i++) {
+			if (!minecraftInventory.getItem(i).isEmpty()) {
 				count++;
 			}
 		}
@@ -153,8 +153,8 @@ public class InventoryJS {
 		
 		int count = 0;
 		
-		for (int i = 0; i < minecraftInventory.size(); i++) {
-			ItemStack stack1 = minecraftInventory.getStack(i);
+		for (int i = 0; i < minecraftInventory.getContainerSize(); i++) {
+			ItemStack stack1 = minecraftInventory.getItem(i);
 			
 			if (ingredient.testVanilla(stack1)) {
 				count++;
@@ -165,8 +165,8 @@ public class InventoryJS {
 	}
 	
 	public boolean isEmpty() {
-		for (int i = 0; i < minecraftInventory.size(); i++) {
-			if (!minecraftInventory.getStack(i).isEmpty()) {
+		for (int i = 0; i < minecraftInventory.getContainerSize(); i++) {
+			if (!minecraftInventory.getItem(i).isEmpty()) {
 				return false;
 			}
 		}
@@ -186,7 +186,7 @@ public class InventoryJS {
 	}
 	
 	public void markDirty() {
-		minecraftInventory.markDirty();
+		minecraftInventory.setChanged();
 	}
 	
 	@Nullable

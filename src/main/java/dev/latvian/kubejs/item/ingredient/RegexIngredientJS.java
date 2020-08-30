@@ -1,8 +1,8 @@
 package dev.latvian.kubejs.item.ingredient;
 
 import dev.latvian.kubejs.item.ItemStackJS;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.Registry;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.regex.Pattern;
 
@@ -27,7 +27,7 @@ public class RegexIngredientJS implements IngredientJS {
 	
 	@Override
 	public boolean testVanilla(ItemStack stack) {
-		return !stack.isEmpty() && pattern.matcher(Registry.ITEM.getId(stack.getItem()).toString()).find();
+		return !stack.isEmpty() && pattern.matcher(Registry.ITEM.getKey(stack.getItem()).toString()).find();
 	}
 	
 	@Override

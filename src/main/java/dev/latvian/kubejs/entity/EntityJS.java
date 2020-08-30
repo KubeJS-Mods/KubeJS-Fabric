@@ -14,20 +14,20 @@ import dev.latvian.kubejs.util.WrappedJS;
 import dev.latvian.kubejs.world.BlockContainerJS;
 import dev.latvian.kubejs.world.ServerWorldJS;
 import dev.latvian.kubejs.world.WorldJS;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.Util;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.scoreboard.AbstractTeam;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Util;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.RayTraceContext;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.Team;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
@@ -63,12 +63,12 @@ public class EntityJS implements MessageSender, WrappedJS {
 	}
 	
 	public UUID getId() {
-		return minecraftEntity.getUuid();
+		return minecraftEntity.getUUID();
 	}
 	
 	@ID
 	public String getType() {
-		return Registry.ENTITY_TYPE.getId(minecraftEntity.getType()).toString();
+		return Registry.ENTITY_TYPE.getKey(minecraftEntity.getType()).toString();
 	}
 	
 	@Override
@@ -78,7 +78,7 @@ public class EntityJS implements MessageSender, WrappedJS {
 	
 	@MinecraftClass
 	public GameProfile getProfile() {
-		return new GameProfile(getId(), minecraftEntity.getEntityName());
+		return new GameProfile(getId(), minecraftEntity.getScoreboardName());
 	}
 	
 	@Override
@@ -88,7 +88,7 @@ public class EntityJS implements MessageSender, WrappedJS {
 	
 	@Override
 	public void tell(Object message) {
-		minecraftEntity.sendSystemMessage(Text.of(message).component(), Util.NIL_UUID);
+		minecraftEntity.sendMessage(Text.of(message).component(), Util.NIL_UUID);
 	}
 	
 	public String toString() {
@@ -105,7 +105,7 @@ public class EntityJS implements MessageSender, WrappedJS {
 	}
 	
 	public Set<String> getTags() {
-		return minecraftEntity.getScoreboardTags();
+		return minecraftEntity.getTags();
 	}
 	
 	public boolean isAlive() {
@@ -121,7 +121,7 @@ public class EntityJS implements MessageSender, WrappedJS {
 	}
 	
 	public boolean isCrouching() {
-		return minecraftEntity.isSneaking();
+		return minecraftEntity.isShiftKeyDown();
 	}
 	
 	public boolean isSprinting() {
@@ -150,23 +150,23 @@ public class EntityJS implements MessageSender, WrappedJS {
 //	}
 	
 	public boolean isMonster() {
-		return !minecraftEntity.getType().getSpawnGroup().isPeaceful();
+		return !minecraftEntity.getType().getCategory().isFriendly();
 	}
 	
 	public boolean isAnimal() {
-		return minecraftEntity.getType().getSpawnGroup().isAnimal();
+		return minecraftEntity.getType().getCategory().isPersistent();
 	}
 	
 	public boolean isAmbientCreature() {
-		return minecraftEntity.getType().getSpawnGroup() == SpawnGroup.AMBIENT;
+		return minecraftEntity.getType().getCategory() == MobCategory.AMBIENT;
 	}
 	
 	public boolean isWaterCreature() {
-		return minecraftEntity.getType().getSpawnGroup() == SpawnGroup.WATER_CREATURE;
+		return minecraftEntity.getType().getCategory() == MobCategory.WATER_CREATURE;
 	}
 	
 	public boolean isPeacefulCreature() {
-		return minecraftEntity.getType().getSpawnGroup().isPeaceful();
+		return minecraftEntity.getType().getCategory().isFriendly();
 	}
 	
 	public boolean isOnGround() {
@@ -182,19 +182,19 @@ public class EntityJS implements MessageSender, WrappedJS {
 	}
 	
 	public float getStepHeight() {
-		return minecraftEntity.stepHeight;
+		return minecraftEntity.maxUpStep;
 	}
 	
 	public void setStepHeight(float stepHeight) {
-		minecraftEntity.stepHeight = stepHeight;
+		minecraftEntity.maxUpStep = stepHeight;
 	}
 	
 	public boolean getNoClip() {
-		return minecraftEntity.noClip;
+		return minecraftEntity.noPhysics;
 	}
 	
 	public void setNoClip(boolean noClip) {
-		minecraftEntity.noClip = noClip;
+		minecraftEntity.noPhysics = noClip;
 	}
 	
 	public boolean isSilent() {
@@ -206,7 +206,7 @@ public class EntityJS implements MessageSender, WrappedJS {
 	}
 	
 	public boolean getNoGravity() {
-		return minecraftEntity.hasNoGravity();
+		return minecraftEntity.isNoGravity();
 	}
 	
 	public void setNoGravity(boolean noGravity) {
@@ -218,7 +218,7 @@ public class EntityJS implements MessageSender, WrappedJS {
 	}
 	
 	public void setX(double x) {
-		minecraftEntity.setPos(x, getY(), getZ());
+		minecraftEntity.setPosRaw(x, getY(), getZ());
 	}
 	
 	public double getY() {
@@ -226,7 +226,7 @@ public class EntityJS implements MessageSender, WrappedJS {
 	}
 	
 	public void setY(double y) {
-		minecraftEntity.setPos(getX(), y, getZ());
+		minecraftEntity.setPosRaw(getX(), y, getZ());
 	}
 	
 	public double getZ() {
@@ -234,58 +234,58 @@ public class EntityJS implements MessageSender, WrappedJS {
 	}
 	
 	public void setZ(double z) {
-		minecraftEntity.setPos(getX(), getY(), z);
+		minecraftEntity.setPosRaw(getX(), getY(), z);
 	}
 	
 	public float getYaw() {
-		return minecraftEntity.yaw;
+		return minecraftEntity.yRot;
 	}
 	
 	public void setYaw(float yaw) {
-		minecraftEntity.yaw = yaw;
+		minecraftEntity.yRot = yaw;
 	}
 	
 	public float getPitch() {
-		return minecraftEntity.pitch;
+		return minecraftEntity.xRot;
 	}
 	
 	public void setPitch(float pitch) {
-		minecraftEntity.pitch = pitch;
+		minecraftEntity.xRot = pitch;
 	}
 	
 	public double getMotionX() {
-		return minecraftEntity.getVelocity().x;
+		return minecraftEntity.getDeltaMovement().x;
 	}
 	
 	public void setMotionX(double x) {
-		Vec3d m = minecraftEntity.getVelocity();
-		minecraftEntity.setVelocity(x, m.y, m.z);
+		Vec3 m = minecraftEntity.getDeltaMovement();
+		minecraftEntity.setDeltaMovement(x, m.y, m.z);
 	}
 	
 	public double getMotionY() {
-		return minecraftEntity.getVelocity().y;
+		return minecraftEntity.getDeltaMovement().y;
 	}
 	
 	public void setMotionY(double y) {
-		Vec3d m = minecraftEntity.getVelocity();
-		minecraftEntity.setVelocity(m.x, y, m.z);
+		Vec3 m = minecraftEntity.getDeltaMovement();
+		minecraftEntity.setDeltaMovement(m.x, y, m.z);
 	}
 	
 	public double getMotionZ() {
-		return minecraftEntity.getVelocity().z;
+		return minecraftEntity.getDeltaMovement().z;
 	}
 	
 	public void setMotionZ(double z) {
-		Vec3d m = minecraftEntity.getVelocity();
-		minecraftEntity.setVelocity(m.x, m.y, z);
+		Vec3 m = minecraftEntity.getDeltaMovement();
+		minecraftEntity.setDeltaMovement(m.x, m.y, z);
 	}
 	
 	public void setMotion(double x, double y, double z) {
-		minecraftEntity.setVelocity(x, y, z);
+		minecraftEntity.setDeltaMovement(x, y, z);
 	}
 	
 	public int getTicksExisted() {
-		return minecraftEntity.age;
+		return minecraftEntity.tickCount;
 	}
 	
 	public void setPosition(BlockContainerJS block) {
@@ -301,17 +301,17 @@ public class EntityJS implements MessageSender, WrappedJS {
 	}
 	
 	public void setPositionAndRotation(double x, double y, double z, float yaw, float pitch) {
-		minecraftEntity.refreshPositionAndAngles(x, y, z, yaw, pitch);
+		minecraftEntity.moveTo(x, y, z, yaw, pitch);
 	}
 	
 	public void addMotion(double x, double y, double z) {
-		minecraftEntity.setVelocity(minecraftEntity.getVelocity().add(x, y, z));
+		minecraftEntity.setDeltaMovement(minecraftEntity.getDeltaMovement().add(x, y, z));
 	}
 	
 	@Override
 	public int runCommand(String command) {
 		if (world instanceof ServerWorldJS) {
-			return world.getServer().minecraftServer.getCommandManager().execute(minecraftEntity.getCommandSource(), command);
+			return world.getServer().minecraftServer.getCommands().performCommand(minecraftEntity.createCommandSourceStack(), command);
 		}
 		
 		return 0;
@@ -326,7 +326,7 @@ public class EntityJS implements MessageSender, WrappedJS {
 	}
 	
 	public void removePassengers() {
-		minecraftEntity.removeAllPassengers();
+		minecraftEntity.ejectPassengers();
 	}
 	
 	public void dismountRidingEntity() {
@@ -334,7 +334,7 @@ public class EntityJS implements MessageSender, WrappedJS {
 	}
 	
 	public EntityArrayList getPassengers() {
-		return new EntityArrayList(world, minecraftEntity.getPassengerList());
+		return new EntityArrayList(world, minecraftEntity.getPassengers());
 	}
 
 //	public boolean isPassenger(EntityJS e)
@@ -343,7 +343,7 @@ public class EntityJS implements MessageSender, WrappedJS {
 //	}
 	
 	public EntityArrayList getRecursivePassengers() {
-		return new EntityArrayList(world, minecraftEntity.getPassengersDeep());
+		return new EntityArrayList(world, minecraftEntity.getIndirectPassengers());
 	}
 	
 	@Nullable
@@ -352,17 +352,17 @@ public class EntityJS implements MessageSender, WrappedJS {
 	}
 	
 	public String getTeamId() {
-		AbstractTeam team = minecraftEntity.getScoreboardTeam();
+		Team team = minecraftEntity.getTeam();
 		return team == null ? "" : team.getName();
 	}
 	
 	public boolean isOnSameTeam(EntityJS e) {
-		return minecraftEntity.isTeammate(e.minecraftEntity);
+		return minecraftEntity.isAlliedTo(e.minecraftEntity);
 	}
 	
 	public boolean isOnScoreboardTeam(String teamID) {
-		AbstractTeam team = minecraftEntity.getEntityWorld().getScoreboard().getTeam(teamID);
-		return team != null && minecraftEntity.isTeamPlayer(team);
+		Team team = minecraftEntity.getCommandSenderWorld().getScoreboard().getPlayerTeam(teamID);
+		return team != null && minecraftEntity.isAlliedTo(team);
 	}
 	
 	public void setCustomName(Text name) {
@@ -386,7 +386,7 @@ public class EntityJS implements MessageSender, WrappedJS {
 	}
 	
 	public Direction getHorizontalFacing() {
-		return minecraftEntity.getHorizontalFacing();
+		return minecraftEntity.getDirection();
 	}
 	
 	public Direction getFacing() {
@@ -400,24 +400,24 @@ public class EntityJS implements MessageSender, WrappedJS {
 	}
 	
 	public float getEyeHeight() {
-		return minecraftEntity.getStandingEyeHeight();
+		return minecraftEntity.getEyeHeight();
 	}
 	
 	public BlockContainerJS getBlock() {
-		return new BlockContainerJS(minecraftEntity.world, minecraftEntity.getBlockPos());
+		return new BlockContainerJS(minecraftEntity.level, minecraftEntity.blockPosition());
 	}
 	
 	public void setOnFire(int seconds) {
-		minecraftEntity.setFireTicks(seconds);
+		minecraftEntity.setRemainingFireTicks(seconds);
 	}
 	
 	public void extinguish() {
-		minecraftEntity.extinguish();
+		minecraftEntity.clearFire();
 	}
 	
 	public MapJS getFullNBT() {
 		CompoundTag nbt = new CompoundTag();
-		minecraftEntity.toTag(nbt);
+		minecraftEntity.saveWithoutId(nbt);
 		return MapJS.of(nbt);
 	}
 	
@@ -425,7 +425,7 @@ public class EntityJS implements MessageSender, WrappedJS {
 		CompoundTag nbt = MapJS.nbt(n);
 		
 		if (nbt != null) {
-			minecraftEntity.fromTag(nbt);
+			minecraftEntity.load(nbt);
 		}
 	}
 
@@ -456,7 +456,7 @@ public class EntityJS implements MessageSender, WrappedJS {
 		SoundEvent event = Registry.SOUND_EVENT.get(UtilsJS.getMCID(id));
 		
 		if (event != null) {
-			minecraftEntity.world.playSound(null, getX(), getY(), getZ(), event, minecraftEntity.getSoundCategory(), volume, pitch);
+			minecraftEntity.level.playSound(null, getX(), getY(), getZ(), event, minecraftEntity.getSoundSource(), volume, pitch);
 		}
 	}
 	
@@ -465,7 +465,7 @@ public class EntityJS implements MessageSender, WrappedJS {
 	}
 	
 	public void spawn() {
-		world.minecraftWorld.spawnEntity(minecraftEntity);
+		world.minecraftWorld.addFreshEntity(minecraftEntity);
 	}
 	
 	public void attack(String source, float hp) {
@@ -478,7 +478,7 @@ public class EntityJS implements MessageSender, WrappedJS {
 					
 					if (Modifier.isStatic(field.getModifiers()) && field.getType() == DamageSource.class) {
 						DamageSource s = (DamageSource) field.get(null);
-						damageSourceMap.put(s.getName(), s);
+						damageSourceMap.put(s.getMsgId(), s);
 					}
 				}
 			} catch (Exception ex) {
@@ -486,25 +486,25 @@ public class EntityJS implements MessageSender, WrappedJS {
 		}
 		
 		DamageSource s = damageSourceMap.getOrDefault(source, DamageSource.GENERIC);
-		minecraftEntity.damage(s, hp);
+		minecraftEntity.hurt(s, hp);
 	}
 	
 	public void attack(float hp) {
-		minecraftEntity.damage(DamageSource.GENERIC, hp);
+		minecraftEntity.hurt(DamageSource.GENERIC, hp);
 	}
 	
 	public HitResult rayTraceResult(double distance) {
-		double f = minecraftEntity.pitch;
-		double f1 = minecraftEntity.yaw;
-		Vec3d vec3d = minecraftEntity.getCameraPosVec(1);
+		double f = minecraftEntity.xRot;
+		double f1 = minecraftEntity.yRot;
+		Vec3 vec3d = minecraftEntity.getEyePosition(1);
 		double f2 = Math.cos(-f1 * (Math.PI / 180D) - (float) Math.PI);
 		double f3 = Math.sin(-f1 * (Math.PI / 180D) - (float) Math.PI);
 		double f4 = -Math.cos(-f * (Math.PI / 180D));
 		double f5 = Math.sin(-f * (Math.PI / 180D));
 		double f6 = f3 * f4;
 		double f7 = f2 * f4;
-		Vec3d vec3d1 = vec3d.add(f6 * distance, f5 * distance, f7 * distance);
-		return minecraftEntity.world.rayTrace(new RayTraceContext(vec3d, vec3d1, RayTraceContext.ShapeType.OUTLINE, RayTraceContext.FluidHandling.ANY, minecraftEntity));
+		Vec3 vec3d1 = vec3d.add(f6 * distance, f5 * distance, f7 * distance);
+		return minecraftEntity.level.clip(new ClipContext(vec3d, vec3d1, ClipContext.Block.OUTLINE, ClipContext.Fluid.ANY, minecraftEntity));
 	}
 	
 	@Nullable
@@ -513,13 +513,13 @@ public class EntityJS implements MessageSender, WrappedJS {
 		HitResult ray = rayTraceResult(distance);
 		
 		if (ray.getType() != HitResult.Type.MISS) {
-			map.put("hitX", ray.getPos().x);
-			map.put("hitY", ray.getPos().y);
-			map.put("hitZ", ray.getPos().z);
+			map.put("hitX", ray.getLocation().x);
+			map.put("hitY", ray.getLocation().y);
+			map.put("hitZ", ray.getLocation().z);
 			
 			if (ray instanceof BlockHitResult) {
 				map.put("block", new BlockContainerJS(getWorld().minecraftWorld, ((BlockHitResult) ray).getBlockPos()));
-				map.put("facing", ((BlockHitResult) ray).getSide());
+				map.put("facing", ((BlockHitResult) ray).getDirection());
 			} else if (ray instanceof EntityHitResult) {
 				map.put("entity", getWorld().getEntity(((EntityHitResult) ray).getEntity()));
 			}

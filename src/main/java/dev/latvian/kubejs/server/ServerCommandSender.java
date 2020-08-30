@@ -1,18 +1,18 @@
 package dev.latvian.kubejs.server;
 
-import net.minecraft.command.argument.EntityAnchorArgumentType;
-import net.minecraft.server.command.CommandOutput;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
-import net.minecraft.util.math.Vec2f;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.commands.CommandSource;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * @author LatvianModder
  */
-public class ServerCommandSender extends ServerCommandSource {
+public class ServerCommandSender extends CommandSourceStack {
 	public ServerCommandSender(ServerJS w) {
-		super(CommandOutput.DUMMY, Vec3d.ZERO, Vec2f.ZERO, (ServerWorld) w.getOverworld().minecraftWorld, 4, "Server", new LiteralText("Server"), w.minecraftServer, null, true, (context, success, result) -> {}, EntityAnchorArgumentType.EntityAnchor.FEET);
+		super(CommandSource.NULL, Vec3.ZERO, Vec2.ZERO, (ServerLevel) w.getOverworld().minecraftWorld, 4, "Server", new TextComponent("Server"), w.minecraftServer, null, true, (context, success, result) -> {}, EntityAnchorArgument.Anchor.FEET);
 	}
 }

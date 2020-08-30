@@ -4,7 +4,7 @@ import com.mojang.authlib.GameProfile;
 import dev.latvian.kubejs.server.ServerJS;
 import dev.latvian.kubejs.world.ServerWorldJS;
 import dev.latvian.kubejs.world.WorldJS;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -12,7 +12,7 @@ import java.util.UUID;
 /**
  * @author LatvianModder
  */
-public class ServerPlayerDataJS extends PlayerDataJS<ServerPlayerEntity, ServerPlayerJS> {
+public class ServerPlayerDataJS extends PlayerDataJS<ServerPlayer, ServerPlayerJS> {
 	private final ServerJS server;
 	private final UUID id;
 	private final String name;
@@ -53,19 +53,19 @@ public class ServerPlayerDataJS extends PlayerDataJS<ServerPlayerEntity, ServerP
 	
 	@Override
 	@Nullable
-	public ServerPlayerEntity getMinecraftPlayer() {
-		return server.minecraftServer.getPlayerManager().getPlayer(getId());
+	public ServerPlayer getMinecraftPlayer() {
+		return server.minecraftServer.getPlayerList().getPlayer(getId());
 	}
 	
 	@Override
 	public ServerPlayerJS getPlayer() {
-		ServerPlayerEntity p = getMinecraftPlayer();
+		ServerPlayer p = getMinecraftPlayer();
 		
 		if (p == null) {
 			throw new NullPointerException("Player entity for " + getName() + " not found!");
 		}
 		
-		return new ServerPlayerJS(this, (ServerWorldJS) server.getWorld(p.world), p);
+		return new ServerPlayerJS(this, (ServerWorldJS) server.getWorld(p.level), p);
 	}
 	
 	@Override

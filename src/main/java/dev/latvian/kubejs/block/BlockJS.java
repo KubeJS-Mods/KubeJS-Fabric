@@ -1,19 +1,19 @@
 package dev.latvian.kubejs.block;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ public class BlockJS extends Block {
 	public BlockJS(BlockBuilder p) {
 		super(p.createProperties());
 		properties = p;
-		shape = VoxelShapes.fullCube();
+		shape = Shapes.block();
 		
 		if (!properties.customShape.isEmpty()) {
 			List<VoxelShape> s = new ArrayList<>(properties.customShape);
@@ -37,57 +37,57 @@ public class BlockJS extends Block {
 			
 			if (s.size() > 1) {
 				s.remove(0);
-				shape = VoxelShapes.union(shape, s.toArray(new VoxelShape[0]));
+				shape = Shapes.or(shape, s.toArray(new VoxelShape[0]));
 			}
 		}
 		
 		if (properties.waterlogged) {
-			setDefaultState(stateManager.getDefaultState().with(Properties.WATERLOGGED, false));
+			registerDefaultState(stateDefinition.any().setValue(BlockStateProperties.WATERLOGGED, false));
 		}
 	}
 	
 	@Override
 	@Deprecated
-	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
 		return shape;
 	}
 	
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		super.appendProperties(builder);
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		super.createBlockStateDefinition(builder);
 		if (BlockBuilder.current.waterlogged) {
-			builder.add(Properties.WATERLOGGED);
+			builder.add(BlockStateProperties.WATERLOGGED);
 		}
 	}
 	
 	@Override
 	@Deprecated
 	public FluidState getFluidState(BlockState state) {
-		return properties.waterlogged && state.get(Properties.WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
+		return properties.waterlogged && state.getValue(BlockStateProperties.WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
 	}
 	
 	@Nullable
 	@Override
-	public BlockState getPlacementState(ItemPlacementContext context) {
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
 		if (!properties.waterlogged) {
-			return getDefaultState();
+			return defaultBlockState();
 		}
 		
-		return getDefaultState().with(Properties.WATERLOGGED, context.getWorld().getFluidState(context.getBlockPos()).getFluid() == Fluids.WATER);
+		return defaultBlockState().setValue(BlockStateProperties.WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER);
 	}
 	
 	@Override
 	@Deprecated
-	public BlockState getStateForNeighborUpdate(BlockState state, Direction facing, BlockState facingState, WorldAccess world, BlockPos pos, BlockPos facingPos) {
-		if (properties.waterlogged && state.get(Properties.WATERLOGGED)) {
-			world.getFluidTickScheduler().schedule(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
+	public BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor world, BlockPos pos, BlockPos facingPos) {
+		if (properties.waterlogged && state.getValue(BlockStateProperties.WATERLOGGED)) {
+			world.getLiquidTicks().scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
 		}
 		
 		return state;
 	}
 	
 	@Override
-	public boolean isTranslucent(BlockState state, BlockView reader, BlockPos pos) {
-		return !(properties.waterlogged && state.get(Properties.WATERLOGGED));
+	public boolean propagatesSkylightDown(BlockState state, BlockGetter reader, BlockPos pos) {
+		return !(properties.waterlogged && state.getValue(BlockStateProperties.WATERLOGGED));
 	}
 }

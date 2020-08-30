@@ -10,16 +10,16 @@ import dev.latvian.kubejs.fluid.BucketItemJS;
 import dev.latvian.kubejs.fluid.FluidBuilder;
 import dev.latvian.kubejs.player.InventoryChangedEventJS;
 import dev.latvian.kubejs.script.ScriptType;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -61,61 +61,61 @@ public class KubeJSItemEventHandler implements KubeJSInitializer {
 		}
 	}
 	
-	private ActionResult rightClick(PlayerEntity player, ItemStack stack, Hand hand, BlockPos position) {
+	private InteractionResult rightClick(Player player, ItemStack stack, InteractionHand hand, BlockPos position) {
 		if (new ItemRightClickEventJS(player, stack, hand, position).post(KubeJSEvents.ITEM_RIGHT_CLICK)) {
-			return ActionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		}
 		
-		return ActionResult.PASS;
+		return InteractionResult.PASS;
 	}
 	
-	private void rightClickEmpty(PlayerEntity player, Hand hand, BlockPos position) {
+	private void rightClickEmpty(Player player, InteractionHand hand, BlockPos position) {
 		new ItemRightClickEmptyEventJS(player, hand, position).post(KubeJSEvents.ITEM_RIGHT_CLICK_EMPTY);
 	}
 	
-	private void leftClickEmpty(PlayerEntity player, Hand hand, BlockPos position) {
+	private void leftClickEmpty(Player player, InteractionHand hand, BlockPos position) {
 		new ItemLeftClickEventJS(player, hand, position).post(KubeJSEvents.ITEM_LEFT_CLICK);
 	}
 	
-	private ActionResult pickup(PlayerEntity player, ItemEntity entity) {
-		if (player != null && player.world != null && new ItemPickupEventJS(player, entity).post(KubeJSEvents.ITEM_PICKUP)) {
-			return ActionResult.SUCCESS;
+	private InteractionResult pickup(Player player, ItemEntity entity) {
+		if (player != null && player.level != null && new ItemPickupEventJS(player, entity).post(KubeJSEvents.ITEM_PICKUP)) {
+			return InteractionResult.SUCCESS;
 		}
 		
-		return ActionResult.PASS;
+		return InteractionResult.PASS;
 	}
 	
-	private ActionResult toss(PlayerEntity player, ItemEntity entity) {
-		if (player != null && player.world != null && new ItemTossEventJS(player, entity).post(KubeJSEvents.ITEM_TOSS)) {
-			return ActionResult.SUCCESS;
+	private InteractionResult toss(Player player, ItemEntity entity) {
+		if (player != null && player.level != null && new ItemTossEventJS(player, entity).post(KubeJSEvents.ITEM_TOSS)) {
+			return InteractionResult.SUCCESS;
 		}
 		
-		return ActionResult.PASS;
+		return InteractionResult.PASS;
 	}
 	
-	private ActionResult entityInteract(PlayerEntity player, Entity entity, Hand hand, BlockPos position) {
+	private InteractionResult entityInteract(Player player, Entity entity, InteractionHand hand, BlockPos position) {
 		if (new ItemEntityInteractEventJS(player, entity, hand, position).post(KubeJSEvents.ITEM_ENTITY_INTERACT)) {
-			return ActionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		}
 		
-		return ActionResult.FAIL;
+		return InteractionResult.FAIL;
 	}
 	
-	private void crafted(PlayerEntity player, Inventory inventory, ItemStack result) {
-		if (player instanceof ServerPlayerEntity && !result.isEmpty()) {
+	private void crafted(Player player, Container inventory, ItemStack result) {
+		if (player instanceof ServerPlayer && !result.isEmpty()) {
 			new ItemCraftedEventJS(player, inventory, result).post(KubeJSEvents.ITEM_CRAFTED);
-			new InventoryChangedEventJS((ServerPlayerEntity) player, result, -1).post(KubeJSEvents.PLAYER_INVENTORY_CHANGED);
+			new InventoryChangedEventJS((ServerPlayer) player, result, -1).post(KubeJSEvents.PLAYER_INVENTORY_CHANGED);
 		}
 	}
 	
-	private void smelted(Inventory inventory, ItemStack result) {
+	private void smelted(Container inventory, ItemStack result) {
 		if (!result.isEmpty()) {
 			new ItemSmeltedEventJS(inventory, result).post(ScriptType.SERVER, KubeJSEvents.ITEM_SMELTED);
 		}
 	}
 	
-	private void destroyed(PlayerEntity player, @Nonnull ItemStack original, @Nullable Hand hand) {
-		if (player instanceof ServerPlayerEntity) {
+	private void destroyed(Player player, @Nonnull ItemStack original, @Nullable InteractionHand hand) {
+		if (player instanceof ServerPlayer) {
 			new ItemDestroyedEventJS(player, original, hand).post(KubeJSEvents.ITEM_DESTROYED);
 		}
 	}

@@ -3,12 +3,12 @@ package dev.latvian.kubejs.block.predicate;
 import dev.latvian.kubejs.docs.ID;
 import dev.latvian.kubejs.util.UtilsJS;
 import dev.latvian.kubejs.world.BlockContainerJS;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.state.property.Property;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 
 import java.util.*;
 
@@ -21,7 +21,7 @@ public class BlockIDPredicate implements BlockPredicate {
 		private Object value;
 	}
 	
-	private final Identifier id;
+	private final ResourceLocation id;
 	private Map<String, String> properties;
 	private Block cachedBlock;
 	private List<PropertyObject> cachedProperties;
@@ -86,7 +86,7 @@ public class BlockIDPredicate implements BlockPredicate {
 			
 			Map<String, Property<?>> map = new HashMap<>();
 			
-			for (Property<?> property : getBlock().getDefaultState().getProperties()) {
+			for (Property<?> property : getBlock().defaultBlockState().getProperties()) {
 				map.put(property.getName(), property);
 			}
 			
@@ -94,7 +94,7 @@ public class BlockIDPredicate implements BlockPredicate {
 				Property<?> property = map.get(entry.getKey());
 				
 				if (property != null) {
-					Optional<?> o = property.parse(entry.getValue());
+					Optional<?> o = property.getValue(entry.getValue());
 					
 					if (o.isPresent()) {
 						PropertyObject po = new PropertyObject();
@@ -110,10 +110,10 @@ public class BlockIDPredicate implements BlockPredicate {
 	}
 	
 	public BlockState getBlockState() {
-		BlockState state = getBlock().getDefaultState();
+		BlockState state = getBlock().defaultBlockState();
 		
 		for (PropertyObject object : getBlockProperties()) {
-			state = state.with(object.property, UtilsJS.cast(object.value));
+			state = state.setValue(object.property, UtilsJS.cast(object.value));
 		}
 		
 		return state;
@@ -134,7 +134,7 @@ public class BlockIDPredicate implements BlockPredicate {
 		}
 		
 		for (PropertyObject object : getBlockProperties()) {
-			if (!state.get(object.property).equals(object.value)) {
+			if (!state.getValue(object.property).equals(object.value)) {
 				return false;
 			}
 		}

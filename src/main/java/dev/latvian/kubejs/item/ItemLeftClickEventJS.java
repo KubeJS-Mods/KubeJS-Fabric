@@ -2,19 +2,19 @@ package dev.latvian.kubejs.item;
 
 import dev.latvian.kubejs.entity.EntityJS;
 import dev.latvian.kubejs.player.PlayerEventJS;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
 
 /**
  * @author LatvianModder
  */
 public class ItemLeftClickEventJS extends PlayerEventJS {
-	public final PlayerEntity player;
-	public final Hand hand;
+	public final Player player;
+	public final InteractionHand hand;
 	public final BlockPos position;
 	
-	public ItemLeftClickEventJS(PlayerEntity player, Hand hand, BlockPos position) {
+	public ItemLeftClickEventJS(Player player, InteractionHand hand, BlockPos position) {
 		this.player = player;
 		this.hand = hand;
 		this.position = position;
@@ -26,6 +26,6 @@ public class ItemLeftClickEventJS extends PlayerEventJS {
 	}
 	
 	public ItemStackJS getItem() {
-		return ItemStackJS.of(player.getStackInHand(hand));
+		return ItemStackJS.of(player.getItemInHand(hand));
 	}
 }

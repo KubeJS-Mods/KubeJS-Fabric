@@ -8,11 +8,11 @@ import dev.latvian.kubejs.script.ScriptType;
 import dev.latvian.kubejs.server.ServerSettings;
 import dev.latvian.kubejs.text.TextColor;
 import dev.latvian.kubejs.util.MapJS;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.item.Items;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Rarity;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.level.block.Blocks;
 
 /**
  * @author LatvianModder
@@ -71,8 +71,8 @@ public class DefaultBindings {
 //		event.addConstant("TOOL_TYPE_PICKAXE", ToolType.PICKAXE);
 //		event.addConstant("TOOL_TYPE_SHOVEL", ToolType.SHOVEL);
 		
-		event.addConstant("MAIN_HAND", Hand.MAIN_HAND);
-		event.addConstant("OFF_HAND", Hand.OFF_HAND);
+		event.addConstant("MAIN_HAND", InteractionHand.MAIN_HAND);
+		event.addConstant("OFF_HAND", InteractionHand.OFF_HAND);
 		
 		KubeJS.instance.proxy.clientBindings(event);
 	}

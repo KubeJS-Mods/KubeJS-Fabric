@@ -1,6 +1,6 @@
 package dev.latvian.kubejs.core;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 public interface TradeOfferKJS {
 	ItemStack getFirstBuyItem();

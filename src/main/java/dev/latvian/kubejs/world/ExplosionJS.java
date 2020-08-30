@@ -1,22 +1,22 @@
 package dev.latvian.kubejs.world;
 
 import dev.latvian.kubejs.entity.EntityJS;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.explosion.Explosion;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 
 /**
  * @author LatvianModder
  */
 public class ExplosionJS {
-	private final WorldAccess world;
+	private final LevelAccessor world;
 	public final double x, y, z;
 	public EntityJS exploder;
 	public float strength;
 	public boolean causesFire;
-	public Explosion.DestructionType explosionMode;
+	public Explosion.BlockInteraction explosionMode;
 	
-	public ExplosionJS(WorldAccess w, double _x, double _y, double _z) {
+	public ExplosionJS(LevelAccessor w, double _x, double _y, double _z) {
 		world = w;
 		x = _x;
 		y = _y;
@@ -24,7 +24,7 @@ public class ExplosionJS {
 		exploder = null;
 		strength = 3F;
 		causesFire = false;
-		explosionMode = Explosion.DestructionType.BREAK;
+		explosionMode = Explosion.BlockInteraction.BREAK;
 	}
 	
 	public ExplosionJS exploder(EntityJS entity) {
@@ -43,18 +43,18 @@ public class ExplosionJS {
 	}
 	
 	public ExplosionJS damagesTerrain(boolean b) {
-		explosionMode = b ? Explosion.DestructionType.BREAK : Explosion.DestructionType.NONE;
+		explosionMode = b ? Explosion.BlockInteraction.BREAK : Explosion.BlockInteraction.NONE;
 		return this;
 	}
 	
 	public ExplosionJS destroysTerrain(boolean b) {
-		explosionMode = b ? Explosion.DestructionType.DESTROY : Explosion.DestructionType.NONE;
+		explosionMode = b ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE;
 		return this;
 	}
 	
 	public void explode() {
-		if (world instanceof World) {
-			((World) world).createExplosion(exploder == null ? null : exploder.minecraftEntity, x, y, z, strength, causesFire, explosionMode);
+		if (world instanceof Level) {
+			((Level) world).explode(exploder == null ? null : exploder.minecraftEntity, x, y, z, strength, causesFire, explosionMode);
 		}
 	}
 }

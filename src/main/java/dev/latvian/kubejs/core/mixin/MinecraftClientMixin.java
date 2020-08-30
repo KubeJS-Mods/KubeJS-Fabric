@@ -6,11 +6,11 @@ import dev.latvian.kubejs.client.ClientProperties;
 import dev.latvian.kubejs.client.KubeJSClientEventHandler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,13 +22,13 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import javax.annotation.Nullable;
 
 @Environment(EnvType.CLIENT)
-@Mixin(MinecraftClient.class)
+@Mixin(Minecraft.class)
 public class MinecraftClientMixin {
 	@Shadow
 	@Nullable
-	public ClientPlayerEntity player;
+	public LocalPlayer player;
 	
-	@Inject(method = "getWindowTitle", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "createTitle", at = @At("HEAD"), cancellable = true)
 	private void getWindowTitle(CallbackInfoReturnable<String> ci) {
 		String s = ClientProperties.get().title;
 		
@@ -37,27 +37,27 @@ public class MinecraftClientMixin {
 		}
 	}
 	
-	@Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V",
-	        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;reset()V"))
-	private void disconnect(Screen screen, CallbackInfo ci) {
+	@Inject(method = "clearLevel(Lnet/minecraft/client/gui/screens/Screen;)V",
+	        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;resetData()V"))
+	private void clearLevel(Screen screen, CallbackInfo ci) {
 		KubeJSClientEventHandler.ON_LOGOUT.invoker().run();
 	}
 
 	// TODO: Perhaps make this also happen on the server.
-	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Hand;values()[Lnet/minecraft/util/Hand;"),
-	        method = "doItemUse()V")
+	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/InteractionHand;values()[Lnet/minecraft/world/InteractionHand;"),
+	        method = "startUseItem()V")
 	void onRightClickUse(CallbackInfo ci) {
-		ItemStack stack = player.getStackInHand(Hand.MAIN_HAND);
+		ItemStack stack = player.getItemInHand(InteractionHand.MAIN_HAND);
 		if (stack.isEmpty()) {
-			EmptyRightClickAirCallback.EVENT.invoker().rightClickEmpty(MinecraftClient.getInstance().player, Hand.MAIN_HAND, MinecraftClient.getInstance().player.getBlockPos());
+			EmptyRightClickAirCallback.EVENT.invoker().rightClickEmpty(Minecraft.getInstance().player, InteractionHand.MAIN_HAND, Minecraft.getInstance().player.blockPosition());
 		}
 	}
 
 	// TODO: Perhaps make this also happen on the server.
 	@Inject(locals = LocalCapture.CAPTURE_FAILHARD,
-	        at = @At(value = "INVOKE", target = "Lnet/minecraft/util/hit/BlockHitResult;getBlockPos()Lnet/minecraft/util/math/BlockPos;"),
-	        method = "doAttack()V")
+	        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/BlockHitResult;getBlockPos()Lnet/minecraft/core/BlockPos;"),
+	        method = "startAttack")
 	void onLeftClickUse(CallbackInfo ci) {
-		EmptyLeftClickAirCallback.EVENT.invoker().leftClickEmpty(MinecraftClient.getInstance().player, Hand.MAIN_HAND, MinecraftClient.getInstance().player.getBlockPos());
+		EmptyLeftClickAirCallback.EVENT.invoker().leftClickEmpty(Minecraft.getInstance().player, InteractionHand.MAIN_HAND, Minecraft.getInstance().player.blockPosition());
 	}
 }

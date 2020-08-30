@@ -5,10 +5,11 @@ import dev.latvian.kubejs.util.BuilderBase;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.tag.TagRegistry;
-import net.minecraft.block.Block;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public class BlockBuilder extends BuilderBase {
 	public float hardness;
 	public float resistance;
 	public float lightLevel;
-	public Identifier harvestTool;
+	public ResourceLocation harvestTool;
 	public int harvestLevel;
 	public boolean opaque;
 	public boolean fullBlock;
@@ -99,7 +100,7 @@ public class BlockBuilder extends BuilderBase {
 		return this;
 	}
 	
-	public BlockBuilder harvestTool(Identifier tool, int level) {
+	public BlockBuilder harvestTool(ResourceLocation tool, int level) {
 		harvestTool = tool;
 		harvestLevel = level;
 		return this;
@@ -160,7 +161,7 @@ public class BlockBuilder extends BuilderBase {
 	}
 	
 	public BlockBuilder shapeCube(double x0, double y0, double z0, double x1, double y1, double z1) {
-		customShape.add(Block.createCuboidShape(x0, y0, z0, x1, y1, z1));
+		customShape.add(Block.box(x0, y0, z0, x1, y1, z1));
 		return this;
 	}
 	
@@ -174,9 +175,9 @@ public class BlockBuilder extends BuilderBase {
 		return this;
 	}
 	
-	public Block.Settings createProperties() {
+	public BlockBehaviour.Properties createProperties() {
 		FabricBlockSettings properties = FabricBlockSettings.of(material.getMinecraftMaterial());
-		properties.sounds(material.getSound());
+		properties.sound(material.getSound());
 		
 		if (resistance >= 0F) {
 			properties.strength(hardness, resistance);
@@ -191,7 +192,7 @@ public class BlockBuilder extends BuilderBase {
 		}
 		
 		if (notSolid) {
-			properties.nonOpaque();
+			properties.noOcclusion();
 		}
 		
 		return properties;

@@ -3,10 +3,10 @@ package dev.latvian.kubejs.item;
 import com.google.common.collect.Lists;
 import dev.latvian.kubejs.docs.ID;
 import dev.latvian.kubejs.util.UtilsJS;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.item.FoodComponent;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.food.FoodProperties;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class FoodBuilder {
 	private boolean meat;
 	private boolean alwaysEdible;
 	private boolean fastToEat;
-	private final List<Pair<Supplier<StatusEffectInstance>, Float>> effects = Lists.newArrayList();
+	private final List<Pair<Supplier<MobEffectInstance>, Float>> effects = Lists.newArrayList();
 	public Consumer<ItemFoodEatenEventJS> eaten;
 	
 	public FoodBuilder hunger(int h) {
@@ -51,8 +51,8 @@ public class FoodBuilder {
 	}
 	
 	public FoodBuilder effect(@ID String potion, int duration, int amplifier, float probability) {
-		Identifier id = UtilsJS.getMCID(potion);
-		effects.add(Pair.of(() -> new StatusEffectInstance(Registry.STATUS_EFFECT.get(id), duration, amplifier), probability));
+		ResourceLocation id = UtilsJS.getMCID(potion);
+		effects.add(Pair.of(() -> new MobEffectInstance(Registry.MOB_EFFECT.get(id), duration, amplifier), probability));
 		return this;
 	}
 	
@@ -61,25 +61,25 @@ public class FoodBuilder {
 		return this;
 	}
 	
-	public FoodComponent build() {
-		FoodComponent.Builder b = new FoodComponent.Builder();
-		b.hunger(hunger);
-		b.saturationModifier(saturation);
+	public FoodProperties build() {
+		FoodProperties.Builder b = new FoodProperties.Builder();
+		b.nutrition(hunger);
+		b.saturationMod(saturation);
 		
 		if (meat) {
 			b.meat();
 		}
 		
 		if (alwaysEdible) {
-			b.alwaysEdible();
+			b.alwaysEat();
 		}
 		
 		if (fastToEat) {
-			b.snack();
+			b.fast();
 		}
 		
-		for (Pair<Supplier<StatusEffectInstance>, Float> effect : effects) {
-			b.statusEffect(effect.getKey().get(), effect.getRight());
+		for (Pair<Supplier<MobEffectInstance>, Float> effect : effects) {
+			b.effect(effect.getKey().get(), effect.getRight());
 		}
 		
 		return b.build();

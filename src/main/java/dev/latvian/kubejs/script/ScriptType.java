@@ -3,7 +3,7 @@ package dev.latvian.kubejs.script;
 import dev.latvian.kubejs.KubeJS;
 import dev.latvian.kubejs.server.ServerScriptManager;
 import dev.latvian.kubejs.util.ConsoleJS;
-import net.minecraft.world.WorldView;
+import net.minecraft.world.level.LevelReader;
 import org.apache.logging.log4j.LogManager;
 
 import java.util.function.Supplier;
@@ -16,8 +16,8 @@ public enum ScriptType {
 	SERVER("server", "KubeJS Server", () -> ServerScriptManager.instance.scriptManager),
 	CLIENT("client", "KubeJS Client", () -> KubeJS.clientScriptManager);
 	
-	public static ScriptType of(WorldView world) {
-		return world.isClient() ? CLIENT : SERVER;
+	public static ScriptType of(LevelReader world) {
+		return world.isClientSide() ? CLIENT : SERVER;
 	}
 	
 	public final String name;

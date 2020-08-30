@@ -16,12 +16,12 @@ import dev.latvian.kubejs.server.ServerEventJS;
 import dev.latvian.kubejs.server.ServerSettings;
 import dev.latvian.kubejs.util.*;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.recipe.Recipe;
-import net.minecraft.recipe.RecipeManager;
-import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.recipe.RecipeType;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -43,15 +43,15 @@ public class RecipeEventJS extends ServerEventJS {
 	private static final Predicate<RecipeJS> ALWAYS_TRUE = r -> true;
 	private static final Predicate<RecipeJS> ALWAYS_FALSE = r -> false;
 	
-	public final Map<Identifier, RecipeTypeJS> typeMap;
+	public final Map<ResourceLocation, RecipeTypeJS> typeMap;
 	public final List<RecipeJS> originalRecipes;
 	private final List<RecipeJS> addedRecipes;
 	private final Set<RecipeJS> removedRecipes;
-	public final Map<Identifier, RecipeFunction> functionMap;
+	public final Map<ResourceLocation, RecipeFunction> functionMap;
 	
 	private final DynamicMapJS<String, DynamicMapJS<String, RecipeFunction>> recipeFunctions;
 	
-	public RecipeEventJS(Map<Identifier, RecipeTypeJS> t) {
+	public RecipeEventJS(Map<ResourceLocation, RecipeTypeJS> t) {
 		typeMap = t;
 		originalRecipes = new ArrayList<>();
 		
@@ -70,10 +70,10 @@ public class RecipeEventJS extends ServerEventJS {
 			}
 		});
 		
-		recipeFunctions = new DynamicMapJS<>(n -> new DynamicMapJS<>(p -> functionMap.get(new Identifier(n, p))));
+		recipeFunctions = new DynamicMapJS<>(n -> new DynamicMapJS<>(p -> functionMap.get(new ResourceLocation(n, p))));
 	}
 	
-	public void post(RecipeManager recipeManager, Map<Identifier, JsonObject> jsonMap) {
+	public void post(RecipeManager recipeManager, Map<ResourceLocation, JsonObject> jsonMap) {
 		ScriptType.SERVER.console.setLineNumber(true);
 		Stopwatch timer = Stopwatch.createUnstarted();
 		
@@ -83,8 +83,8 @@ public class RecipeEventJS extends ServerEventJS {
 				.forEach(entries -> completableFutures.add(CompletableFuture.supplyAsync(() -> {
 					List<RecipeJS> originalRecipes = Lists.newArrayList();
 					
-					for (Map.Entry<Identifier, JsonObject> entry : entries) {
-						Identifier recipeId = entry.getKey();
+					for (Map.Entry<ResourceLocation, JsonObject> entry : entries) {
+						ResourceLocation recipeId = entry.getKey();
 						JsonObject json = entry.getValue();
 						
 						if (recipeId.getPath().startsWith("_")) {
@@ -106,7 +106,7 @@ public class RecipeEventJS extends ServerEventJS {
 								continue;
 							}
 							
-							RecipeFunction function = functionMap.get(new Identifier(t.getAsString()));
+							RecipeFunction function = functionMap.get(new ResourceLocation(t.getAsString()));
 							
 							if (function.type == null) {
 								ScriptType.SERVER.console.warn("Skipping loading recipe " + recipeId + " as it's type " + function.typeID + " is unknown");
@@ -117,7 +117,7 @@ public class RecipeEventJS extends ServerEventJS {
 							recipe.id = recipeId;
 							recipe.type = function.type;
 							recipe.json = json;
-							recipe.originalRecipe = function.type.serializer.read(recipeId, json);
+							recipe.originalRecipe = function.type.serializer.fromJson(recipeId, json);
 							
 							if (recipe.originalRecipe == null) {
 								ScriptType.SERVER.console.warn("Skipping loading recipe " + recipe + " as it's serializer returned null");
@@ -127,7 +127,7 @@ public class RecipeEventJS extends ServerEventJS {
 							recipe.deserialize();
 							originalRecipes.add(recipe);
 							
-							if (recipe.originalRecipe.isIgnoredInRecipeBook()) {
+							if (recipe.originalRecipe.isSpecial()) {
 								ScriptType.SERVER.console.debug("Loaded recipe " + recipe + ": <dynamic>");
 							} else {
 								ScriptType.SERVER.console.debug("Loaded recipe " + recipe + ": " + recipe.inputItems + " -> " + recipe.outputItems);
@@ -160,7 +160,7 @@ public class RecipeEventJS extends ServerEventJS {
 		ScriptType.SERVER.console.setLineNumber(false);
 		ScriptType.SERVER.console.logger.info("Posted recipe events in " + timer.stop());
 		
-		Map<RecipeType<?>, Map<Identifier, Recipe<?>>> newRecipeMap = new HashMap<>();
+		Map<RecipeType<?>, Map<ResourceLocation, Recipe<?>>> newRecipeMap = new HashMap<>();
 		int[] removed = {0};
 		int[] modified = {0};
 		int[] added = {0};
@@ -178,7 +178,7 @@ public class RecipeEventJS extends ServerEventJS {
 					if (recipe.originalRecipe != null) {
 						try {
 							recipe.serialize();
-							return recipe.originalRecipe = recipe.type.serializer.read(recipe.id, recipe.json);
+							return recipe.originalRecipe = recipe.type.serializer.fromJson(recipe.id, recipe.json);
 						} catch (Exception ex) {
 							ScriptType.SERVER.console.warn("Error parsing recipe " + recipe, ex);
 						}
@@ -200,7 +200,7 @@ public class RecipeEventJS extends ServerEventJS {
 				.map(recipe -> {
 					try {
 						recipe.serialize();
-						return recipe.originalRecipe = recipe.type.serializer.read(recipe.id, recipe.json);
+						return recipe.originalRecipe = recipe.type.serializer.fromJson(recipe.id, recipe.json);
 					} catch (Exception ex) {
 						ScriptType.SERVER.console.warn("Error creating recipe " + recipe, ex);
 					}
@@ -229,8 +229,8 @@ public class RecipeEventJS extends ServerEventJS {
 		addedRecipes.add(r);
 		
 		if (r.id == null) {
-			Identifier itemId = UtilsJS.getMCID(r.outputItems.isEmpty() ? EmptyItemStackJS.INSTANCE.getId() : r.outputItems.get(0).getId());
-			r.id = new Identifier(Registry.RECIPE_SERIALIZER.getId(type.serializer).getNamespace(), "kubejs_generated_" + addedRecipes.size() + "_" + itemId.getNamespace() + "_" + itemId.getPath().replace('/', '_'));
+			ResourceLocation itemId = UtilsJS.getMCID(r.outputItems.isEmpty() ? EmptyItemStackJS.INSTANCE.getId() : r.outputItems.get(0).getId());
+			r.id = new ResourceLocation(Registry.RECIPE_SERIALIZER.getKey(type.serializer).getNamespace(), "kubejs_generated_" + addedRecipes.size() + "_" + itemId.getNamespace() + "_" + itemId.getPath().replace('/', '_'));
 		}
 		
 		if (ServerSettings.instance.logAddedRecipes) {
@@ -284,13 +284,13 @@ public class RecipeEventJS extends ServerEventJS {
 		}
 		
 		if (map.get("id") != null) {
-			Identifier id = UtilsJS.getMCID(map.get("id").toString());
+			ResourceLocation id = UtilsJS.getMCID(map.get("id").toString());
 			predicate = predicate.and(recipe -> recipe.id.equals(id));
 		}
 		
 		if (map.get("type") != null) {
-			Identifier type = UtilsJS.getMCID(map.get("type").toString());
-			predicate = predicate.and(recipe -> type.equals(Registry.RECIPE_SERIALIZER.getId(recipe.type.serializer)));
+			ResourceLocation type = UtilsJS.getMCID(map.get("type").toString());
+			predicate = predicate.and(recipe -> type.equals(Registry.RECIPE_SERIALIZER.getKey(recipe.type.serializer)));
 		}
 		
 		if (map.get("group") != null) {
@@ -399,27 +399,27 @@ public class RecipeEventJS extends ServerEventJS {
 	}
 	
 	public RecipeFunction getShaped() {
-		return functionMap.get(Registry.RECIPE_SERIALIZER.getId(RecipeSerializer.SHAPED));
+		return functionMap.get(Registry.RECIPE_SERIALIZER.getKey(RecipeSerializer.SHAPED_RECIPE));
 	}
 	
 	public RecipeFunction getShapeless() {
-		return functionMap.get(Registry.RECIPE_SERIALIZER.getId(RecipeSerializer.SHAPELESS));
+		return functionMap.get(Registry.RECIPE_SERIALIZER.getKey(RecipeSerializer.SHAPELESS_RECIPE));
 	}
 	
 	public RecipeFunction getSmelting() {
-		return functionMap.get(Registry.RECIPE_SERIALIZER.getId(RecipeSerializer.SMELTING));
+		return functionMap.get(Registry.RECIPE_SERIALIZER.getKey(RecipeSerializer.SMELTING_RECIPE));
 	}
 	
 	public RecipeFunction getBlasting() {
-		return functionMap.get(Registry.RECIPE_SERIALIZER.getId(RecipeSerializer.BLASTING));
+		return functionMap.get(Registry.RECIPE_SERIALIZER.getKey(RecipeSerializer.BLASTING_RECIPE));
 	}
 	
 	public RecipeFunction getSmoking() {
-		return functionMap.get(Registry.RECIPE_SERIALIZER.getId(RecipeSerializer.SMOKING));
+		return functionMap.get(Registry.RECIPE_SERIALIZER.getKey(RecipeSerializer.SMOKING_RECIPE));
 	}
 	
 	public RecipeFunction getCampfireCooking() {
-		return functionMap.get(Registry.RECIPE_SERIALIZER.getId(RecipeSerializer.CAMPFIRE_COOKING));
+		return functionMap.get(Registry.RECIPE_SERIALIZER.getKey(RecipeSerializer.CAMPFIRE_COOKING_RECIPE));
 	}
 	
 	public void printTypes() {

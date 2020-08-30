@@ -1,25 +1,25 @@
 package dev.latvian.kubejs.core.mixin;
 
 import dev.latvian.kubejs.callback.item.ItemRightClickAirCallback;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.network.ServerPlayerInteractionManager;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerPlayerGameMode;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(ServerPlayerInteractionManager.class)
+@Mixin(ServerPlayerGameMode.class)
 public class ServerPlayerInteractionManagerMixin {
-	@Shadow public ServerPlayerEntity player;
+	@Shadow public ServerPlayer player;
 	
 	@Inject(at = @At("HEAD"), cancellable = true,
-	        method = "interactItem(Lnet/minecraft/server/network/ServerPlayerEntity;Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/ActionResult;")
-	void onUseItem(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, CallbackInfoReturnable<ActionResult> callbackInformationReturnable) {
-		ItemRightClickAirCallback.EVENT.invoker().rightClick(player, stack, hand, player.getBlockPos());
+	        method = "useItem")
+	void onUseItem(ServerPlayer player, Level world, ItemStack stack, InteractionHand hand, CallbackInfoReturnable<InteractionResult> callbackInformationReturnable) {
+		ItemRightClickAirCallback.EVENT.invoker().rightClick(player, stack, hand, player.blockPosition());
 	}
 }

@@ -3,7 +3,7 @@ package dev.latvian.kubejs.client;
 import dev.latvian.kubejs.event.EventJS;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ public class DebugInfoEventJS extends EventJS {
 	}
 	
 	public boolean getShowDebug() {
-		return MinecraftClient.getInstance().options.debugEnabled;
+		return Minecraft.getInstance().options.renderDebug;
 	}
 	
 	public List<String> getLines() {

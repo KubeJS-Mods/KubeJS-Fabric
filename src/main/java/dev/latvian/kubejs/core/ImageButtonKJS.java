@@ -1,10 +1,10 @@
 package dev.latvian.kubejs.core;
 
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * @author LatvianModder
  */
 public interface ImageButtonKJS {
-	Identifier getButtonTextureKJS();
+	ResourceLocation getButtonTextureKJS();
 }

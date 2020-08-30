@@ -2,9 +2,9 @@ package dev.latvian.kubejs.item;
 
 import dev.latvian.kubejs.entity.EntityJS;
 import dev.latvian.kubejs.player.PlayerEventJS;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 
@@ -12,11 +12,11 @@ import javax.annotation.Nullable;
  * @author LatvianModder
  */
 public class ItemDestroyedEventJS extends PlayerEventJS {
-	public final PlayerEntity player;
+	public final Player player;
 	public final ItemStack original;
-	public final Hand hand;
+	public final InteractionHand hand;
 	
-	public ItemDestroyedEventJS(PlayerEntity player, ItemStack original, Hand hand) {
+	public ItemDestroyedEventJS(Player player, ItemStack original, InteractionHand hand) {
 		this.player = player;
 		this.original = original;
 		this.hand = hand;
@@ -33,7 +33,7 @@ public class ItemDestroyedEventJS extends PlayerEventJS {
 	}
 	
 	@Nullable
-	public Hand getHand() {
+	public InteractionHand getHand() {
 		return hand;
 	}
 	

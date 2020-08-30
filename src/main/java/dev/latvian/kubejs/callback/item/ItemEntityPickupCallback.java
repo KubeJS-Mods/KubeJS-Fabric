@@ -2,8 +2,8 @@ package dev.latvian.kubejs.callback.item;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 
 public interface ItemEntityPickupCallback {
 	Event<ItemEntityPickupCallback> EVENT = EventFactory.createArrayBacked(ItemEntityPickupCallback.class, (listeners) -> {
@@ -14,5 +14,5 @@ public interface ItemEntityPickupCallback {
 		};
 	});
 	
-	void pickup(PlayerEntity player, ItemEntity entity);
+	void pickup(Player player, ItemEntity entity);
 }

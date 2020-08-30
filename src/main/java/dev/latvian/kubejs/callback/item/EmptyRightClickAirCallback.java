@@ -2,9 +2,9 @@ package dev.latvian.kubejs.callback.item;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
 
 public interface EmptyRightClickAirCallback {
 	Event<EmptyRightClickAirCallback> EVENT = EventFactory.createArrayBacked(EmptyRightClickAirCallback.class, (listeners) -> {
@@ -15,5 +15,5 @@ public interface EmptyRightClickAirCallback {
 		};
 	});
 	
-	void rightClickEmpty(PlayerEntity player, Hand hand, BlockPos position);
+	void rightClickEmpty(Player player, InteractionHand hand, BlockPos position);
 }

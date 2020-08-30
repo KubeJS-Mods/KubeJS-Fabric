@@ -5,13 +5,13 @@ import dev.latvian.kubejs.text.TextColor;
 import dev.latvian.kubejs.util.ListJS;
 import dev.latvian.kubejs.util.MapJS;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import net.minecraft.entity.projectile.FireworkRocketEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.util.DyeColor;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.projectile.FireworkRocketEntity;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -139,7 +139,7 @@ public class FireworksJS {
 	public int lifetime = -1;
 	public final List<Explosion> explosions = new ArrayList<>();
 	
-	public FireworkRocketEntity createFireworkRocket(World w, double x, double y, double z) {
+	public FireworkRocketEntity createFireworkRocket(Level w, double x, double y, double z) {
 		ItemStack stack = new ItemStack(Items.FIREWORK_ROCKET);
 		
 		CompoundTag nbt = new CompoundTag();
@@ -157,7 +157,7 @@ public class FireworksJS {
 		}
 		
 		nbt.put("Explosions", list);
-		stack.putSubTag("Fireworks", nbt);
+		stack.addTagElement("Fireworks", nbt);
 		
 		FireworkRocketEntity rocket = new FireworkRocketEntity(w, x, y, z, stack);
 		

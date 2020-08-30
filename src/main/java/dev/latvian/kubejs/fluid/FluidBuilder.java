@@ -4,8 +4,8 @@ import dev.latvian.kubejs.KubeJS;
 import dev.latvian.kubejs.docs.ID;
 import dev.latvian.kubejs.util.BuilderBase;
 import dev.latvian.kubejs.util.UtilsJS;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.util.Rarity;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.level.material.Fluid;
 
 /**
  * @author LatvianModder

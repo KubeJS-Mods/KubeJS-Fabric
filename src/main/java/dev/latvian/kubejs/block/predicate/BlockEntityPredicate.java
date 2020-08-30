@@ -3,15 +3,15 @@ package dev.latvian.kubejs.block.predicate;
 import dev.latvian.kubejs.docs.ID;
 import dev.latvian.kubejs.util.UtilsJS;
 import dev.latvian.kubejs.world.BlockContainerJS;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
  * @author LatvianModder
  */
 public class BlockEntityPredicate implements BlockPredicate {
-	private final Identifier id;
+	private final ResourceLocation id;
 	private BlockEntityPredicateDataCheck checkData;
 	
 	public BlockEntityPredicate(@ID String i) {
@@ -26,7 +26,7 @@ public class BlockEntityPredicate implements BlockPredicate {
 	@Override
 	public boolean check(BlockContainerJS block) {
 		BlockEntity blockEntity = block.getEntity();
-		return blockEntity != null && id.equals(Registry.BLOCK_ENTITY_TYPE.getId(blockEntity.getType())) && (checkData == null || checkData.checkData(block.getEntityData()));
+		return blockEntity != null && id.equals(Registry.BLOCK_ENTITY_TYPE.getKey(blockEntity.getType())) && (checkData == null || checkData.checkData(block.getEntityData()));
 	}
 	
 	@Override

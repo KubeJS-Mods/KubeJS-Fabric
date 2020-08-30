@@ -5,12 +5,12 @@ import dev.latvian.kubejs.text.Text;
 import dev.latvian.kubejs.util.BuilderBase;
 import dev.latvian.kubejs.util.UtilsJS;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.Items;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Rarity;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Rarity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,14 +26,14 @@ public class ItemBuilder extends BuilderBase {
 	public int maxDamage;
 	public String containerItem;
 	// TODO reevaluate whether to automatically add to tool tags
-	public Map<Identifier, Integer> tools;
+	public Map<ResourceLocation, Integer> tools;
 	public float miningSpeed;
 	public Float attackDamage;
 	public Float attackSpeed;
 	public Rarity rarity;
 	public boolean glow;
 	public final List<Text> tooltip;
-	public ItemGroup group;
+	public CreativeModeTab group;
 	public Int2IntOpenHashMap color;
 	public String texture;
 	public String parentModel;
@@ -51,7 +51,7 @@ public class ItemBuilder extends BuilderBase {
 		rarity = Rarity.COMMON;
 		glow = false;
 		tooltip = new ArrayList<>();
-		group = ItemGroup.MISC;
+		group = CreativeModeTab.TAB_MISC;
 		color = new Int2IntOpenHashMap();
 		color.defaultReturnValue(0xFFFFFFFF);
 		texture = id.getNamespace() + ":item/" + id.getPath();
@@ -120,8 +120,8 @@ public class ItemBuilder extends BuilderBase {
 	}
 	
 	public ItemBuilder group(String g) {
-		for (ItemGroup ig : ItemGroup.GROUPS) {
-			if (ig.getName().equals(g)) {
+		for (CreativeModeTab ig : CreativeModeTab.TABS) {
+			if (ig.getRecipeFolderName().equals(g)) {
 				group = ig;
 				return this;
 			}
@@ -151,7 +151,7 @@ public class ItemBuilder extends BuilderBase {
 		return this;
 	}
 	
-	public Map<Identifier, Integer> getToolsMap() {
+	public Map<ResourceLocation, Integer> getToolsMap() {
 		return tools;
 	}
 	
@@ -167,18 +167,18 @@ public class ItemBuilder extends BuilderBase {
 		return attackSpeed;
 	}
 	
-	public Item.Settings createItemProperties() {
-		Item.Settings properties = new Item.Settings();
+	public Item.Properties createItemProperties() {
+		Item.Properties properties = new Item.Properties();
 		
-		properties.group(group);
-		properties.maxDamage(maxDamage);
-		properties.maxCount(maxStackSize);
+		properties.tab(group);
+		properties.durability(maxDamage);
+		properties.stacksTo(maxStackSize);
 		properties.rarity(rarity);
 		
 		Item item = Registry.ITEM.get(UtilsJS.getMCID(containerItem));
 		
 		if (item != null && item != Items.AIR) {
-			properties.recipeRemainder(item);
+			properties.craftRemainder(item);
 		}
 		
 		if (foodBuilder != null) {

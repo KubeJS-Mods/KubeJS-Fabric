@@ -1,9 +1,9 @@
 package dev.latvian.kubejs.core;
 
 import dev.latvian.kubejs.server.ServerScriptManager;
-import net.minecraft.resource.ResourcePack;
-import net.minecraft.resource.ResourceReloadListener;
-import net.minecraft.resource.ServerResourceManager;
+import net.minecraft.server.ServerResources;
+import net.minecraft.server.packs.PackResources;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 
 import java.util.List;
 
@@ -14,8 +14,8 @@ public interface DataPackRegistriesKJS {
 	default void initKJS() {
 		try {
 			ServerScriptManager.instance = new ServerScriptManager();
-			SimpleReloadableResourceManagerKJS manager = (SimpleReloadableResourceManagerKJS) (((ServerResourceManager) this).getResourceManager());
-			ResourceReloadListener reloadListener = ServerScriptManager.instance.createReloadListener();
+			SimpleReloadableResourceManagerKJS manager = (SimpleReloadableResourceManagerKJS) (((ServerResources) this).getResourceManager());
+			PreparableReloadListener reloadListener = ServerScriptManager.instance.createReloadListener();
 			manager.getReloadListenersKJS().add(0, reloadListener);
 			manager.getInitTaskQueueKJS().add(0, reloadListener);
 		} catch (Exception ex) {
@@ -23,7 +23,7 @@ public interface DataPackRegistriesKJS {
 		}
 	}
 	
-	static List<ResourcePack> getResourcePackListKJS(List<ResourcePack> list) {
+	static List<PackResources> getResourcePackListKJS(List<PackResources> list) {
 		// ...
 		return list;
 	}

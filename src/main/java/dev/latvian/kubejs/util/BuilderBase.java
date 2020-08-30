@@ -2,13 +2,13 @@ package dev.latvian.kubejs.util;
 
 import dev.latvian.kubejs.KubeJS;
 import dev.latvian.kubejs.script.ScriptType;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * @author LatvianModder
  */
 public abstract class BuilderBase {
-	public final Identifier id;
+	public final ResourceLocation id;
 	public String translationKey;
 	public String displayName;
 	

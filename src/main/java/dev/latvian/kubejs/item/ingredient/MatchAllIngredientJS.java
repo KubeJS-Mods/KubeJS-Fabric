@@ -2,7 +2,7 @@ package dev.latvian.kubejs.item.ingredient;
 
 import dev.latvian.kubejs.item.EmptyItemStackJS;
 import dev.latvian.kubejs.item.ItemStackJS;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.LinkedHashSet;
 import java.util.List;

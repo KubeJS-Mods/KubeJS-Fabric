@@ -6,9 +6,9 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.List;
 
@@ -16,8 +16,8 @@ import java.util.List;
  * @author LatvianModder
  */
 public class KubeJSNet {
-	public static final Identifier PACKET_ID_S2C = new Identifier(KubeJS.MOD_ID, "s2c");
-	public static final Identifier PACKET_ID_C2S = new Identifier(KubeJS.MOD_ID, "c2s");
+	public static final ResourceLocation PACKET_ID_S2C = new ResourceLocation(KubeJS.MOD_ID, "s2c");
+	public static final ResourceLocation PACKET_ID_C2S = new ResourceLocation(KubeJS.MOD_ID, "c2s");
 	
 	public static void init() {
 		ServerSidePacketRegistry.INSTANCE.register(PACKET_ID_C2S, (packetContext, packetByteBuf) -> {
@@ -33,35 +33,35 @@ public class KubeJSNet {
 	
 	@Environment(EnvType.CLIENT)
 	public static void sendToServer(MessageSendDataFromClient message) {
-		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+		FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
 		buf.writeInt(0);
 		message.write(buf);
 		ClientSidePacketRegistry.INSTANCE.sendToServer(PACKET_ID_C2S, buf);
 	}
 	
-	public static void sendToPlayers(List<ServerPlayerEntity> playerList, MessageSendDataFromServer message) {
-		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+	public static void sendToPlayers(List<ServerPlayer> playerList, MessageSendDataFromServer message) {
+		FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
 		buf.writeInt(1);
 		message.write(buf);
-		for (ServerPlayerEntity entity : playerList) {
+		for (ServerPlayer entity : playerList) {
 			ServerSidePacketRegistry.INSTANCE.sendToPlayer(entity, PACKET_ID_S2C, buf);
 		}
 	}
 	
-	public static void sendToPlayers(List<ServerPlayerEntity> playerList, MessageOpenOverlay message) {
-		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+	public static void sendToPlayers(List<ServerPlayer> playerList, MessageOpenOverlay message) {
+		FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
 		buf.writeInt(2);
 		message.write(buf);
-		for (ServerPlayerEntity entity : playerList) {
+		for (ServerPlayer entity : playerList) {
 			ServerSidePacketRegistry.INSTANCE.sendToPlayer(entity, PACKET_ID_S2C, buf);
 		}
 	}
 	
-	public static void sendToPlayers(List<ServerPlayerEntity> playerList, MessageCloseOverlay message) {
-		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+	public static void sendToPlayers(List<ServerPlayer> playerList, MessageCloseOverlay message) {
+		FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
 		buf.writeInt(3);
 		message.write(buf);
-		for (ServerPlayerEntity entity : playerList) {
+		for (ServerPlayer entity : playerList) {
 			ServerSidePacketRegistry.INSTANCE.sendToPlayer(entity, PACKET_ID_S2C, buf);
 		}
 	}

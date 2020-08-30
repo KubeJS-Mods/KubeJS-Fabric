@@ -6,9 +6,8 @@ import dev.latvian.kubejs.docs.ID;
 import dev.latvian.kubejs.script.ScriptType;
 import dev.latvian.kubejs.util.ListJS;
 import dev.latvian.kubejs.util.UtilsJS;
-import net.minecraft.tag.Tag;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.Tag;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,11 +21,11 @@ import java.util.function.Function;
 public class TagEventJS<T> extends ServerEventJS {
 	public static class TagWrapper<T> {
 		private final TagEventJS<T> event;
-		private final Identifier id;
+		private final ResourceLocation id;
 		private final Tag.Builder builder;
-		private final List<Tag.TrackedEntry> proxyList;
+		private final List<Tag.BuilderEntry> proxyList;
 		
-		private TagWrapper(TagEventJS<T> e, Identifier i, Tag.Builder t) {
+		private TagWrapper(TagEventJS<T> e, ResourceLocation i, Tag.Builder t) {
 			event = e;
 			id = i;
 			builder = t;
@@ -43,11 +42,11 @@ public class TagEventJS<T> extends ServerEventJS {
 					event.addedCount += w.proxyList.size();
 					ScriptType.SERVER.console.logger.info("+ " + event.type + ":" + id + " // " + w.id);
 				} else {
-					Identifier sid = new Identifier(s);
+					ResourceLocation sid = new ResourceLocation(s);
 					Optional<T> v = event.registry.apply(sid);
 					
 					if (v.isPresent()) {
-						builder.add(sid, KubeJS.MOD_ID);
+						builder.addElement(sid, KubeJS.MOD_ID);
 						event.addedCount++;
 						ScriptType.SERVER.console.logger.info("+ " + event.type + ":" + id + " // " + s + " [" + v.get().getClass().getName() + "]");
 					} else {
@@ -70,11 +69,11 @@ public class TagEventJS<T> extends ServerEventJS {
 					event.addedCount += w.proxyList.size();
 					ScriptType.SERVER.console.logger.info("- " + event.type + ":" + id + " // " + w.id);
 				} else {
-					Identifier sid = new Identifier(s);
+					ResourceLocation sid = new ResourceLocation(s);
 					Optional<T> v = event.registry.apply(sid);
 					
 					if (v.isPresent()) {
-						Tag.ObjectEntry entry = new Tag.ObjectEntry(sid);
+						Tag.ElementEntry entry = new Tag.ElementEntry(sid);
 						proxyList.removeIf(p -> entry.equals(p.getEntry()));
 						event.addedCount++;
 						ScriptType.SERVER.console.logger.info("- " + event.type + ":" + id + " // " + s + " [" + v.get().getClass().getName() + "]");
@@ -89,13 +88,13 @@ public class TagEventJS<T> extends ServerEventJS {
 	}
 	
 	private final String type;
-	private final Map<Identifier, Tag.Builder> map;
-	private final Function<Identifier, Optional<T>> registry;
-	private Map<Identifier, TagWrapper<T>> tags;
+	private final Map<ResourceLocation, Tag.Builder> map;
+	private final Function<ResourceLocation, Optional<T>> registry;
+	private Map<ResourceLocation, TagWrapper<T>> tags;
 	private int addedCount;
 	private int removedCount;
 	
-	public TagEventJS(String t, Map<Identifier, Tag.Builder> m, Function<Identifier, Optional<T>> r) {
+	public TagEventJS(String t, Map<ResourceLocation, Tag.Builder> m, Function<ResourceLocation, Optional<T>> r) {
 		type = t;
 		map = m;
 		registry = r;
@@ -108,7 +107,7 @@ public class TagEventJS<T> extends ServerEventJS {
 	public void post(String event) {
 		tags = new HashMap<>();
 		
-		for (Map.Entry<Identifier, Tag.Builder> entry : map.entrySet()) {
+		for (Map.Entry<ResourceLocation, Tag.Builder> entry : map.entrySet()) {
 			TagWrapper<T> w = new TagWrapper<>(this, entry.getKey(), entry.getValue());
 			tags.put(entry.getKey(), w);
 			ScriptType.SERVER.console.logger.debug(type + "/#" + entry.getKey() + "; " + w.proxyList.size());
@@ -123,11 +122,11 @@ public class TagEventJS<T> extends ServerEventJS {
 	}
 	
 	public TagWrapper<T> get(@ID String tag) {
-		Identifier id = UtilsJS.getMCID(tag);
+		ResourceLocation id = UtilsJS.getMCID(tag);
 		TagWrapper<T> t = tags.get(id);
 		
 		if (t == null) {
-			t = new TagWrapper<>(this, id, Tag.Builder.create());
+			t = new TagWrapper<>(this, id, Tag.Builder.tag());
 			tags.put(id, t);
 			map.put(id, t.builder);
 		}

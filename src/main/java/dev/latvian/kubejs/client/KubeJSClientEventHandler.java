@@ -1,6 +1,10 @@
 package dev.latvian.kubejs.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
 import dev.latvian.kubejs.KubeJSEvents;
 import dev.latvian.kubejs.KubeJSObjects;
 import dev.latvian.kubejs.block.BlockBuilder;
@@ -22,21 +26,17 @@ import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.AbstractButtonWidget;
-import net.minecraft.client.item.TooltipContext;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormats;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.OrderedText;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -59,8 +59,8 @@ public class KubeJSClientEventHandler {
 			callback.run();
 		}
 	});
-	public static final Event<Consumer<ClientPlayerEntity>> ON_RESPAWN = EventFactory.createArrayBacked(Consumer.class, callbacks -> (player) -> {
-		for (Consumer<ClientPlayerEntity> callback : callbacks) {
+	public static final Event<Consumer<LocalPlayer>> ON_RESPAWN = EventFactory.createArrayBacked(Consumer.class, callbacks -> (player) -> {
+		for (Consumer<LocalPlayer> callback : callbacks) {
 			callback.accept(player);
 		}
 	});
@@ -70,8 +70,8 @@ public class KubeJSClientEventHandler {
 			callback.accept(left, lines);
 		}
 	});
-	private static FieldJS<List<AbstractButtonWidget>> buttons;
-	private static final Identifier RECIPE_BUTTON_TEXTURE = new Identifier("textures/gui/recipe_button.png");
+	private static FieldJS<List<AbstractWidget>> buttons;
+	private static final ResourceLocation RECIPE_BUTTON_TEXTURE = new ResourceLocation("textures/gui/recipe_button.png");
 	
 	// TODO
 	public void init() {
@@ -97,13 +97,13 @@ public class KubeJSClientEventHandler {
 		for (BlockBuilder builder : KubeJSObjects.BLOCKS.values()) {
 			switch (builder.renderType) {
 				case "cutout":
-					BlockRenderLayerMap.INSTANCE.putBlock(builder.block, RenderLayer.getCutout());
+					BlockRenderLayerMap.INSTANCE.putBlock(builder.block, RenderType.cutout());
 					break;
 				case "cutout_mipped":
-					BlockRenderLayerMap.INSTANCE.putBlock(builder.block, RenderLayer.getCutoutMipped());
+					BlockRenderLayerMap.INSTANCE.putBlock(builder.block, RenderType.cutoutMipped());
 					break;
 				case "translucent":
-					BlockRenderLayerMap.INSTANCE.putBlock(builder.block, RenderLayer.getTranslucent());
+					BlockRenderLayerMap.INSTANCE.putBlock(builder.block, RenderType.translucent());
 					break;
 				//default:
 				//	RenderTypeLookup.setRenderLayer(block, RenderType.getSolid());
@@ -112,36 +112,36 @@ public class KubeJSClientEventHandler {
 	}
 	
 	private void debugLeftInfo(List<String> left) {
-		if (MinecraftClient.getInstance().player != null) {
+		if (Minecraft.getInstance().player != null) {
 			new DebugInfoEventJS(left).post(ScriptType.CLIENT, KubeJSEvents.CLIENT_DEBUG_INFO_LEFT);
 		}
 	}
 	
 	private void debugRightInfo(List<String> right) {
-		if (MinecraftClient.getInstance().player != null) {
+		if (Minecraft.getInstance().player != null) {
 			new DebugInfoEventJS(right).post(ScriptType.CLIENT, KubeJSEvents.CLIENT_DEBUG_INFO_RIGHT);
 		}
 	}
 	
-	private void itemTooltip(ItemStack stack, TooltipContext context, List<net.minecraft.text.Text> lines) {
-		if (ClientProperties.get().showTagNames && MinecraftClient.getInstance().options.advancedItemTooltips && Screen.hasShiftDown()) //hasShiftDown
+	private void itemTooltip(ItemStack stack, TooltipFlag context, List<net.minecraft.network.chat.Component> lines) {
+		if (ClientProperties.get().showTagNames && Minecraft.getInstance().options.advancedItemTooltips && Screen.hasShiftDown()) //hasShiftDown
 		{
-			for (Identifier tag : MinecraftClient.getInstance().world.getTagManager().getItems().getTagsFor(stack.getItem())) {
-				lines.add(new LiteralText(" #" + tag).formatted(Formatting.DARK_GRAY));
+			for (ResourceLocation tag : Minecraft.getInstance().level.getTagManager().getItems().getMatchingTags(stack.getItem())) {
+				lines.add(new TextComponent(" #" + tag).withStyle(ChatFormatting.DARK_GRAY));
 			}
 		}
 		
 		new ClientItemTooltipEventJS(stack, context, lines).post(ScriptType.CLIENT, KubeJSEvents.CLIENT_ITEM_TOOLTIP);
 	}
 	
-	private void clientTick(MinecraftClient client) {
+	private void clientTick(Minecraft client) {
 		if (client.player != null) {
 			new ClientTickEventJS(ClientWorldJS.instance.clientPlayerData.getPlayer()).post(KubeJSEvents.CLIENT_TICK);
 		}
 	}
 	
 	private void loggedIn() {
-		ClientWorldJS.instance = new ClientWorldJS(MinecraftClient.getInstance(), MinecraftClient.getInstance().player);
+		ClientWorldJS.instance = new ClientWorldJS(Minecraft.getInstance(), Minecraft.getInstance().player);
 		AttachWorldDataEvent.EVENT.invoker().accept(new AttachWorldDataEvent(ClientWorldJS.instance));
 		AttachPlayerDataEvent.EVENT.invoker().accept(new AttachPlayerDataEvent(ClientWorldJS.instance.clientPlayerData));
 		new ClientLoggedInEventJS(ClientWorldJS.instance.clientPlayerData.getPlayer()).post(KubeJSEvents.CLIENT_LOGGED_IN);
@@ -156,24 +156,24 @@ public class KubeJSClientEventHandler {
 		KubeJSClient.activeOverlays.clear();
 	}
 	
-	private void respawn(ClientPlayerEntity entity) {
-		ClientWorldJS.instance = new ClientWorldJS(MinecraftClient.getInstance(), entity);
+	private void respawn(LocalPlayer entity) {
+		ClientWorldJS.instance = new ClientWorldJS(Minecraft.getInstance(), entity);
 		AttachWorldDataEvent.EVENT.invoker().accept(new AttachWorldDataEvent(ClientWorldJS.instance));
 		AttachPlayerDataEvent.EVENT.invoker().accept(new AttachPlayerDataEvent(ClientWorldJS.instance.clientPlayerData));
 	}
 	
-	private int drawOverlay(MinecraftClient mc, MatrixStack matrixStack, int maxWidth, int x, int y, int p, Overlay o, boolean inv) {
-		List<OrderedText> list = new ArrayList<>();
+	private int drawOverlay(Minecraft mc, PoseStack matrixStack, int maxWidth, int x, int y, int p, Overlay o, boolean inv) {
+		List<FormattedCharSequence> list = new ArrayList<>();
 		int l = 10;
 		
 		for (Text t : o.text) {
-			list.addAll(mc.textRenderer.wrapLines(t.component(), maxWidth));
+			list.addAll(mc.font.split(t.component(), maxWidth));
 		}
 		
 		int mw = 0;
 		
-		for (OrderedText s : list) {
-			mw = Math.max(mw, mc.textRenderer.getWidth(s));
+		for (FormattedCharSequence s : list) {
+			mw = Math.max(mw, mc.font.width(s));
 		}
 		
 		if (mw == 0) {
@@ -188,9 +188,9 @@ public class KubeJSClientEventHandler {
 		int b = col & 0xFF;
 		
 		RenderSystem.disableTexture();
-		Tessellator tessellator = Tessellator.getInstance();
-		BufferBuilder buffer = tessellator.getBuffer();
-		buffer.begin(GL11.GL_QUADS, VertexFormats.POSITION_COLOR);
+		Tesselator tessellator = Tesselator.getInstance();
+		BufferBuilder buffer = tessellator.getBuilder();
+		buffer.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR);
 		
 		//o.color.withAlpha(200).draw(spx, spy, mw + p * 2, list.size() * l + p * 2 - 2);
 		
@@ -208,11 +208,11 @@ public class KubeJSClientEventHandler {
 			addRectToBuffer(buffer, x, y + h - 1, w, 1, r, g, b, 255);
 		}
 		
-		tessellator.draw();
+		tessellator.end();
 		RenderSystem.enableTexture();
 		
 		for (int i = 0; i < list.size(); i++) {
-			mc.textRenderer.drawWithShadow(matrixStack, list.get(i), x + p, y + i * l + p, 0xFFFFFFFF);
+			mc.font.drawShadow(matrixStack, list.get(i), x + p, y + i * l + p, 0xFFFFFFFF);
 		}
 		
 		return list.size() * l + p * 2 + (p - 2);
@@ -220,30 +220,30 @@ public class KubeJSClientEventHandler {
 	
 	
 	private void addRectToBuffer(BufferBuilder buffer, int x, int y, int w, int h, int r, int g, int b, int a) {
-		buffer.vertex(x, y + h, 0D).color(r, g, b, a).next();
-		buffer.vertex(x + w, y + h, 0D).color(r, g, b, a).next();
-		buffer.vertex(x + w, y, 0D).color(r, g, b, a).next();
-		buffer.vertex(x, y, 0D).color(r, g, b, a).next();
+		buffer.vertex(x, y + h, 0D).color(r, g, b, a).endVertex();
+		buffer.vertex(x + w, y + h, 0D).color(r, g, b, a).endVertex();
+		buffer.vertex(x + w, y, 0D).color(r, g, b, a).endVertex();
+		buffer.vertex(x, y, 0D).color(r, g, b, a).endVertex();
 	}
 	
-	private void inGameScreenDraw(MatrixStack matrices, float delta) {
+	private void inGameScreenDraw(PoseStack matrices, float delta) {
 		if (KubeJSClient.activeOverlays.isEmpty()) {
 			return;
 		}
 		
-		MinecraftClient mc = MinecraftClient.getInstance();
+		Minecraft mc = Minecraft.getInstance();
 		
-		if (mc.options.debugEnabled || mc.currentScreen != null) {
+		if (mc.options.renderDebug || mc.screen != null) {
 			return;
 		}
 		
-		matrices.push();
+		matrices.pushPose();
 		matrices.translate(0, 0, 800);
 		
 		RenderSystem.enableBlend();
 		RenderSystem.disableLighting();
 		
-		int maxWidth = mc.getWindow().getScaledWidth() / 4;
+		int maxWidth = mc.getWindow().getGuiScaledWidth() / 4;
 		int p = 4;
 		int spx = p;
 		int spy = p;
@@ -251,7 +251,7 @@ public class KubeJSClientEventHandler {
 		for (Overlay o : KubeJSClient.activeOverlays.values()) {
 			spy += drawOverlay(mc, matrices, maxWidth, spx, spy, p, o, false);
 		}
-		matrices.pop();
+		matrices.popPose();
 	}
 	
 	//

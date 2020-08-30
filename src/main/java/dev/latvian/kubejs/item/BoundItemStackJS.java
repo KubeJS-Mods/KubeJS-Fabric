@@ -2,9 +2,9 @@ package dev.latvian.kubejs.item;
 
 import dev.latvian.kubejs.text.Text;
 import dev.latvian.kubejs.util.MapJS;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -63,7 +63,7 @@ public class BoundItemStackJS extends ItemStackJS {
 	
 	@Override
 	public void setName(@Nullable Object displayName) {
-		stack.setCustomName(Text.of(displayName).component());
+		stack.setHoverName(Text.of(displayName).component());
 	}
 	
 	@Override

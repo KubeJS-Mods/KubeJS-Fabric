@@ -3,9 +3,9 @@ package dev.latvian.kubejs.net;
 import dev.latvian.kubejs.KubeJSEvents;
 import dev.latvian.kubejs.util.MapJS;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
 import java.util.function.Supplier;
@@ -22,19 +22,19 @@ public class MessageSendDataFromClient {
 		data = d;
 	}
 	
-	MessageSendDataFromClient(PacketByteBuf buf) {
-		channel = buf.readString(120);
-		data = buf.readCompoundTag();
+	MessageSendDataFromClient(FriendlyByteBuf buf) {
+		channel = buf.readUtf(120);
+		data = buf.readNbt();
 	}
 	
-	public void write(PacketByteBuf buf) {
-		buf.writeString(channel, 120);
-		buf.writeCompoundTag(data);
+	public void write(FriendlyByteBuf buf) {
+		buf.writeUtf(channel, 120);
+		buf.writeNbt(data);
 	}
 	
 	public void handle(Supplier<PacketContext> context) {
 		if (!channel.isEmpty()) {
-			final PlayerEntity player = context.get().getPlayer();
+			final Player player = context.get().getPlayer();
 			
 			if (player != null) {
 				context.get().getTaskQueue().execute(() -> new NetworkEventJS(player, channel, MapJS.of(data)).post(KubeJSEvents.PLAYER_DATA_FROM_CLIENT, channel));
