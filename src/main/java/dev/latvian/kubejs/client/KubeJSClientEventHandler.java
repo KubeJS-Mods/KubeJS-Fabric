@@ -376,7 +376,7 @@ public class KubeJSClientEventHandler {
 //
 //		image.setRGB(0, 0, w, h, pixels, 0, w);
 //
-//		Path path = FMLPaths.GAMEDIR.get().resolve("kubejs/exported/" + event.getMap().getTextureLocation().getNamespace() + "/" + event.getMap().getTextureLocation().getPath());
+//		Path path = KubeJSPaths.EXPORTED.resolve(event.getMap().getTextureLocation().getNamespace() + "/" + event.getMap().getTextureLocation().getPath());
 //
 //		if (!Files.exists(path.getParent()))
 //		{

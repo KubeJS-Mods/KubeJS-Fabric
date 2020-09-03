@@ -1,35 +1,16 @@
 package dev.latvian.kubejs.recipe.minecraft;
 
+import com.google.gson.JsonArray;
 import dev.latvian.kubejs.item.ItemStackJS;
 import dev.latvian.kubejs.item.ingredient.IngredientJS;
 import dev.latvian.kubejs.recipe.RecipeExceptionJS;
 import dev.latvian.kubejs.recipe.RecipeJS;
 import dev.latvian.kubejs.util.ListJS;
-import net.minecraft.world.item.crafting.RecipeSerializer;
 
 /**
  * @author LatvianModder
  */
 public class CookingRecipeJS extends RecipeJS {
-	public enum Type {
-		SMELTING(RecipeSerializer.SMELTING_RECIPE),
-		BLASTING(RecipeSerializer.BLASTING_RECIPE),
-		SMOKING(RecipeSerializer.SMOKING_RECIPE),
-		CAMPFIRE(RecipeSerializer.CAMPFIRE_COOKING_RECIPE);
-		
-		public final RecipeSerializer serializer;
-		
-		Type(RecipeSerializer s) {
-			serializer = s;
-		}
-	}
-	
-	public final Type cookingType;
-	
-	public CookingRecipeJS(Type c) {
-		cookingType = c;
-	}
-	
 	@Override
 	public void create(ListJS args) {
 		ItemStackJS result = ItemStackJS.of(args.get(0));
@@ -78,7 +59,17 @@ public class CookingRecipeJS extends RecipeJS {
 	
 	@Override
 	public void serialize() {
-		json.add("ingredient", inputItems.get(0).toJson());
+		if (inputItems.isEmpty()) {
+			throw new IllegalStateException("Ingredient array cannot be empty, at least one ingredient must be defined");
+		} else if (inputItems.size() == 1) {
+			json.add("ingredient", inputItems.get(0).toJson());
+		} else {
+			JsonArray array = new JsonArray();
+			for (IngredientJS item : inputItems) {
+				array.add(item.toJson());
+			}
+			json.add("ingredient", array);
+		}
 		// TODO mixin into CookingRecipeSerializer to fix this
 //		json.add("result", outputItems.get(0).toResultJson());
 		json.addProperty("result", outputItems.get(0).getId());

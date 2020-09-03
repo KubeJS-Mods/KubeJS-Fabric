@@ -6,7 +6,8 @@
   "description": "Allows you to tweak and customize modpack with JavaScript",
   "authors": [
     "LatvianModder",
-    "shedaniel"
+    "shedaniel",
+    "vini2003"
   ],
   "license": "LGPL-2.1-or-later",
   "icon": "kubejs_logo.png",

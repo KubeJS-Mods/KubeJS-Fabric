@@ -132,7 +132,7 @@ public class CustomRecipeJS extends RecipeJS {
 			    && !addInput("itemInput")
 			    && !addInput("infusionInput")
 			) {
-				ScriptType.SERVER.console.logger.debug("! " + this + ": Couldn't find any input items!");
+				ScriptType.SERVER.console.getLogger().debug("! " + this + ": Couldn't find any input items!");
 			}
 		} catch (Exception ex) {
 		}
@@ -147,7 +147,7 @@ public class CustomRecipeJS extends RecipeJS {
 			    && !addOutput("mainOutput")
 			    && !addOutput("secondaryOutput")
 			) {
-				ScriptType.SERVER.console.logger.debug("! " + this + ": Couldn't find any output items!");
+				ScriptType.SERVER.console.getLogger().debug("! " + this + ": Couldn't find any output items!");
 			}
 		} catch (Exception ex) {
 		}

@@ -9,6 +9,7 @@ import dev.latvian.kubejs.item.EmptyItemStackJS;
 import dev.latvian.kubejs.item.ItemStackJS;
 import dev.latvian.kubejs.util.*;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
@@ -28,15 +29,41 @@ public interface IngredientJS extends JsonSerializable, WrappedJS {
 			return EmptyItemStackJS.INSTANCE;
 		} else if (o instanceof IngredientJS) {
 			return (IngredientJS) o;
+		} else if (o instanceof Pattern) {
+			return new RegexIngredientJS((Pattern) o);
 		} else if (o instanceof CharSequence) {
 			String s = o.toString();
 			
-			if (s.startsWith("#")) {
+			if (s.equals("*")) {
+				return MatchAllIngredientJS.INSTANCE;
+			} else if (s.startsWith("#")) {
 				return new TagIngredientJS(new ResourceLocation(s.substring(1)), 1);
+			} else if (s.startsWith("@")) {
+				return new ModIngredientJS(s.substring(1));
+			} else if (s.startsWith("%")) {
+				CreativeModeTab group = ItemStackJS.findGroup(s.substring(1));
+				
+				if (group == null) {
+					return EmptyItemStackJS.INSTANCE;
+				} else if (group == CreativeModeTab.TAB_SEARCH) {
+					return MatchAllIngredientJS.INSTANCE;
+				}
+				
+				return new GroupIngredientJS(group);
 			} else if (s.startsWith("mod:")) {
 				return new ModIngredientJS(s.substring(4));
 			} else if (s.startsWith("regex:")) {
-				return new RegexIngredientJS(Pattern.compile(s.substring(6)));
+				Pattern reg = UtilsJS.regex(s.substring(6), false);
+				
+				if (reg != null) {
+					return new RegexIngredientJS(reg);
+				}
+			}
+			
+			Pattern reg = UtilsJS.regex(s, true);
+			
+			if (reg != null) {
+				return new RegexIngredientJS(reg);
 			}
 			
 			return ItemStackJS.of(KubeJS.appendModId(s));

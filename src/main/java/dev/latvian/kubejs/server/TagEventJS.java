@@ -40,7 +40,7 @@ public class TagEventJS<T> extends ServerEventJS {
 					TagWrapper<T> w = event.get(s.substring(1));
 					builder.addTag(w.id, KubeJS.MOD_ID);
 					event.addedCount += w.proxyList.size();
-					ScriptType.SERVER.console.logger.info("+ " + event.type + ":" + id + " // " + w.id);
+					ScriptType.SERVER.console.getLogger().info("+ " + event.type + ":" + id + " // " + w.id);
 				} else {
 					ResourceLocation sid = new ResourceLocation(s);
 					Optional<T> v = event.registry.apply(sid);
@@ -48,9 +48,9 @@ public class TagEventJS<T> extends ServerEventJS {
 					if (v.isPresent()) {
 						builder.addElement(sid, KubeJS.MOD_ID);
 						event.addedCount++;
-						ScriptType.SERVER.console.logger.info("+ " + event.type + ":" + id + " // " + s + " [" + v.get().getClass().getName() + "]");
+						ScriptType.SERVER.console.getLogger().info("+ " + event.type + ":" + id + " // " + s + " [" + v.get().getClass().getName() + "]");
 					} else {
-						ScriptType.SERVER.console.logger.warn("+ " + event.type + ":" + id + " // " + s + " [Not found!]");
+						ScriptType.SERVER.console.getLogger().warn("+ " + event.type + ":" + id + " // " + s + " [Not found!]");
 					}
 				}
 			}
@@ -67,7 +67,7 @@ public class TagEventJS<T> extends ServerEventJS {
 					Tag.TagEntry entry = new Tag.TagEntry(w.id);
 					proxyList.removeIf(p -> entry.equals(p.getEntry()));
 					event.addedCount += w.proxyList.size();
-					ScriptType.SERVER.console.logger.info("- " + event.type + ":" + id + " // " + w.id);
+					ScriptType.SERVER.console.getLogger().info("- " + event.type + ":" + id + " // " + w.id);
 				} else {
 					ResourceLocation sid = new ResourceLocation(s);
 					Optional<T> v = event.registry.apply(sid);
@@ -76,9 +76,9 @@ public class TagEventJS<T> extends ServerEventJS {
 						Tag.ElementEntry entry = new Tag.ElementEntry(sid);
 						proxyList.removeIf(p -> entry.equals(p.getEntry()));
 						event.addedCount++;
-						ScriptType.SERVER.console.logger.info("- " + event.type + ":" + id + " // " + s + " [" + v.get().getClass().getName() + "]");
+						ScriptType.SERVER.console.getLogger().info("- " + event.type + ":" + id + " // " + s + " [" + v.get().getClass().getName() + "]");
 					} else {
-						ScriptType.SERVER.console.logger.warn("- " + event.type + ":" + id + " // " + s + " [Not found!]");
+						ScriptType.SERVER.console.getLogger().warn("- " + event.type + ":" + id + " // " + s + " [Not found!]");
 					}
 				}
 			}
@@ -110,7 +110,7 @@ public class TagEventJS<T> extends ServerEventJS {
 		for (Map.Entry<ResourceLocation, Tag.Builder> entry : map.entrySet()) {
 			TagWrapper<T> w = new TagWrapper<>(this, entry.getKey(), entry.getValue());
 			tags.put(entry.getKey(), w);
-			ScriptType.SERVER.console.logger.debug(type + "/#" + entry.getKey() + "; " + w.proxyList.size());
+			ScriptType.SERVER.console.getLogger().debug(type + "/#" + entry.getKey() + "; " + w.proxyList.size());
 		}
 		
 		ScriptType.SERVER.console.setLineNumber(true);
@@ -118,7 +118,7 @@ public class TagEventJS<T> extends ServerEventJS {
 		post(ScriptType.SERVER, "server.datapack.tags." + type); //TODO: To be removed
 		ScriptType.SERVER.console.setLineNumber(false);
 		
-		ScriptType.SERVER.console.logger.info("[" + type + "] Found " + tags.size() + " tags, added " + addedCount + ", removed " + removedCount);
+		ScriptType.SERVER.console.getLogger().info("[" + type + "] Found " + tags.size() + " tags, added " + addedCount + ", removed " + removedCount);
 	}
 	
 	public TagWrapper<T> get(@ID String tag) {

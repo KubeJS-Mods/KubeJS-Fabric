@@ -2,18 +2,17 @@ package dev.latvian.kubejs.server;
 
 import dev.latvian.kubejs.KubeJS;
 import dev.latvian.kubejs.KubeJSEvents;
+import dev.latvian.kubejs.KubeJSPaths;
 import dev.latvian.kubejs.recipe.RecipeEventJS;
 import dev.latvian.kubejs.recipe.RecipeTypeJS;
 import dev.latvian.kubejs.recipe.RegisterRecipeHandlersEvent;
 import dev.latvian.kubejs.script.*;
 import dev.latvian.kubejs.script.data.DataPackEventJS;
 import dev.latvian.kubejs.script.data.VirtualKubeJSDataPack;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.SimpleReloadableResourceManager;
 
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,12 +25,13 @@ import java.util.concurrent.CompletableFuture;
 public class ServerScriptManager {
 	public static ServerScriptManager instance;
 	
-	public final ScriptManager scriptManager = new ScriptManager(ScriptType.SERVER);
+	public final ScriptManager scriptManager = new ScriptManager(ScriptType.SERVER, KubeJSPaths.SERVER_SCRIPTS, "/data/kubejs/example_server_script.js");
 	public final VirtualKubeJSDataPack virtualDataPackFirst = new VirtualKubeJSDataPack(true);
 	public final VirtualKubeJSDataPack virtualDataPackLast = new VirtualKubeJSDataPack(false);
 	
 	public void reloadScripts(SimpleReloadableResourceManager resourceManager) {
 		scriptManager.unload();
+		scriptManager.loadFromDirectory();
 		
 		Map<String, List<ResourceLocation>> packs = new HashMap<>();
 		
@@ -47,13 +47,11 @@ public class ServerScriptManager {
 			}
 			
 			for (ScriptFileInfo fileInfo : pack.info.scripts) {
-				ScriptSource scriptSource = info -> new InputStreamReader(resourceManager.getResource(info.location).getInputStream());
+				ScriptSource.FromResource scriptSource = info -> resourceManager.getResource(info.location);
 				Throwable error = fileInfo.preload(scriptSource);
 				
 				if (error == null) {
-					if (fileInfo.shouldLoad(FabricLoader.getInstance().getEnvironmentType())) {
-						pack.scripts.add(new ScriptFile(pack, fileInfo, scriptSource));
-					}
+					pack.scripts.add(new ScriptFile(pack, fileInfo, scriptSource));
 				} else {
 					KubeJS.LOGGER.error("Failed to pre-load script file " + fileInfo.location + ": " + error);
 				}
@@ -70,31 +68,9 @@ public class ServerScriptManager {
 		
 		new DataPackEventJS(virtualDataPackFirst).post(ScriptType.SERVER, KubeJSEvents.SERVER_DATAPACK_FIRST);
 		new DataPackEventJS(virtualDataPackLast).post(ScriptType.SERVER, KubeJSEvents.SERVER_DATAPACK_LAST);
-
-		/*
-		resourceManager.addResourcePack(virtualDataPackFirst);
-		resourceManager.addResourcePack(virtualDataPackLast);
-
-		Map<String, NamespaceResourceManager> namespaceResourceManagers = ((SimpleReloadableResourceManagerKJS) resourceManager).getNamespaceResourceManagersKJS();
-
-		for (NamespaceResourceManager manager : namespaceResourceManagers.values())
-		{
-			if (manager.resourcePacks.remove(virtualDataPackLast))
-			{
-				manager.resourcePacks.add(0, virtualDataPackLast);
-			}
-		}
-		 */
 		
 		ScriptType.SERVER.console.setLineNumber(false);
 		ScriptType.SERVER.console.info("Scripts loaded");
-
-		/*
-		for (int i = 0; i < scriptManager.errors.size(); i++)
-		{
-			minecraftServer.getPlayerList().func_232641_a_(new LiteralText("#" + (i + 1) + ": ").func_240699_a_(Formatting.DARK_RED).func_230529_a_(new LiteralText(scriptManager.errors.get(i)).func_240699_a_(Formatting.RED)), ChatType.CHAT, Util.NIL_UUID);
-		}
-		 */
 		
 		Map<ResourceLocation, RecipeTypeJS> typeMap = new HashMap<>();
 		RegisterRecipeHandlersEvent.EVENT.invoker().accept(new RegisterRecipeHandlersEvent(typeMap));

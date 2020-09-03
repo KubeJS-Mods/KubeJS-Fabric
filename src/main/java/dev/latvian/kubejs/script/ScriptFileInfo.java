@@ -5,6 +5,8 @@ import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +19,6 @@ public class ScriptFileInfo {
 	public final ResourceLocation location;
 	private final Map<String, String> properties;
 	private int priority;
-	private EnvType side;
 	
 	public ScriptFileInfo(ScriptPackInfo p, String f) {
 		pack = p;
@@ -25,14 +26,13 @@ public class ScriptFileInfo {
 		location = new ResourceLocation(pack.namespace, pack.pathStart + file);
 		properties = new HashMap<>();
 		priority = 0;
-		side = null;
 	}
 	
 	@Nullable
 	public Throwable preload(ScriptSource source) {
 		properties.clear();
 		
-		try (BufferedReader reader = new BufferedReader(source.createReader(this))) {
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(source.createStream(this), StandardCharsets.UTF_8))) {
 			String line;
 			
 			while ((line = reader.readLine()) != null) {
@@ -51,17 +51,6 @@ public class ScriptFileInfo {
 			
 			priority = Integer.parseInt(getProperty("priority", "0"));
 			
-			switch (getProperty("side", "common").toLowerCase()) {
-				case "client":
-					side = EnvType.CLIENT;
-					break;
-				case "server":
-					side = EnvType.SERVER;
-					break;
-				default:
-					side = null;
-			}
-			
 			return null;
 		} catch (Throwable ex) {
 			return ex;
@@ -74,9 +63,5 @@ public class ScriptFileInfo {
 	
 	public int getPriority() {
 		return priority;
-	}
-	
-	public boolean shouldLoad(EnvType dist) {
-		return side == null || side == dist;
 	}
 }

@@ -1,5 +1,6 @@
 package dev.latvian.kubejs.client;
 
+import dev.latvian.kubejs.KubeJS;
 import dev.latvian.kubejs.KubeJSCommon;
 import dev.latvian.kubejs.KubeJSEvents;
 import dev.latvian.kubejs.core.ResourcePackManagerKJS;
@@ -33,10 +34,14 @@ public class KubeJSClient extends KubeJSCommon implements ClientModInitializer {
 	public static final Map<String, Overlay> activeOverlays = new LinkedHashMap<>();
 	
 	@Override
-	public void init(File folder) {
+	public void init() {
+		KubeJS.clientScriptManager.unload();
+		KubeJS.clientScriptManager.loadFromDirectory();
+		KubeJS.clientScriptManager.load();
+		
 		new KubeJSClientEventHandler().init();
 		PackRepository manager = Minecraft.getInstance().getResourcePackRepository();
-		((ResourcePackManagerKJS) manager).addProviderKJS(new KubeJSResourcePackFinder(folder));
+		((ResourcePackManagerKJS) manager).addProviderKJS(new KubeJSResourcePackFinder());
 		
 		ClientSidePacketRegistry.INSTANCE.register(KubeJSNet.PACKET_ID_S2C, (packetContext, packetByteBuf) -> {
 			int id = packetByteBuf.readInt();
@@ -64,7 +69,7 @@ public class KubeJSClient extends KubeJSCommon implements ClientModInitializer {
 	
 	@Override
 	public void onInitializeClient() {
-		new EventJS().post(ScriptType.STARTUP, KubeJSEvents.CLIENT_INIT);
+		new EventJS().post(ScriptType.CLIENT, KubeJSEvents.CLIENT_INIT);
 	}
 	
 	@Override

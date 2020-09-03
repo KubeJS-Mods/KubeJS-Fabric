@@ -1,14 +1,11 @@
 package dev.latvian.kubejs.server;
 
-import dev.latvian.kubejs.KubeJS;
 import dev.latvian.kubejs.KubeJSEvents;
 import dev.latvian.kubejs.command.CommandRegistryEventJS;
 import dev.latvian.kubejs.command.KubeJSCommands;
-import dev.latvian.kubejs.core.ResourcePackManagerKJS;
 import dev.latvian.kubejs.player.ServerPlayerDataJS;
 import dev.latvian.kubejs.player.SimplePlayerEventJS;
 import dev.latvian.kubejs.script.ScriptType;
-import dev.latvian.kubejs.script.data.KubeJSDataPackFinder;
 import dev.latvian.kubejs.world.AttachWorldDataEvent;
 import dev.latvian.kubejs.world.ServerWorldJS;
 import dev.latvian.kubejs.world.SimpleWorldEventJS;
@@ -66,7 +63,7 @@ public class KubeJSServerEventHandler implements ModInitializer {
 			new SimpleWorldEventJS(ServerJS.instance.getOverworld()).post(KubeJSEvents.WORLD_LOAD);
 		}
 		
-		((ResourcePackManagerKJS) server.getPackRepository()).addProviderKJS(new KubeJSDataPackFinder(KubeJS.getGameDirectory().resolve("kubejs").toFile()));
+//		((ResourcePackManagerKJS) server.getPackRepository()).addProviderKJS(new KubeJSDataPackFinder(KubeJS.getGameDirectory().resolve("kubejs").toFile()));
 	}
 	
 	public void serverStopping(MinecraftServer server) {

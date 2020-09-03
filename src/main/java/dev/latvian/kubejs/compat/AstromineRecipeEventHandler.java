@@ -7,7 +7,6 @@ import dev.latvian.kubejs.item.ItemStackJS;
 import dev.latvian.kubejs.item.ingredient.IngredientJS;
 import dev.latvian.kubejs.recipe.RecipeExceptionJS;
 import dev.latvian.kubejs.recipe.RecipeJS;
-import dev.latvian.kubejs.recipe.RecipeTypeJS;
 import dev.latvian.kubejs.recipe.RegisterRecipeHandlersEvent;
 import dev.latvian.kubejs.util.ListJS;
 import net.fabricmc.loader.api.FabricLoader;
@@ -19,9 +18,9 @@ public class AstromineRecipeEventHandler implements KubeJSInitializer {
 	public void onKubeJSInitialization() {
 		if (!FabricLoader.getInstance().isModLoaded("astromine")) return;
 		RegisterRecipeHandlersEvent.EVENT.register(event -> {
-			event.register(new RecipeTypeJS("astromine:triturating", TrituratingRecipeJS::new));
-			event.register(new RecipeTypeJS("astromine:pressing", PressingRecipeJS::new));
-			event.register(new RecipeTypeJS("astromine:alloy_smelting", AlloySmelterRecipeJS::new));
+			event.register("astromine:triturating", TrituratingRecipeJS::new);
+			event.register("astromine:pressing", PressingRecipeJS::new);
+			event.register("astromine:alloy_smelting", AlloySmelterRecipeJS::new);
 		});
 	}
 	

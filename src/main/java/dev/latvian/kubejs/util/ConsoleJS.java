@@ -19,9 +19,10 @@ import java.util.stream.Collectors;
  */
 public class ConsoleJS {
 	private final ScriptType type;
-	public final Logger logger;
+	private final Logger logger;
 	private String group;
 	private int lineNumber;
+	private boolean muted;
 	
 	public ConsoleJS(ScriptType m, Logger log) {
 		type = m;
@@ -30,19 +31,31 @@ public class ConsoleJS {
 		lineNumber = 0;
 	}
 	
+	public Logger getLogger() {
+		return logger;
+	}
+	
 	protected boolean shouldPrint() {
-		return true;
+		return !muted;
+	}
+	
+	public void setMuted(boolean m) {
+		muted = m;
+	}
+	
+	public boolean getMuted() {
+		return muted;
 	}
 	
 	public void setLineNumber(boolean b) {
-		lineNumber = Math.max(0, lineNumber + (b ? 1 : -1));
+		lineNumber += b ? 1 : -1;
 	}
 	
 	private String string(Object object) {
 		Object o = UtilsJS.wrap(object, JSObjectType.ANY);
-		String s = o == null || o instanceof String || o instanceof Number || o instanceof WrappedJS ? String.valueOf(o) : (o + " [" + o.getClass().getName() + "]");
+		String s = o == null || o.getClass().isPrimitive() || o instanceof Boolean || o instanceof String || o instanceof Number || o instanceof WrappedJS ? String.valueOf(o) : (o + " [" + o.getClass().getName() + "]");
 		
-		if (lineNumber == 0 && group.isEmpty()) {
+		if (lineNumber <= 0 && group.isEmpty()) {
 			return s;
 		}
 		

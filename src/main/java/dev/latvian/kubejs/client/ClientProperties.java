@@ -1,6 +1,8 @@
 package dev.latvian.kubejs.client;
 
 import dev.latvian.kubejs.KubeJS;
+import dev.latvian.kubejs.KubeJSPaths;
+import dev.latvian.kubejs.util.UtilsJS;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -51,17 +53,20 @@ public class ClientProperties {
 		properties = new Properties();
 		
 		try {
-			Path folder = KubeJS.getGameDirectory().resolve("kubejs");
+			Path propertiesFile = KubeJSPaths.CONFIG.resolve("client.properties");
 			
-			if (Files.notExists(folder)) {
-				Files.createDirectories(folder);
-			}
+			UtilsJS.tryIO(() -> {
+				Path p0 = KubeJSPaths.DIRECTORY.resolve("client.properties");
+				
+				if (Files.exists(p0)) {
+					Files.move(p0, propertiesFile);
+				}
+			});
 			
-			Path p = folder.resolve("client.properties");
 			writeProperties = false;
 			
-			if (Files.exists(p)) {
-				try (Reader reader = Files.newBufferedReader(p)) {
+			if (Files.exists(propertiesFile)) {
+				try (Reader reader = Files.newBufferedReader(propertiesFile)) {
 					properties.load(reader);
 				}
 			} else {
@@ -83,14 +88,22 @@ public class ClientProperties {
 			fmlMemoryColor3f = getColor3f(fmlMemoryColor);
 			fmlLogColor3f = getColor3f(fmlLogColor);
 			
-			Path iconFile = folder.resolve("packicon.png");
+			Path iconFile = KubeJSPaths.CONFIG.resolve("packicon.png");
+			
+			UtilsJS.tryIO(() -> {
+				Path p0 = KubeJSPaths.DIRECTORY.resolve("packicon.png");
+				
+				if (Files.exists(p0)) {
+					Files.move(p0, iconFile);
+				}
+			});
 			
 			if (Files.exists(iconFile)) {
 				icon = iconFile;
 			}
 			
 			if (writeProperties) {
-				try (Writer writer = Files.newBufferedWriter(p)) {
+				try (Writer writer = Files.newBufferedWriter(propertiesFile)) {
 					properties.store(writer, "KubeJS Client Properties");
 				}
 			}
@@ -98,7 +111,7 @@ public class ClientProperties {
 			ex.printStackTrace();
 		}
 		
-		KubeJS.LOGGER.info("Loaded kubejs/client.properties");
+		KubeJS.LOGGER.info("Loaded client.properties");
 	}
 	
 	private String get(String key, String def) {
@@ -175,5 +188,29 @@ public class ClientProperties {
 		}
 		
 		return false;
+	}
+	
+	public float[] getMemoryColor(float[] color) {
+		return overrideColors ? fmlMemoryColor3f : color;
+	}
+	
+	public float[] getLogColor(float[] color) {
+		return overrideColors ? fmlLogColor3f : color;
+	}
+	
+	public float getBackgroundColor(float c, int index) {
+		return overrideColors ? backgroundColor3f[index] : c;
+	}
+	
+	public int getBackgroundColor(int color) {
+		return overrideColors ? ((color & 0xFF000000) | backgroundColor) : color;
+	}
+	
+	public int getBarColor(int color) {
+		return overrideColors ? ((color & 0xFF000000) | barColor) : color;
+	}
+	
+	public int getBarBorderColor(int color) {
+		return overrideColors ? ((color & 0xFF000000) | barBorderColor) : color;
 	}
 }

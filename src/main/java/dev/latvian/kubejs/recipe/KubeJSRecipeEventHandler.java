@@ -14,13 +14,13 @@ public class KubeJSRecipeEventHandler implements KubeJSInitializer {
 	@Override
 	public void onKubeJSInitialization() {
 		RegisterRecipeHandlersEvent.EVENT.register(event -> {
-			event.register(new RecipeTypeJS(RecipeSerializer.SHAPED_RECIPE, ShapedRecipeJS::new));
-			event.register(new RecipeTypeJS(RecipeSerializer.SHAPELESS_RECIPE, ShapelessRecipeJS::new));
-			event.register(new RecipeTypeJS(RecipeSerializer.STONECUTTER, StonecuttingRecipeJS::new));
-			
-			for (CookingRecipeJS.Type type : CookingRecipeJS.Type.values()) {
-				event.register(new RecipeTypeJS(type.serializer, () -> new CookingRecipeJS(type)));
-			}
+			event.register("minecraft:crafting_shaped", ShapedRecipeJS::new);
+			event.register("minecraft:crafting_shapeless", ShapelessRecipeJS::new);
+			event.register("minecraft:stonecutting", StonecuttingRecipeJS::new);
+			event.register("minecraft:smelting", CookingRecipeJS::new);
+			event.register("minecraft:blasting", CookingRecipeJS::new);
+			event.register("minecraft:smoking", CookingRecipeJS::new);
+			event.register("minecraft:campfire_cooking", CookingRecipeJS::new);
 		});
 	}
 }

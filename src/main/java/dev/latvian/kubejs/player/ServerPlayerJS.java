@@ -11,12 +11,15 @@ import dev.latvian.kubejs.text.Text;
 import dev.latvian.kubejs.text.TextTranslate;
 import dev.latvian.kubejs.util.MapJS;
 import dev.latvian.kubejs.util.Overlay;
+import dev.latvian.kubejs.world.BlockContainerJS;
 import dev.latvian.kubejs.world.ServerWorldJS;
 import net.minecraft.advancements.AdvancementProgress;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.UserBanListEntry;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -60,14 +63,19 @@ public class ServerPlayerJS extends PlayerJS<ServerPlayer> {
 	}
 	
 	public void setGameMode(String mode) {
-		if (mode.equals("survival")) {
-			minecraftPlayer.gameMode.setGameModeForPlayer(GameType.SURVIVAL);
-		} else if (mode.equals("creative")) {
-			minecraftPlayer.gameMode.setGameModeForPlayer(GameType.CREATIVE);
-		} else if (mode.equals("adventure")) {
-			minecraftPlayer.gameMode.setGameModeForPlayer(GameType.ADVENTURE);
-		} else if (mode.equals("spectator")) {
-			minecraftPlayer.gameMode.setGameModeForPlayer(GameType.SPECTATOR);
+		switch (mode) {
+			case "survival":
+				minecraftPlayer.gameMode.setGameModeForPlayer(GameType.SURVIVAL);
+				break;
+			case "creative":
+				minecraftPlayer.gameMode.setGameModeForPlayer(GameType.CREATIVE);
+				break;
+			case "adventure":
+				minecraftPlayer.gameMode.setGameModeForPlayer(GameType.ADVENTURE);
+				break;
+			case "spectator":
+				minecraftPlayer.gameMode.setGameModeForPlayer(GameType.SPECTATOR);
+				break;
 		}
 	}
 	
@@ -145,6 +153,18 @@ public class ServerPlayerJS extends PlayerJS<ServerPlayer> {
 	public void sendData(String channel, @Nullable Object data) {
 		if (!channel.isEmpty()) {
 			KubeJSNet.sendToPlayers(Collections.singletonList(minecraftPlayer), new MessageSendDataFromServer(channel, MapJS.nbt(data)));
+		}
+	}
+	
+	@Nullable
+	public BlockContainerJS getSpawnLocation() {
+		BlockPos pos = minecraftPlayer.getRespawnPosition();
+		return pos == null ? null : new BlockContainerJS(minecraftPlayer.level, pos);
+	}
+	
+	public void setSpawnLocation(BlockContainerJS c) {
+		if (c.minecraftWorld instanceof Level) {
+			minecraftPlayer.setRespawnPosition(((Level) c.minecraftWorld).dimension(), c.getPos(), 0, true, false);
 		}
 	}
 }

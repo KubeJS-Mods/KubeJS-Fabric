@@ -1,15 +1,18 @@
 package dev.latvian.kubejs.script.data;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.latvian.kubejs.KubeJS;
 import dev.latvian.kubejs.KubeJSObjects;
+import dev.latvian.kubejs.KubeJSPaths;
 import dev.latvian.kubejs.block.BlockBuilder;
 import dev.latvian.kubejs.fluid.FluidBuilder;
 import dev.latvian.kubejs.item.ItemBuilder;
 import dev.latvian.kubejs.script.ScriptType;
 import dev.latvian.kubejs.util.BuilderBase;
+import dev.latvian.kubejs.util.UtilsJS;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.ResourceLocationException;
@@ -23,6 +26,8 @@ import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 import javax.annotation.Nullable;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -30,11 +35,9 @@ import java.util.function.Predicate;
  * @author LatvianModder
  */
 public class KubeJSResourcePack implements PackResources {
-	private final File folder;
 	private final PackType packType;
 	
-	public KubeJSResourcePack(File f, PackType t) {
-		folder = f;
+	public KubeJSResourcePack(PackType t) {
 		packType = t;
 	}
 	
@@ -49,7 +52,7 @@ public class KubeJSResourcePack implements PackResources {
 			return KubeJSResourcePack.class.getResourceAsStream("/kubejs_logo.png");
 		}
 		
-		throw new ResourcePackFileNotFoundException(folder, fileName);
+		throw new ResourcePackFileNotFoundException(KubeJSPaths.DIRECTORY.toFile(), fileName);
 	}
 	
 	@Override
@@ -60,10 +63,10 @@ public class KubeJSResourcePack implements PackResources {
 			throw new IllegalStateException(packType.getDirectory() + " KubeJS pack can't load " + resourcePath + "!");
 		}
 		
-		File file = new File(folder, resourcePath);
+		Path file = KubeJSPaths.DIRECTORY.resolve(resourcePath);
 		
-		if (file.exists()) {
-			return new BufferedInputStream(new FileInputStream(file));
+		if (Files.exists(file)) {
+			return Files.newInputStream(file);
 		} else {
 			if (location.getPath().endsWith(".json")) {
 				JsonObject json = new JsonObject();
@@ -75,7 +78,7 @@ public class KubeJSResourcePack implements PackResources {
 			}
 		}
 		
-		throw new ResourcePackFileNotFoundException(folder, resourcePath);
+		throw new ResourcePackFileNotFoundException(KubeJSPaths.DIRECTORY.toFile(), resourcePath);
 	}
 	
 	@Override
@@ -88,7 +91,7 @@ public class KubeJSResourcePack implements PackResources {
 			}
 		}
 		
-		return type == packType && new File(folder, getFullPath(type, location)).exists();
+		return type == packType && Files.exists(KubeJSPaths.DIRECTORY.resolve(getFullPath(type, location)));
 	}
 	
 	private boolean generateClientJsonFile(String namespace, String path, JsonObject json, boolean real) {
@@ -282,7 +285,6 @@ public class KubeJSResourcePack implements PackResources {
 			return Collections.emptySet();
 		}
 		
-		File file1 = new File(folder, type.getDirectory());
 		List<ResourceLocation> list = Lists.newArrayList();
 		
 		if (type == PackType.CLIENT_RESOURCES) {
@@ -297,7 +299,22 @@ public class KubeJSResourcePack implements PackResources {
 			}
 		}
 		
-		findResources0(new File(new File(file1, namespace), path), maxDepth, namespace, list, path.endsWith("/") ? path : (path + "/"), filter);
+		UtilsJS.tryIO(() -> {
+			Path root = KubeJSPaths.get(type).toAbsolutePath();
+			
+			if (Files.exists(root) && Files.isDirectory(root)) {
+				Path inputPath = root.getFileSystem().getPath(path);
+				
+				Files.walk(root)
+						.map(p -> root.relativize(p.toAbsolutePath()))
+						.filter(p -> p.getNameCount() > 1 && p.getNameCount() - 1 <= maxDepth)
+						.filter(p -> !p.toString().endsWith(".mcmeta"))
+						.filter(p -> p.subpath(1, p.getNameCount()).startsWith(inputPath))
+						.filter(p -> filter.test(p.getFileName().toString()))
+						.map(p -> new ResourceLocation(p.getName(0).toString(), Joiner.on('/').join(p.subpath(1, Math.min(maxDepth, p.getNameCount())))))
+						.forEach(list::add);
+			}
+		});
 		
 		return list;
 	}
@@ -337,19 +354,18 @@ public class KubeJSResourcePack implements PackResources {
 			namespaces.add(builder.id.getNamespace());
 		}
 		
-		File file = new File(folder, type.getDirectory());
-		
-		if (file.exists() && file.isDirectory()) {
-			File[] list = file.listFiles();
+		UtilsJS.tryIO(() -> {
+			Path root = KubeJSPaths.get(type).toAbsolutePath();
 			
-			if (list != null && list.length > 0) {
-				for (File f : list) {
-					if (f.isDirectory()) {
-						namespaces.add(f.getName().toLowerCase());
-					}
-				}
+			if (Files.exists(root) && Files.isDirectory(root)){
+				Files.walk(root, 1)
+						.map(path -> root.relativize(path.toAbsolutePath()))
+						.filter(path -> path.getNameCount() > 0)
+						.map(p -> p.toString().replaceAll("/$", ""))
+						.filter(s -> !s.isEmpty())
+						.forEach(namespaces::add);
 			}
-		}
+		});
 		
 		return namespaces;
 	}

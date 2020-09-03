@@ -1,16 +1,23 @@
 package dev.latvian.kubejs.script;
 
 import com.google.common.base.Stopwatch;
+import dev.latvian.kubejs.KubeJS;
 import dev.latvian.kubejs.KubeJSEvents;
 import dev.latvian.kubejs.bindings.DefaultBindings;
 import dev.latvian.kubejs.event.EventJS;
 import dev.latvian.kubejs.event.EventsJS;
+import dev.latvian.kubejs.util.UtilsJS;
 import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
+import org.apache.commons.io.IOUtils;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptException;
 import javax.script.SimpleBindings;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -26,6 +33,8 @@ public class ScriptManager {
 	};
 	
 	public final ScriptType type;
+	public final Path directory;
+	public final String exampleScript;
 	public final EventsJS events;
 	public final Map<String, ScriptPack> packs;
 	public final List<String> errors;
@@ -33,8 +42,10 @@ public class ScriptManager {
 	public ScriptFile currentFile;
 	public Map<String, Object> bindings, constants;
 	
-	public ScriptManager(ScriptType t) {
+	public ScriptManager(ScriptType t, Path p, String e) {
 		type = t;
+		directory = p;
+		exampleScript = e;
 		events = new EventsJS(this);
 		packs = new LinkedHashMap<>();
 		errors = new ArrayList<>();
@@ -45,7 +56,40 @@ public class ScriptManager {
 		packs.clear();
 	}
 	
+	public void loadFromDirectory() {
+		if (Files.notExists(directory)) {
+			UtilsJS.tryIO(() -> Files.createDirectories(directory));
+			
+			try (InputStream in = KubeJS.class.getResourceAsStream(exampleScript);
+			     OutputStream out = Files.newOutputStream(directory.resolve("script.js"))) {
+				out.write(IOUtils.toByteArray(in));
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+		
+		ScriptPack pack = new ScriptPack(this, new ScriptPackInfo(directory.getFileName().toString(), ""));
+		KubeJS.loadScripts(pack, directory, "");
+		
+		for (ScriptFileInfo fileInfo : pack.info.scripts) {
+			ScriptSource.FromPath scriptSource = info -> directory.resolve(info.file);
+			
+			Throwable error = fileInfo.preload(scriptSource);
+			
+			if (error == null) {
+				pack.scripts.add(new ScriptFile(pack, fileInfo, scriptSource));
+			} else {
+				KubeJS.LOGGER.error("Failed to pre-load script file " + fileInfo.location + ": " + error);
+			}
+		}
+		
+		pack.scripts.sort(null);
+		packs.put(pack.info.namespace, pack);
+	}
+	
 	public void load() {
+		BabelExecutor.init();
+		
 		errors.clear();
 		bindings = new HashMap<>();
 		constants = new HashMap<>();
@@ -81,10 +125,11 @@ public class ScriptManager {
 			for (ScriptFile file : pack.scripts) {
 				t++;
 				currentFile = file;
+				Stopwatch fileStopwatch = Stopwatch.createStarted();
 				
 				if (file.getError() == null && file.load(b)) {
 					i++;
-					type.console.info("Loaded script " + file.info.location);
+					type.console.info("Loaded script " + file.info.location + " in " + fileStopwatch.stop().toString());
 				} else if (file.getError() != null) {
 					type.console.error("Error loading KubeJS script " + file.info.location + ": " + file.getError().toString().replace("javax.script.ScriptException: ", ""));
 					

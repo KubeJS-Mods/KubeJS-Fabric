@@ -26,16 +26,73 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author LatvianModder
  */
 public class UtilsJS {
+	public static final Pattern REGEX_PATTERN = Pattern.compile("\\/(.*)\\/([a-z]*)");
+	
+	public interface TryIO {
+		void run() throws IOException;
+	}
+	
+	public static void tryIO(TryIO tryIO) {
+		try {
+			tryIO.run();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	@Nullable
+	public static Pattern regex(String string, boolean strong) {
+		Matcher matcher = REGEX_PATTERN.matcher(string);
+		
+		if (matcher.find()) {
+			int flags = 0;
+			String f = matcher.group(2);
+			
+			for (int i = 0; i < f.length(); i++) {
+				switch (f.charAt(i)) {
+					case 'd':
+						flags |= Pattern.UNIX_LINES;
+						break;
+					case 'i':
+						flags |= Pattern.CASE_INSENSITIVE;
+						break;
+					case 'x':
+						flags |= Pattern.COMMENTS;
+						break;
+					case 'm':
+						flags |= Pattern.MULTILINE;
+						break;
+					case 's':
+						flags |= Pattern.DOTALL;
+						break;
+					case 'u':
+						flags |= Pattern.UNICODE_CASE;
+						break;
+					case 'U':
+						flags |= Pattern.UNICODE_CHARACTER_CLASS;
+						break;
+				}
+			}
+			
+			return Pattern.compile(matcher.group(1), flags);
+		} else if (!strong) {
+			return Pattern.compile(string);
+		}
+		
+		return null;
+	}
+	
 	public static final Random RANDOM = new Random();
 	
 	public static void init() {
@@ -69,10 +126,8 @@ public class UtilsJS {
 		}
 	}
 	
-	public static File getFile(String path) throws IOException {
-		Path path1 = KubeJS.getGameDirectory().resolve(path);
-		KubeJS.verifyFilePath(path1);
-		return path1.toFile();
+	public static Path getFile(String path) throws IOException {
+		return KubeJS.verifyFilePath(KubeJS.getGameDirectory().resolve(path));
 	}
 	
 	@Nullable

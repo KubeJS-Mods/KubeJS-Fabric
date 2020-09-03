@@ -1,10 +1,14 @@
 package dev.latvian.kubejs.script;
 
+import dev.latvian.kubejs.KubeJS;
 import net.minecraft.util.LazyLoadedValue;
+import org.apache.commons.io.IOUtils;
 
 import javax.annotation.Nullable;
 import javax.script.Bindings;
-import java.io.Reader;
+import java.io.BufferedInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author LatvianModder
@@ -31,8 +35,12 @@ public class ScriptFile implements Comparable<ScriptFile> {
 	private String loadBabel() {
 		error = null;
 		
-		try (Reader reader = source.createReader(info)) {
-			return BabelExecutor.process(reader);
+		try (InputStream stream = source.createStream(info)) {
+			String processed = BabelExecutor.process(new String(IOUtils.toByteArray(new BufferedInputStream(stream)), StandardCharsets.UTF_8));
+			if (KubeJS.PRINT_PROCESSED_SCRIPTS) {
+				KubeJS.LOGGER.info("Processed script: " + info.location + ":\n" + processed);
+			}
+			return processed;
 		} catch (Throwable ex) {
 			error = ex;
 			return null;

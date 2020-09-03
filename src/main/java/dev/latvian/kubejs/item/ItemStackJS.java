@@ -11,12 +11,14 @@ import dev.latvian.kubejs.item.ingredient.IngredientJS;
 import dev.latvian.kubejs.item.ingredient.TagIngredientJS;
 import dev.latvian.kubejs.text.Text;
 import dev.latvian.kubejs.util.*;
+import dev.latvian.kubejs.world.BlockContainerJS;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.*;
+import net.minecraft.world.level.block.Blocks;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -26,6 +28,8 @@ import java.util.*;
  */
 public abstract class ItemStackJS implements IngredientJS, NBTSerializable, WrappedJSObjectChangeListener<MapJS> {
 	private static List<ItemStackJS> cachedItemList;
+	private static ListJS cachedItemListJS;
+	private static ListJS cachedItemTypeListJS;
 	
 	public static ItemStackJS of(@Nullable Object o) {
 		if (o == null) {
@@ -180,18 +184,40 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 		return cachedItemList;
 	}
 	
-	public static void clearListCache() {
-		cachedItemList = null;
-	}
-	
-	public static List<String> getTypeList() {
-		List<String> list = new ArrayList<>();
-		
-		for (ResourceLocation id : Registry.ITEM.keySet()) {
-			list.add(id.toString());
+	public static ListJS getListJS() {
+		if (cachedItemListJS == null) {
+			cachedItemListJS = Objects.requireNonNull(ListJS.of(getList()));
 		}
 		
-		return list;
+		return cachedItemListJS;
+	}
+	
+	public static void clearListCache() {
+		cachedItemList = null;
+		cachedItemListJS = null;
+	}
+	
+	public static ListJS getTypeList() {
+		if (cachedItemTypeListJS == null) {
+			cachedItemTypeListJS = new ListJS();
+			
+			for (ResourceLocation id : Registry.ITEM.keySet()) {
+				cachedItemTypeListJS.add(id.toString());
+			}
+		}
+		
+		return cachedItemTypeListJS;
+	}
+	
+	@Nullable
+	public static CreativeModeTab findGroup(String id) {
+		for (CreativeModeTab group : CreativeModeTab.TABS) {
+			if (id.equals(group.getRecipeFolderName())) {
+				return group;
+			}
+		}
+		
+		return null;
 	}
 	
 	private double chance = 1D;
@@ -483,6 +509,14 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 //		return getHarvestLevel(tool, null, null);
 //	}
 	
+	public float getHarvestSpeed(@Nullable BlockContainerJS block) {
+		return getItemStack().getDestroySpeed(block == null ? Blocks.AIR.defaultBlockState() : block.getBlockState());
+	}
+	
+	public float getHarvestSpeed() {
+		return getHarvestSpeed(null);
+	}
+	
 	@Override
 	public JsonElement toJson() {
 		JsonObject json = new JsonObject();
@@ -495,7 +529,7 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 		if (getCount() != 1) {
 			json.addProperty("count", getCount());
 		}
-
+		
 		return json;
 	}
 	
@@ -524,5 +558,13 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 	
 	@Override
 	public void onChanged(@Nullable MapJS o) {
+	}
+	
+	public String getItemGroup() {
+		if (getItem().getItemCategory() == null) {
+			return "";
+		}
+		
+		return getItem().getItemCategory().getRecipeFolderName();
 	}
 }

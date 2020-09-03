@@ -2,10 +2,7 @@ package dev.latvian.kubejs.core;
 
 import dev.latvian.kubejs.server.ServerScriptManager;
 import net.minecraft.server.ServerResources;
-import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
-
-import java.util.List;
 
 /**
  * @author LatvianModder
@@ -21,10 +18,5 @@ public interface DataPackRegistriesKJS {
 		} catch (Exception ex) {
 			throw new RuntimeException("KubeJS failed to register it's script loader!");
 		}
-	}
-	
-	static List<PackResources> getResourcePackListKJS(List<PackResources> list) {
-		// ...
-		return list;
 	}
 }

@@ -1,21 +1,19 @@
 package dev.latvian.kubejs.compat;
 
-import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import dev.latvian.kubejs.KubeJS;
 import dev.latvian.kubejs.KubeJSInitializer;
 import dev.latvian.kubejs.item.ItemStackJS;
 import dev.latvian.kubejs.item.ingredient.IngredientJS;
 import dev.latvian.kubejs.recipe.RecipeExceptionJS;
 import dev.latvian.kubejs.recipe.RecipeJS;
-import dev.latvian.kubejs.recipe.RecipeTypeJS;
 import dev.latvian.kubejs.recipe.RegisterRecipeHandlersEvent;
 import dev.latvian.kubejs.util.ListJS;
 import net.fabricmc.loader.api.FabricLoader;
-import org.apache.logging.log4j.Level;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -24,30 +22,30 @@ public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 	public void onKubeJSInitialization() {
 		if (!FabricLoader.getInstance().isModLoaded("techreborn")) return;
 		RegisterRecipeHandlersEvent.EVENT.register(event -> {
-			event.register(new RecipeTypeJS("techreborn:alloy_smelter", () -> new ImplementedRecipeJS("Alloy Smelter")));
-			event.register(new RecipeTypeJS("techreborn:assembling_machine", () -> new ImplementedRecipeJS("Assembling Machine")));
-			event.register(new RecipeTypeJS("techreborn:centrifuge", () -> new ImplementedRecipeJS("Centrifuge")));
-			event.register(new RecipeTypeJS("techreborn:chemical_reactor", () -> new ImplementedRecipeJS("Chemical Reactor")));
-			event.register(new RecipeTypeJS("techreborn:compressor", () -> new ImplementedRecipeJS("Compressor")));
-			event.register(new RecipeTypeJS("techreborn:distillation_tower", () -> new ImplementedRecipeJS("Distillation Tower")));
-			event.register(new RecipeTypeJS("techreborn:extractor", () -> new ImplementedRecipeJS("Extractor")));
-			event.register(new RecipeTypeJS("techreborn:grinder", () -> new ImplementedRecipeJS("Grinder")));
-			event.register(new RecipeTypeJS("techreborn:implosion_compressor", () -> new ImplementedRecipeJS("Implosion Compressor")));
-			event.register(new RecipeTypeJS("techreborn:industrial_electrolyzer", () -> new ImplementedRecipeJS("Industrial Electrolyzer")));
-			event.register(new RecipeTypeJS("techreborn:recycler", () -> new ImplementedRecipeJS("Recycler")));
-			event.register(new RecipeTypeJS("techreborn:scrapbox", () -> new ImplementedRecipeJS("Scrapbox")));
-			event.register(new RecipeTypeJS("techreborn:vacuum_freezer", () -> new ImplementedRecipeJS("Vacuum Freezer")));
-			event.register(new RecipeTypeJS("techreborn:solid_canning_machine", () -> new ImplementedRecipeJS("Solid Canning Machine")));
-			event.register(new RecipeTypeJS("techreborn:wire_mill", () -> new ImplementedRecipeJS("Wire Mill")));
+			event.register("techreborn:alloy_smelter", () -> new ImplementedRecipeJS("Alloy Smelter"));
+			event.register("techreborn:assembling_machine", () -> new ImplementedRecipeJS("Assembling Machine"));
+			event.register("techreborn:centrifuge", () -> new ImplementedRecipeJS("Centrifuge"));
+			event.register("techreborn:chemical_reactor", () -> new ImplementedRecipeJS("Chemical Reactor"));
+			event.register("techreborn:compressor", () -> new ImplementedRecipeJS("Compressor"));
+			event.register("techreborn:distillation_tower", () -> new ImplementedRecipeJS("Distillation Tower"));
+			event.register("techreborn:extractor", () -> new ImplementedRecipeJS("Extractor"));
+			event.register("techreborn:grinder", () -> new ImplementedRecipeJS("Grinder"));
+			event.register("techreborn:implosion_compressor", () -> new ImplementedRecipeJS("Implosion Compressor"));
+			event.register("techreborn:industrial_electrolyzer", () -> new ImplementedRecipeJS("Industrial Electrolyzer"));
+			event.register("techreborn:recycler", () -> new ImplementedRecipeJS("Recycler"));
+			event.register("techreborn:scrapbox", () -> new ImplementedRecipeJS("Scrapbox"));
+			event.register("techreborn:vacuum_freezer", () -> new ImplementedRecipeJS("Vacuum Freezer"));
+			event.register("techreborn:solid_canning_machine", () -> new ImplementedRecipeJS("Solid Canning Machine"));
+			event.register("techreborn:wire_mill", () -> new ImplementedRecipeJS("Wire Mill"));
 		});
 	}
-
+	
 	private static abstract class SimpleRecipeJS extends RecipeJS {
 		private final List<IngredientJS> inputs = new ArrayList<>();
 		private final List<IngredientJS> outputs = new ArrayList<>();
 		private int time = 30;
 		private int power = 280;
-
+		
 		@Override
 		public void create(ListJS args) {
 			if (args.size() < 2) {
@@ -56,8 +54,9 @@ public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 			ListJS outputList = ListJS.of(args.get(0));
 			for (Object o : outputList) {
 				IngredientJS ingredient = IngredientJS.of(o);
-				if (ingredient instanceof ItemStackJS){ outputItems.add((ItemStackJS) ingredient);}
-				else outputs.add(ingredient);
+				if (ingredient instanceof ItemStackJS) {
+					outputItems.add((ItemStackJS) ingredient);
+				} else outputs.add(ingredient);
 			}
 			ListJS inputList = ListJS.of(args.get(1));
 			for (Object o : inputList) {
@@ -65,16 +64,16 @@ public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 				if (ingredient instanceof ItemStackJS) inputItems.add(ingredient);
 				else inputs.add(ingredient);
 			}
-
+			
 			if (args.size() >= 3) {
 				time = ((Number) args.get(2)).intValue();
 			}
-
+			
 			if (args.size() >= 4) {
 				power = ((Number) args.get(3)).intValue();
 			}
 		}
-
+		
 		@Override
 		public void deserialize() {
 			ListJS outputList = ListJS.of(json.get("results"));
@@ -89,13 +88,13 @@ public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 				if (ingredient instanceof ItemStackJS) inputItems.add(ingredient);
 				else inputs.add(ingredient);
 			}
-
+			
 			time = json.get("time").getAsInt();
 			power = json.get("power").getAsInt();
 		}
-
+		
 		protected abstract String getTypeName();
-
+		
 		@Override
 		public void serialize() {
 			json.add("ingredients", toJsonArray(Stream.concat(inputs.stream(), inputItems.stream()).collect(Collectors.toSet())));
@@ -107,11 +106,11 @@ public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 	
 	static JsonElement toJsonArray(Collection<? extends IngredientJS> ingredients) {
 		JsonArray array = new JsonArray();
-
+		
 		for (IngredientJS ingredient : ingredients) {
 			array.add(ingredient.toJson());
 		}
-
+		
 		return array;
 	}
 	
