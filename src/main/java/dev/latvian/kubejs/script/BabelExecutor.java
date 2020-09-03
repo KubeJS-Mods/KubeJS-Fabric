@@ -25,7 +25,7 @@ public class BabelExecutor {
 	}
 	
 	public static void init() {
-		if (inited) {
+		if (inited || !enabled()) {
 			return;
 		}
 		
