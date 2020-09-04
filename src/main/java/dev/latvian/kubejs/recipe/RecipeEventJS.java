@@ -1,15 +1,9 @@
 package dev.latvian.kubejs.recipe;
 
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.mojang.datafixers.util.Pair;
 import dev.latvian.kubejs.KubeJSEvents;
-import dev.latvian.kubejs.core.RecipeManagerKJS;
 import dev.latvian.kubejs.item.EmptyItemStackJS;
 import dev.latvian.kubejs.item.ItemStackJS;
 import dev.latvian.kubejs.item.ingredient.IngredientJS;
@@ -25,14 +19,12 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
@@ -49,23 +41,17 @@ public class RecipeEventJS extends ServerEventJS {
 	private static final Predicate<RecipeJS> ALWAYS_FALSE = r -> false;
 	
 	public final Map<ResourceLocation, RecipeTypeJS> typeMap;
-	public final List<Recipe<?>> failedRecipes;
-	public final List<RecipeJS> originalRecipes;
-	private final List<RecipeJS> addedRecipes;
-	private final Set<RecipeJS> removedRecipes;
+	public final List<Recipe<?>> fallbackedRecipes = new ArrayList<>();
+	public final List<RecipeJS> originalRecipes = new ArrayList<>();
+	private final List<RecipeJS> addedRecipes = new ArrayList<>();
+	private final Set<RecipeJS> removedRecipes = new HashSet<>();
 	public final Map<ResourceLocation, RecipeFunction> functionMap;
 	
 	private final DynamicMapJS<String, DynamicMapJS<String, RecipeFunction>> recipeFunctions;
 	
 	public RecipeEventJS(Map<ResourceLocation, RecipeTypeJS> t) {
 		typeMap = t;
-		failedRecipes = new ArrayList<>();
-		originalRecipes = new ArrayList<>();
-		
 		ScriptType.SERVER.console.getLogger().info("Scanning recipes...");
-		
-		addedRecipes = new ArrayList<>();
-		removedRecipes = new HashSet<>();
 		functionMap = new DynamicConcurrentMapJS<>(id -> {
 			RecipeSerializer<?> serializer = Registry.RECIPE_SERIALIZER.get(id);
 			
@@ -81,104 +67,91 @@ public class RecipeEventJS extends ServerEventJS {
 	}
 	
 	public void post(RecipeManager recipeManager, Map<ResourceLocation, JsonObject> jsonMap) {
+		class MissingRecipeFunctionException extends Exception {
+			public MissingRecipeFunctionException(String message) {
+				super(message);
+			}
+		}
+		class RecipeHolder {
+			@Nullable
+			Recipe<?> recipe;
+			@Nullable
+			RecipeJS recipeJS;
+			
+			public RecipeHolder(@NotNull Recipe<?> recipe) {
+				this.recipe = recipe;
+			}
+			
+			public RecipeHolder(@NotNull RecipeJS recipeJS) {
+				this.recipeJS = recipeJS;
+			}
+		}
 		ScriptType.SERVER.console.setLineNumber(true);
 		Stopwatch timer = Stopwatch.createUnstarted();
 		
-		List<CompletableFuture<Pair<List<RecipeJS>, List<Recipe<?>>>>> completableFutures = Lists.newArrayList();
 		timer.reset().start();
-		Iterables.partition(jsonMap.entrySet(), 100)
-				.forEach(entries -> completableFutures.add(CompletableFuture.supplyAsync(() -> {
-					List<RecipeJS> originalRecipes = Lists.newArrayList();
-					List<Recipe<?>> failedRecipes = Lists.newArrayList();
-					
-					for (Map.Entry<ResourceLocation, JsonObject> entry : entries) {
-						ResourceLocation recipeId = entry.getKey();
-						JsonObject json = entry.getValue();
-						
-						if (recipeId.getPath().startsWith("_")) {
-							continue; //Forge: filter anything beginning with "_" as it's used for metadata.
-						}
-						
-						try {
-							// Come back to conditions
-//				if (!CraftingHelper.processConditions(json, "conditions"))
-//				{
-//					ScriptType.SERVER.console.info("Skipping loading recipe " + recipeId + " as it's conditions were not met");
-//					continue;
-//				}
-							
-							JsonElement t = json.get("type");
-							
-							if (!(t instanceof JsonPrimitive) || !((JsonPrimitive) t).isString()) {
-								ScriptType.SERVER.console.warn("Missing or invalid recipe recipe type, expected a string in recipe " + recipeId);
-								continue;
-							}
-							
-							RecipeFunction function = functionMap.get(new ResourceLocation(t.getAsString()));
-							
-							if (function.type == null) {
-								ScriptType.SERVER.console.warn("Skipping loading recipe " + recipeId + " as it's type " + function.typeID + " is unknown");
-								continue;
-							}
-							
-							RecipeJS recipe = function.type.factory.get();
-							recipe.id = recipeId;
-							recipe.type = function.type;
-							recipe.json = json;
-							recipe.originalRecipe = function.type.serializer.fromJson(recipeId, json);
-							
-							if (recipe.originalRecipe == null) {
-								ScriptType.SERVER.console.warn("Skipping loading recipe " + recipe + " as it's serializer returned null");
-								continue;
-							}
-							
-							recipe.deserialize();
-							originalRecipes.add(recipe);
-							
-							if (recipe.originalRecipe.isSpecial()) {
-								ScriptType.SERVER.console.debug("Loaded recipe " + recipe + ": <dynamic>");
-							} else {
-								ScriptType.SERVER.console.debug("Loaded recipe " + recipe + ": " + recipe.inputItems + " -> " + recipe.outputItems);
-							}
-						} catch (Exception ex) {
-							ScriptType.SERVER.console.warn("Parsing error loading recipe " + recipeId, ex);
-							try {
-								Recipe<?> recipe = fromJson(recipeId, GsonHelper.convertToJsonObject(entry.getValue(), "top element"));
-								failedRecipes.add(recipe);
-							} catch (IllegalArgumentException | JsonParseException ex2) {
-								ScriptType.SERVER.console.warn("Parsing error loading recipe " + recipeId, ex2);
-							}
-						}
-					}
-					
-					return new Pair<>(originalRecipes, failedRecipes);
-				})));
+		List<RecipeHolder> holders = jsonMap.entrySet().parallelStream().<RecipeHolder>map(entry -> {
+			ResourceLocation recipeId = entry.getKey();
+			JsonObject json = entry.getValue();
+			
+			try {
+				String type = GsonHelper.getAsString(json, "type");
+				RecipeFunction function = functionMap.get(new ResourceLocation(type));
+				if (function.type == null) {
+					throw new MissingRecipeFunctionException("Skipping loading recipe " + recipeId + " as it's type " + function.typeId + " is unknown!");
+				}
+				
+				RecipeJS recipe = function.type.factory.get();
+				recipe.id = recipeId;
+				recipe.type = function.type;
+				recipe.json = json;
+				recipe.originalRecipe = function.type.serializer.fromJson(recipeId, json);
+				
+				if (recipe.originalRecipe == null) {
+					throw new NullPointerException("Skipping loading recipe " + recipe + " as it's serializer returned null!");
+				}
+				
+				recipe.deserialize();
+				
+				if (recipe.originalRecipe.isSpecial()) {
+					ScriptType.SERVER.console.debugf("Loaded recipe %s: <dynamic>", recipe);
+				} else {
+					ScriptType.SERVER.console.debugf("Loaded recipe %s: %s -> %s", recipe, recipe.inputItems, recipe.outputItems);
+				}
+				
+				return new RecipeHolder(recipe);
+			} catch (Exception ex) {
+				if (!(ex instanceof MissingRecipeFunctionException)) {
+					ScriptType.SERVER.console.warn("Failed to parse recipe for '" + recipeId + "'! Falling back to vanilla!", ex);
+				}
+				try {
+					return new RecipeHolder(Objects.requireNonNull(fromJson(recipeId, GsonHelper.convertToJsonObject(entry.getValue(), "top element"))));
+				} catch (NullPointerException | IllegalArgumentException | JsonParseException ex2) {
+					ScriptType.SERVER.console.warn("Parsing error loading recipe " + recipeId, ex2);
+					return null;
+				}
+			}
+		}).filter(Objects::nonNull).collect(Collectors.toList());
 		
-		try {
-			CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[0])).get(30, TimeUnit.SECONDS);
-		} catch (InterruptedException | ExecutionException | TimeoutException e) {
-			e.printStackTrace();
-		}
-		for (CompletableFuture<Pair<List<RecipeJS>, List<Recipe<?>>>> future : completableFutures) {
-			Pair<List<RecipeJS>, List<Recipe<?>>> now = future.getNow(null);
-			if (now != null) {
-				originalRecipes.addAll(now.getFirst());
-				failedRecipes.addAll(now.getSecond());
+		for (RecipeHolder holder : holders) {
+			if (holder.recipeJS != null) {
+				originalRecipes.add(holder.recipeJS);
+			}
+			if (holder.recipe != null) {
+				fallbackedRecipes.add(holder.recipe);
 			}
 		}
 		
 		
-		ScriptType.SERVER.console.getLogger().info("Found " + originalRecipes.size() + " recipes and " + failedRecipes.size() + " failed recipes in " + timer.stop());
+		ScriptType.SERVER.console.getLogger().info("Found {} recipes and {} failed recipes in {}.", originalRecipes.size(), fallbackedRecipes.size(), timer.stop());
 		timer.reset().start();
 		ScriptType.SERVER.console.setLineNumber(true);
 		post(ScriptType.SERVER, KubeJSEvents.RECIPES);
 		ScriptType.SERVER.console.setLineNumber(false);
-		ScriptType.SERVER.console.getLogger().info("Posted recipe events in " + timer.stop());
+		ScriptType.SERVER.console.getLogger().info("Posted recipe events in {}.", timer.stop());
 		
 		Map<RecipeType<?>, Map<ResourceLocation, Recipe<?>>> newRecipeMap = new HashMap<>();
-		int[] removed = {0};
-		int[] modified = {0};
-		int[] added = {0};
+		int[] removed = {0}, modified = {0}, added = {0}, failed = {0}, fallbacked = {0};
 		
 		timer.reset().start();
 		originalRecipes.parallelStream()
@@ -192,39 +165,51 @@ public class RecipeEventJS extends ServerEventJS {
 				.map(recipe -> {
 					try {
 						recipe.serialize();
-						Objects.requireNonNull(recipe.originalRecipe = recipe.type.serializer.fromJson(recipe.id, recipe.json));
-					} catch (Exception ex) {
+						Recipe<?> resultRecipe = Objects.requireNonNull(recipe.type.serializer.fromJson(recipe.id, recipe.json));
+						if (recipe.type.serializer.getClass().getName().contains("RebornRecipeType")) {
+							resultRecipe = resultRecipe.getClass().getConstructor(recipe.type.serializer.getClass(), ResourceLocation.class).newInstance(recipe.type.serializer, recipe.id);
+							resultRecipe.getClass().getMethod("deserialize", JsonObject.class).invoke(resultRecipe, recipe.json);
+						}
+						recipe.originalRecipe = resultRecipe;
+					} catch (Throwable ex) {
 						ScriptType.SERVER.console.warn("Error parsing recipe " + recipe + ": " + recipe.json, ex);
+						failed[0]++;
 					}
 					return recipe.originalRecipe;
 				})
 				.filter(Objects::nonNull)
 				.collect(Collectors.groupingBy(Recipe::getType,
 						Collectors.groupingBy(Recipe::getId,
-								Collectors.reducing(null, UnaryOperator.identity(), (recipe, recipe2) -> recipe2))))
+								Collectors.reducing(null, Function.identity(), (recipe, recipe2) -> recipe2))))
 				.forEach((recipeType, map) -> {
 					modified[0] += map.size();
 					newRecipeMap.computeIfAbsent(recipeType, type -> new HashMap<>()).putAll(map);
 				});
-		failedRecipes.parallelStream()
+		fallbackedRecipes.parallelStream()
 				.filter(Objects::nonNull)
 				.collect(Collectors.groupingBy(Recipe::getType,
 						Collectors.groupingBy(Recipe::getId,
-								Collectors.reducing(null, UnaryOperator.identity(), (recipe, recipe2) -> recipe2))))
+								Collectors.reducing(null, Function.identity(), (recipe, recipe2) -> recipe2))))
 				.forEach((recipeType, map) -> {
-					modified[0] += map.size();
+					fallbacked[0] += map.size();
 					newRecipeMap.computeIfAbsent(recipeType, type -> new HashMap<>()).putAll(map);
 				});
-		ScriptType.SERVER.console.getLogger().info("Modified & removed recipes in " + timer.stop());
+		ScriptType.SERVER.console.getLogger().info("Modified & removed recipes in {}.", timer.stop());
 		
 		timer.reset().start();
 		addedRecipes.parallelStream()
 				.map(recipe -> {
 					try {
 						recipe.serialize();
-						Objects.requireNonNull(recipe.originalRecipe = recipe.type.serializer.fromJson(recipe.id, recipe.json));
-					} catch (Exception ex) {
+						Recipe<?> resultRecipe = Objects.requireNonNull(recipe.type.serializer.fromJson(recipe.id, recipe.json));
+						if (recipe.type.serializer.getClass().getName().contains("RebornRecipeType")) {
+							resultRecipe = resultRecipe.getClass().getConstructor(recipe.type.serializer.getClass(), ResourceLocation.class).newInstance(recipe.type.serializer, recipe.id);
+							resultRecipe.getClass().getMethod("deserialize", JsonObject.class).invoke(resultRecipe, recipe.json);
+						}
+						recipe.originalRecipe = resultRecipe;
+					} catch (Throwable ex) {
 						ScriptType.SERVER.console.warn("Error creating recipe " + recipe + ": " + recipe.json, ex);
+						failed[0]++;
 					}
 					return recipe.originalRecipe;
 				})
@@ -236,32 +221,32 @@ public class RecipeEventJS extends ServerEventJS {
 					added[0] += map.size();
 					newRecipeMap.computeIfAbsent(recipeType, type -> new HashMap<>()).putAll(map);
 				});
-		ScriptType.SERVER.console.getLogger().info("Added recipes in " + timer.stop());
+		ScriptType.SERVER.console.getLogger().info("Added recipes in {}.", timer.stop());
 		
 		FabricLoader.getInstance().getEntrypoints("kubejs-set-recipes", Consumer.class).forEach(consumer -> consumer.accept(newRecipeMap));
-		((RecipeManagerKJS) recipeManager).setRecipesKJS(newRecipeMap);
-		ScriptType.SERVER.console.info("Added " + added[0] + " recipes, removed " + removed[0] + " recipes, modified " + modified[0] + " recipes");
+		recipeManager.recipes = newRecipeMap;
+		ScriptType.SERVER.console.getLogger().info("Added {} recipes, removed {} recipes, modified {} recipes, with {} failed recipes and {} fall-backed recipes.", added[0], removed[0], modified[0], failed[0], fallbacked[0]);
 	}
 	
 	public DynamicMapJS<String, DynamicMapJS<String, RecipeFunction>> getRecipes() {
 		return recipeFunctions;
 	}
 	
-	public RecipeJS addRecipe(RecipeJS r, RecipeTypeJS type, ListJS args1) {
-		addedRecipes.add(r);
+	public RecipeJS addRecipe(RecipeJS recipe, RecipeTypeJS type, ListJS args1) {
+		addedRecipes.add(recipe);
 		
-		if (r.id == null) {
-			ResourceLocation itemId = UtilsJS.getMCID(r.outputItems.isEmpty() ? EmptyItemStackJS.INSTANCE.getId() : r.outputItems.get(0).getId());
-			r.id = new ResourceLocation(Registry.RECIPE_SERIALIZER.getKey(type.serializer).getNamespace(), "kubejs_generated_" + addedRecipes.size() + "_" + itemId.getNamespace() + "_" + itemId.getPath().replace('/', '_'));
+		if (recipe.id == null) {
+			ResourceLocation itemId = UtilsJS.getMCID(recipe.outputItems.isEmpty() ? EmptyItemStackJS.INSTANCE.getId() : recipe.outputItems.get(0).getId());
+			recipe.id = new ResourceLocation(Registry.RECIPE_SERIALIZER.getKey(type.serializer).getNamespace(), "kubejs_generated_" + addedRecipes.size() + "_" + itemId.getNamespace() + "_" + itemId.getPath().replace('/', '_'));
 		}
 		
 		if (ServerSettings.instance.logAddedRecipes) {
-			ScriptType.SERVER.console.info("+ " + r + ": " + r.inputItems + " -> " + r.outputItems);
+			ScriptType.SERVER.console.infof("+ %s: %s -> %s", recipe, recipe.inputItems, recipe.outputItems);
 		} else {
-			ScriptType.SERVER.console.debug("+ " + r + ": " + r.inputItems + " -> " + r.outputItems);
+			ScriptType.SERVER.console.debugf("+ %s: %s -> %s", recipe, recipe.inputItems, recipe.outputItems);
 		}
 		
-		return r;
+		return recipe;
 	}
 	
 	public Predicate<RecipeJS> createFilter(@Nullable Object o) {

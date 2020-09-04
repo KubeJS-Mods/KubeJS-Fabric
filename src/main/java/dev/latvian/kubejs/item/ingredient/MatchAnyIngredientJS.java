@@ -1,5 +1,7 @@
 package dev.latvian.kubejs.item.ingredient;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import dev.latvian.kubejs.item.EmptyItemStackJS;
 import dev.latvian.kubejs.item.ItemStackJS;
 
@@ -55,6 +57,15 @@ public class MatchAnyIngredientJS implements IngredientJS, Consumer<IngredientJS
 		}
 		
 		return set;
+	}
+	
+	@Override
+	public JsonElement toJson() {
+		JsonArray array = new JsonArray();
+		for (IngredientJS ingredient : ingredients) {
+			array.add(ingredient.toJson());
+		}
+		return array;
 	}
 	
 	@Override

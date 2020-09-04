@@ -2,6 +2,9 @@ package dev.latvian.kubejs.compat;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.JsonOps;
 import dev.latvian.kubejs.KubeJSInitializer;
 import dev.latvian.kubejs.item.ItemStackJS;
 import dev.latvian.kubejs.item.ingredient.IngredientJS;
@@ -10,12 +13,10 @@ import dev.latvian.kubejs.recipe.RecipeJS;
 import dev.latvian.kubejs.recipe.RegisterRecipeHandlersEvent;
 import dev.latvian.kubejs.util.ListJS;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.nbt.NbtOps;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.function.Function;
 
 public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 	@Override
@@ -41,8 +42,6 @@ public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 	}
 	
 	private static abstract class SimpleRecipeJS extends RecipeJS {
-		private final List<IngredientJS> inputs = new ArrayList<>();
-		private final List<IngredientJS> outputs = new ArrayList<>();
 		private int time = 30;
 		private int power = 280;
 		
@@ -53,16 +52,13 @@ public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 			}
 			ListJS outputList = ListJS.of(args.get(0));
 			for (Object o : outputList) {
-				IngredientJS ingredient = IngredientJS.of(o);
-				if (ingredient instanceof ItemStackJS) {
-					outputItems.add((ItemStackJS) ingredient);
-				} else outputs.add(ingredient);
+				ItemStackJS ingredient = ItemStackJS.of(o);
+				outputItems.add(ingredient);
 			}
 			ListJS inputList = ListJS.of(args.get(1));
 			for (Object o : inputList) {
 				IngredientJS ingredient = IngredientJS.of(o);
-				if (ingredient instanceof ItemStackJS) inputItems.add(ingredient);
-				else inputs.add(ingredient);
+				inputItems.add(ingredient);
 			}
 			
 			if (args.size() >= 3) {
@@ -78,15 +74,13 @@ public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 		public void deserialize() {
 			ListJS outputList = ListJS.of(json.get("results"));
 			for (Object o : outputList) {
-				IngredientJS ingredient = IngredientJS.of(o);
-				if (ingredient instanceof ItemStackJS) outputItems.add((ItemStackJS) ingredient);
-				else outputs.add(ingredient);
+				ItemStackJS ingredient = ItemStackJS.of(o);
+				outputItems.add(ingredient);
 			}
-			ListJS inputList = ListJS.of(json.get("ingredients"));
-			for (Object o : inputList) {
+			JsonArray inputList = json.get("ingredients").getAsJsonArray();
+			for (JsonElement o : inputList) {
 				IngredientJS ingredient = IngredientJS.of(o);
-				if (ingredient instanceof ItemStackJS) inputItems.add(ingredient);
-				else inputs.add(ingredient);
+				inputItems.add(ingredient);
 			}
 			
 			time = json.get("time").getAsInt();
@@ -97,8 +91,8 @@ public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 		
 		@Override
 		public void serialize() {
-			json.add("ingredients", toJsonArray(Stream.concat(inputs.stream(), inputItems.stream()).collect(Collectors.toSet())));
-			json.add("results", toJsonArray(Stream.concat(outputs.stream(), outputItems.stream()).collect(Collectors.toSet())));
+			json.add("ingredients", toJsonArray(inputItems));
+			json.add("results", toResultsArray(outputItems));
 			json.addProperty("time", time);
 			json.addProperty("power", power);
 		}
@@ -108,7 +102,34 @@ public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 		JsonArray array = new JsonArray();
 		
 		for (IngredientJS ingredient : ingredients) {
-			array.add(ingredient.toJson());
+			if (ingredient instanceof ItemStackJS) {
+				array.add(stackSerializer.apply((ItemStackJS) ingredient));
+			} else array.add(ingredient.toJson());
+		}
+		
+		return array;
+	}
+	
+	static Function<ItemStackJS, JsonElement> stackSerializer = (stack) -> {
+		JsonObject json = new JsonObject();
+		json.addProperty("item", stack.getId());
+		
+		if (!stack.getNbt().isEmpty()) {
+			json.add("nbt", Dynamic.convert(NbtOps.INSTANCE, JsonOps.INSTANCE, stack.getNbt().toNBT()));
+		}
+		
+		if (stack.getCount() != 1) {
+			json.addProperty("count", stack.getCount());
+		}
+		
+		return json;
+	};
+	
+	static JsonElement toResultsArray(Collection<? extends ItemStackJS> outputs) {
+		JsonArray array = new JsonArray();
+		
+		for (ItemStackJS output : outputs) {
+			array.add(stackSerializer.apply(output));
 		}
 		
 		return array;

@@ -20,13 +20,13 @@ import java.util.Map;
  */
 public class RecipeFunction extends AbstractJSObject implements WrappedJS {
 	private final RecipeEventJS event;
-	public final ResourceLocation typeID;
+	public final ResourceLocation typeId;
 	public final RecipeTypeJS type;
 	
-	public RecipeFunction(RecipeEventJS e, ResourceLocation id, @Nullable RecipeTypeJS t) {
-		event = e;
-		typeID = id;
-		type = t;
+	public RecipeFunction(RecipeEventJS event, ResourceLocation typeId, @Nullable RecipeTypeJS type) {
+		this.event = event;
+		this.typeId = typeId;
+		this.type = type;
 	}
 	
 	@Override
@@ -64,7 +64,7 @@ public class RecipeFunction extends AbstractJSObject implements WrappedJS {
 			recipe.create(args);
 			return event.addRecipe(recipe, type, args);
 		} catch (RecipeExceptionJS ex) {
-			ScriptType.SERVER.console.warn("Failed to create recipe for type '" + typeID + "': " + ex);
+			ScriptType.SERVER.console.warn("Failed to create recipe for type '" + typeId + "': " + ex);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -108,6 +108,6 @@ public class RecipeFunction extends AbstractJSObject implements WrappedJS {
 	
 	@Override
 	public String toString() {
-		return typeID.toString();
+		return typeId.toString();
 	}
 }

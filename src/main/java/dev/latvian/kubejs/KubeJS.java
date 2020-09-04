@@ -79,7 +79,7 @@ public class KubeJS implements ModInitializer {
 		
 		FabricLoader.getInstance().getEntrypoints("kubejs-init", KubeJSInitializer.class).forEach((it) -> {
 			it.onKubeJSInitialization();
-			LOGGER.log(Level.INFO, "Initialized entrypoint " + it.getClass().getSimpleName() + "!");
+			LOGGER.log(Level.INFO, "Initialized entrypoint " + it.getClass().getSimpleName() + ".");
 		});
 		
 		Path oldStartupFolder = KubeJSPaths.DIRECTORY.resolve("startup");
