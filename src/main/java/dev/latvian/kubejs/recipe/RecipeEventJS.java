@@ -168,7 +168,7 @@ public class RecipeEventJS extends ServerEventJS {
 		}
 		
 		
-		ScriptType.SERVER.console.getLogger().info("Found " + originalRecipes.size() + " recipes and " + failedRecipes.size() + "failed recipes in " + timer.stop());
+		ScriptType.SERVER.console.getLogger().info("Found " + originalRecipes.size() + " recipes and " + failedRecipes.size() + " failed recipes in " + timer.stop());
 		timer.reset().start();
 		ScriptType.SERVER.console.setLineNumber(true);
 		post(ScriptType.SERVER, KubeJSEvents.RECIPES);
@@ -190,13 +190,11 @@ public class RecipeEventJS extends ServerEventJS {
 					return true;
 				})
 				.map(recipe -> {
-					if (recipe.originalRecipe != null) {
-						try {
-							recipe.serialize();
-							return recipe.originalRecipe = recipe.type.serializer.fromJson(recipe.id, recipe.json);
-						} catch (Exception ex) {
-							ScriptType.SERVER.console.warn("Error parsing recipe " + recipe + ": " + recipe.json, ex);
-						}
+					try {
+						recipe.serialize();
+						Objects.requireNonNull(recipe.originalRecipe = recipe.type.serializer.fromJson(recipe.id, recipe.json));
+					} catch (Exception ex) {
+						ScriptType.SERVER.console.warn("Error parsing recipe " + recipe + ": " + recipe.json, ex);
 					}
 					return recipe.originalRecipe;
 				})
@@ -224,11 +222,11 @@ public class RecipeEventJS extends ServerEventJS {
 				.map(recipe -> {
 					try {
 						recipe.serialize();
-						return recipe.originalRecipe = recipe.type.serializer.fromJson(recipe.id, recipe.json);
+						Objects.requireNonNull(recipe.originalRecipe = recipe.type.serializer.fromJson(recipe.id, recipe.json));
 					} catch (Exception ex) {
 						ScriptType.SERVER.console.warn("Error creating recipe " + recipe + ": " + recipe.json, ex);
 					}
-					return null;
+					return recipe.originalRecipe;
 				})
 				.filter(Objects::nonNull)
 				.collect(Collectors.groupingBy(Recipe::getType,
