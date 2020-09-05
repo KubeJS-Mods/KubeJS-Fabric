@@ -35,6 +35,10 @@ public class RecipeTypeJS {
 		return string;
 	}
 	
+	public String getId() {
+		return string;
+	}
+	
 	@Override
 	public int hashCode() {
 		return string.hashCode();

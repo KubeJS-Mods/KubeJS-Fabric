@@ -29,7 +29,12 @@ public abstract class RecipeJS {
 	
 	public abstract void deserialize();
 	
-	public abstract void serialize();
+	public final void serializeJson() {
+		json.addProperty("type", type.getId());
+		serialize();
+	}
+	
+	protected abstract void serialize();
 	
 	public final void save() {
 		originalRecipe = null;

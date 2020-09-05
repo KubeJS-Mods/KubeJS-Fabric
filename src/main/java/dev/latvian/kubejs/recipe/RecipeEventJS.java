@@ -164,7 +164,7 @@ public class RecipeEventJS extends ServerEventJS {
 				})
 				.map(recipe -> {
 					try {
-						recipe.serialize();
+						recipe.serializeJson();
 						Recipe<?> resultRecipe = Objects.requireNonNull(recipe.type.serializer.fromJson(recipe.id, recipe.json));
 						if (recipe.type.serializer.getClass().getName().contains("RebornRecipeType")) {
 							resultRecipe = resultRecipe.getClass().getConstructor(recipe.type.serializer.getClass(), ResourceLocation.class).newInstance(recipe.type.serializer, recipe.id);
@@ -200,7 +200,7 @@ public class RecipeEventJS extends ServerEventJS {
 		addedRecipes.parallelStream()
 				.map(recipe -> {
 					try {
-						recipe.serialize();
+						recipe.serializeJson();
 						Recipe<?> resultRecipe = Objects.requireNonNull(recipe.type.serializer.fromJson(recipe.id, recipe.json));
 						if (recipe.type.serializer.getClass().getName().contains("RebornRecipeType")) {
 							resultRecipe = resultRecipe.getClass().getConstructor(recipe.type.serializer.getClass(), ResourceLocation.class).newInstance(recipe.type.serializer, recipe.id);
