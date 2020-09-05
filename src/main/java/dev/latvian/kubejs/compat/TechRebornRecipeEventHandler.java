@@ -50,12 +50,12 @@ public class TechRebornRecipeEventHandler implements KubeJSInitializer {
 			if (args.size() < 2) {
 				throw new RecipeExceptionJS(getTypeName() + " recipe requires 2 arguments - output, and input!");
 			}
-			ListJS outputList = ListJS.of(args.get(0));
+			ListJS outputList = ListJS.orSelf(args.get(0));
 			for (Object o : outputList) {
 				ItemStackJS ingredient = ItemStackJS.of(o);
 				outputItems.add(ingredient);
 			}
-			ListJS inputList = ListJS.of(args.get(1));
+			ListJS inputList = ListJS.orSelf(args.get(1));
 			for (Object o : inputList) {
 				IngredientJS ingredient = IngredientJS.of(o);
 				inputItems.add(ingredient);
