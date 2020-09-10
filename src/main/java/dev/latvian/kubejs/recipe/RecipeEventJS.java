@@ -19,7 +19,6 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -72,25 +71,11 @@ public class RecipeEventJS extends ServerEventJS {
 				super(message);
 			}
 		}
-		class RecipeHolder {
-			@Nullable
-			Recipe<?> recipe;
-			@Nullable
-			RecipeJS recipeJS;
-			
-			public RecipeHolder(@NotNull Recipe<?> recipe) {
-				this.recipe = recipe;
-			}
-			
-			public RecipeHolder(@NotNull RecipeJS recipeJS) {
-				this.recipeJS = recipeJS;
-			}
-		}
 		ScriptType.SERVER.console.setLineNumber(true);
 		Stopwatch timer = Stopwatch.createUnstarted();
 		
 		timer.reset().start();
-		List<RecipeHolder> holders = jsonMap.entrySet().parallelStream().<RecipeHolder>map(entry -> {
+		List<Object> holders = jsonMap.entrySet().parallelStream().map(entry -> {
 			ResourceLocation recipeId = entry.getKey();
 			JsonObject json = entry.getValue();
 			
@@ -119,13 +104,13 @@ public class RecipeEventJS extends ServerEventJS {
 					ScriptType.SERVER.console.debugf("Loaded recipe %s: %s -> %s", recipe, recipe.inputItems, recipe.outputItems);
 				}
 				
-				return new RecipeHolder(recipe);
+				return recipe;
 			} catch (Exception ex) {
 				if (!(ex instanceof MissingRecipeFunctionException)) {
 					ScriptType.SERVER.console.warn("Failed to parse recipe for '" + recipeId + "'! Falling back to vanilla!", ex);
 				}
 				try {
-					return new RecipeHolder(Objects.requireNonNull(fromJson(recipeId, GsonHelper.convertToJsonObject(entry.getValue(), "top element"))));
+					return Objects.requireNonNull(fromJson(recipeId, GsonHelper.convertToJsonObject(entry.getValue(), "top element")));
 				} catch (NullPointerException | IllegalArgumentException | JsonParseException ex2) {
 					ScriptType.SERVER.console.warn("Parsing error loading recipe " + recipeId, ex2);
 					return null;
@@ -133,12 +118,12 @@ public class RecipeEventJS extends ServerEventJS {
 			}
 		}).filter(Objects::nonNull).collect(Collectors.toList());
 		
-		for (RecipeHolder holder : holders) {
-			if (holder.recipeJS != null) {
-				originalRecipes.add(holder.recipeJS);
+		for (Object recipe : holders) {
+			if (recipe instanceof RecipeJS) {
+				originalRecipes.add((RecipeJS) recipe);
 			}
-			if (holder.recipe != null) {
-				fallbackedRecipes.add(holder.recipe);
+			if (recipe instanceof Recipe) {
+				fallbackedRecipes.add((Recipe<?>) recipe);
 			}
 		}
 		

@@ -27,7 +27,7 @@ dependencies {
     modApi("net.fabricmc:fabric-loader:${project.fabric_version}")
     modApi("net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}")
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
-    modRuntime("me.shedaniel:RoughlyEnoughItems:5.2.10")
+    modRuntime("me.shedaniel:RoughlyEnoughItems:5.4.2")
 }
 
 processResources {
@@ -65,6 +65,8 @@ if (ENV.CURSEFORGE_KEY) {
             id = "${curseforge_id}"
             releaseType = "release"
             addGameVersion "1.16.1"
+            addGameVersion "1.16.2"
+            addGameVersion "1.16.3"
             addGameVersion "Fabric"
             relations {
                 requiredDependency "fabric-api"
