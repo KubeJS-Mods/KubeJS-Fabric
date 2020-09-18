@@ -1,6 +1,7 @@
 package dev.latvian.kubejs.script;
 
 import com.google.common.base.Stopwatch;
+import dev.latvian.kubejs.CommonProperties;
 import dev.latvian.kubejs.KubeJS;
 import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import net.fabricmc.loader.api.FabricLoader;
@@ -20,12 +21,8 @@ public class BabelExecutor {
 	private static ScriptEngine scriptEngine;
 	private static SimpleBindings bindings;
 	
-	private static boolean enabled() {
-		return !Files.exists(FabricLoader.getInstance().getGameDir().resolve("kubejs/.disablebabel"));
-	}
-	
 	public static void init() {
-		if (inited || !enabled()) {
+		if (inited || !CommonProperties.get().enableES6) {
 			return;
 		}
 		
@@ -46,7 +43,7 @@ public class BabelExecutor {
 	}
 	
 	public static String process(String string) throws ScriptException {
-		if (!enabled())
+		if (!CommonProperties.get().enableES6)
 			return string;
 		init();
 		bindings.put("input", string);
