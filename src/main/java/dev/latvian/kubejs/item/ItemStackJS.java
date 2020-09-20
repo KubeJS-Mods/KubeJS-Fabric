@@ -8,6 +8,7 @@ import dev.latvian.kubejs.docs.ID;
 import dev.latvian.kubejs.docs.MinecraftClass;
 import dev.latvian.kubejs.item.ingredient.IgnoreNBTIngredientJS;
 import dev.latvian.kubejs.item.ingredient.IngredientJS;
+import dev.latvian.kubejs.item.ingredient.IngredientStackJS;
 import dev.latvian.kubejs.item.ingredient.TagIngredientJS;
 import dev.latvian.kubejs.text.Text;
 import dev.latvian.kubejs.util.*;
@@ -49,7 +50,7 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 			String s = o.toString();
 			
 			if (s.startsWith("#")) {
-				return new TagIngredientJS(new ResourceLocation(s.substring(1)), 1).getFirst();
+				return TagIngredientJS.createTag(s.substring(1)).getFirst();
 			}
 			
 			return new UnboundItemStackJS(new ResourceLocation(s));
@@ -75,7 +76,7 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 				if (map.containsKey("count")) {
 					count = UtilsJS.parseInt(map.get("count"), 1);
 				}
-				ItemStackJS stack = new TagIngredientJS(new ResourceLocation(map.get("tag").toString()), count).getFirst();
+				ItemStackJS stack = TagIngredientJS.createTag(map.get("tag").toString()).count(count).getFirst();
 				
 				if (map.containsKey("count")) {
 					stack.setCount(UtilsJS.parseInt(map.get("count"), 1));
@@ -92,7 +93,7 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 		}
 		
 		if (s.startsWith("#")) {
-			return new TagIngredientJS(new ResourceLocation(s.substring(1)), 1).getFirst();
+			return TagIngredientJS.createTag(s.substring(1)).getFirst();
 		}
 		
 		return new UnboundItemStackJS(new ResourceLocation(s));

@@ -7,6 +7,7 @@ import dev.latvian.kubejs.KubeJSEvents;
 import dev.latvian.kubejs.item.EmptyItemStackJS;
 import dev.latvian.kubejs.item.ItemStackJS;
 import dev.latvian.kubejs.item.ingredient.IngredientJS;
+import dev.latvian.kubejs.recipe.filter.RecipeFilter;
 import dev.latvian.kubejs.script.ScriptType;
 import dev.latvian.kubejs.server.ServerEventJS;
 import dev.latvian.kubejs.server.ServerSettings;
@@ -24,7 +25,6 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
@@ -35,9 +35,6 @@ import static net.minecraft.world.item.crafting.RecipeManager.fromJson;
  */
 public class RecipeEventJS extends ServerEventJS {
 	public static RecipeEventJS instance;
-	
-	private static final Predicate<RecipeJS> ALWAYS_TRUE = r -> true;
-	private static final Predicate<RecipeJS> ALWAYS_FALSE = r -> false;
 	
 	public final Map<ResourceLocation, RecipeTypeJS> typeMap;
 	public final List<Recipe<?>> fallbackedRecipes = new ArrayList<>();
@@ -234,90 +231,16 @@ public class RecipeEventJS extends ServerEventJS {
 		return recipe;
 	}
 	
-	public Predicate<RecipeJS> createFilter(@Nullable Object o) {
-		if (o == null || o == ALWAYS_TRUE) {
-			return ALWAYS_TRUE;
-		} else if (o == ALWAYS_FALSE) {
-			return ALWAYS_FALSE;
-		}
-		
-		ListJS list = ListJS.orSelf(o);
-		
-		if (list.isEmpty()) {
-			return ALWAYS_TRUE;
-		} else if (list.size() > 1) {
-			Predicate<RecipeJS> predicate = ALWAYS_FALSE;
-			
-			for (Object o1 : list) {
-				Predicate<RecipeJS> p = createFilter(o1);
-				
-				if (p == ALWAYS_TRUE) {
-					return ALWAYS_TRUE;
-				} else if (p != ALWAYS_FALSE) {
-					predicate = predicate.or(p);
-				}
-			}
-			
-			return predicate;
-		}
-		
-		MapJS map = MapJS.of(list.get(0));
-		
-		if (map == null || map.isEmpty()) {
-			return ALWAYS_TRUE;
-		}
-		
-		boolean exact = Boolean.TRUE.equals(map.get("exact"));
-		
-		Predicate<RecipeJS> predicate = ALWAYS_TRUE;
-		
-		if (map.get("or") != null) {
-			predicate = predicate.and(createFilter(map.get("or")));
-		}
-		
-		if (map.get("id") != null) {
-			ResourceLocation id = UtilsJS.getMCID(map.get("id").toString());
-			predicate = predicate.and(recipe -> recipe.id.equals(id));
-		}
-		
-		if (map.get("type") != null) {
-			ResourceLocation type = UtilsJS.getMCID(map.get("type").toString());
-			predicate = predicate.and(recipe -> type.equals(Registry.RECIPE_SERIALIZER.getKey(recipe.type.serializer)));
-		}
-		
-		if (map.get("group") != null) {
-			String group = map.get("group").toString();
-			predicate = predicate.and(recipe -> recipe.getGroup().equals(group));
-		}
-		
-		if (map.get("mod") != null) {
-			String mod = map.get("mod").toString();
-			predicate = predicate.and(recipe -> recipe.id.getNamespace().equals(mod));
-		}
-		
-		if (map.get("input") != null) {
-			IngredientJS in = IngredientJS.of(map.get("input"));
-			predicate = predicate.and(recipe -> recipe.hasInput(in, exact));
-		}
-		
-		if (map.get("output") != null) {
-			IngredientJS out = IngredientJS.of(map.get("output"));
-			predicate = predicate.and(recipe -> recipe.hasOutput(out, exact));
-		}
-		
-		return predicate;
-	}
-	
-	public Predicate<RecipeJS> customFilter(Predicate<RecipeJS> filter) {
+	public RecipeFilter customFilter(RecipeFilter filter) {
 		return filter;
 	}
 	
 	public void forEachRecipe(@Nullable Object o, Consumer<RecipeJS> consumer) {
-		Predicate<RecipeJS> filter = createFilter(o);
+		RecipeFilter filter = RecipeFilter.of(o);
 		
-		if (filter == ALWAYS_TRUE) {
+		if (filter == RecipeFilter.ALWAYS_TRUE) {
 			originalRecipes.forEach(consumer);
-		} else if (filter != ALWAYS_FALSE) {
+		} else if (filter != RecipeFilter.ALWAYS_FALSE) {
 			originalRecipes.stream().filter(filter).forEach(consumer);
 		}
 	}
@@ -361,7 +284,7 @@ public class RecipeEventJS extends ServerEventJS {
 	}
 	
 	public int replaceInput(Object ingredient, Object with) {
-		return replaceInput(ALWAYS_TRUE, ingredient, with);
+		return replaceInput(RecipeFilter.ALWAYS_TRUE, ingredient, with);
 	}
 	
 	public int replaceOutput(Object filter, Object ingredient, Object with, boolean exact) {
@@ -387,7 +310,7 @@ public class RecipeEventJS extends ServerEventJS {
 	}
 	
 	public int replaceOutput(Object ingredient, Object with) {
-		return replaceOutput(ALWAYS_TRUE, ingredient, with);
+		return replaceOutput(RecipeFilter.ALWAYS_TRUE, ingredient, with);
 	}
 	
 	public RecipeFunction getShaped() {

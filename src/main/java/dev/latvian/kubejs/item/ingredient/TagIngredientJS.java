@@ -9,34 +9,50 @@ import net.fabricmc.fabric.api.tag.TagRegistry;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.SerializationTags;
+import net.minecraft.tags.SetTag;
 import net.minecraft.tags.Tag;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author LatvianModder
  */
 public class TagIngredientJS implements IngredientJS {
-	private final ResourceLocation tag;
-	private final int count;
+	private static final Map<String, TagIngredientJS> tagIngredientCache = new HashMap<>();
 	
-	public TagIngredientJS(ResourceLocation t, int count) {
-		this.tag = t;
-		this.count = count;
+	public static TagIngredientJS createTag(String tag) {
+		return tagIngredientCache.computeIfAbsent(tag, TagIngredientJS::new);
+	}
+	
+	public static void clearTagCache() {
+		tagIngredientCache.clear();
+	}
+	
+	private final ResourceLocation tag;
+	private Tag<Item> actualTag;
+	
+	private TagIngredientJS(String t) {
+		this.tag = new ResourceLocation(t);
 	}
 	
 	public ResourceLocation getTag() {
 		return tag;
 	}
 	
-	@Override
-	public int getCount() {
-		return count;
+	public Tag<Item> getActualTag() {
+		if (actualTag == null) {
+			actualTag = SerializationTags.getInstance().getItems().getTag(tag);
+			
+			if (actualTag == null) {
+				actualTag = SetTag.empty();
+			}
+		}
+		
+		return actualTag;
 	}
 	
 	@Override
@@ -66,7 +82,6 @@ public class TagIngredientJS implements IngredientJS {
 				ItemStack stack = stack1;
 				if (!stack.isEmpty()) {
 					stack = stack.copy();
-					stack.setCount(count);
 					set.add(new BoundItemStackJS(stack));
 				}
 			}
@@ -90,7 +105,6 @@ public class TagIngredientJS implements IngredientJS {
 				for (ItemStack stack : list) {
 					ItemStack stack1 = stack.copy();
 					if (!stack1.isEmpty()) {
-						stack1.setCount(count);
 						return new BoundItemStackJS(stack1);
 					}
 				}
@@ -104,12 +118,7 @@ public class TagIngredientJS implements IngredientJS {
 	
 	@Override
 	public boolean isEmpty() {
-		if (ItemTags.getAllTags().getAllTags().isEmpty()) {
-			return false;
-		}
-		
-		Tag<Item> t = ItemTags.getAllTags().getTag(tag);
-		return t != null && t.getValues().isEmpty();
+		return false;
 	}
 	
 	@Override
@@ -121,9 +130,6 @@ public class TagIngredientJS implements IngredientJS {
 	public JsonElement toJson() {
 		JsonObject json = new JsonObject();
 		json.addProperty("tag", tag.toString());
-		if (count != 1) {
-			json.addProperty("count", getCount());
-		}
 		return json;
 	}
 	

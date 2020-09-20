@@ -12,10 +12,6 @@ import java.util.Set;
  * @author LatvianModder
  */
 public class IngredientStackJS implements IngredientJS {
-	public static IngredientStackJS stackOf(IngredientJS in) {
-		return in instanceof IngredientStackJS ? (IngredientStackJS) in : new IngredientStackJS(in, 1);
-	}
-	
 	public IngredientJS ingredient;
 	private int countOverride;
 	public String countKey;
@@ -67,7 +63,7 @@ public class IngredientStackJS implements IngredientJS {
 	
 	@Override
 	public IngredientJS not() {
-		return new IngredientStackJS(ingredient.not(), countOverride);
+		return ingredient.not().count(countOverride);
 	}
 	
 	@Override
