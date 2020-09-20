@@ -45,6 +45,11 @@ public class KubeJS implements ModInitializer {
 	public static ScriptManager startupScriptManager, clientScriptManager;
 	
 	public KubeJS() throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+		if (Double.parseDouble(System.getProperty("java.version")) >= 15) {
+			System.err.println("\n\n================================================================================\nKubeJS currently does not support Java 15 or above. Please use Java 14 or below while we work on this issue, sorry!\n================================================================================\n");
+			System.exit(0);
+		}
+		
 		Locale.setDefault(Locale.US);
 		
 		instance = this;
