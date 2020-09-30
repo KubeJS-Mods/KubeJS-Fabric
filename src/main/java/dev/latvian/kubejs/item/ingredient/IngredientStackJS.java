@@ -78,8 +78,7 @@ public class IngredientStackJS implements IngredientJS {
 	
 	@Override
 	public JsonElement toJson() {
-		JsonObject json = new JsonObject();
-		json.add("ingredient", ingredient.toJson());
+		JsonObject json = ingredient.toJson().getAsJsonObject();
 		json.addProperty(countKey, countOverride);
 		return json;
 	}

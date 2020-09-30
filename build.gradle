@@ -27,7 +27,8 @@ dependencies {
     modApi("net.fabricmc:fabric-loader:${project.fabric_version}")
     modApi("net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}")
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
-    modRuntime("me.shedaniel:RoughlyEnoughItems:5.4.2")
+    modCompileOnly("me.shedaniel:RoughlyEnoughItems-api:5.6.0")
+    modRuntime("me.shedaniel:RoughlyEnoughItems:5.6.0")
 }
 
 processResources {

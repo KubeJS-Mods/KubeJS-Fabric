@@ -3,18 +3,18 @@
   "package": "dev.latvian.kubejs.core.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-	"AbstractBlockMixin", "AbstractFurnaceBlockEntityMixin", "CompoundNBTMixin",
-	"CraftingResultSlotMixin", "DataPackRegistriesMixin", "EntityMixin", "FireworkRocketEntityMixin", "ItemStackMixin",
-	"LivingEntityMixin", "PlayerInteractionManagerMixin",
-	"RecipeManagerMixin", "ResourcePackManagerMixin", "ServerPlayerInteractionManagerMixin",
-	"SimpleReloadableResourceManagerMixin", "TagBuilderMixin", "TagCollectionMixin", "TradeOfferMixin"
+    "AbstractBlockMixin", "AbstractFurnaceBlockEntityMixin", "CompoundNBTMixin",
+    "CraftingResultSlotMixin", "DataPackRegistriesMixin", "EntityMixin", "FireworkRocketEntityMixin", "ItemStackMixin",
+    "LivingEntityMixin", "PlayerInteractionManagerMixin",
+    "RecipeManagerMixin", "ResourcePackManagerMixin", "ServerPlayerInteractionManagerMixin",
+    "SimpleReloadableResourceManagerMixin", "TagBuilderMixin", "TagCollectionMixin", "TradeOfferMixin"
   ],
   "client": [
-	"ClientPlayNetworkHandlerMixin", "DebugHudMixin", "ImageButtonMixin", "MainWindowMixin", "MinecraftClientMixin",
-	"SplashScreenMixin"
+    "ClientPlayNetworkHandlerMixin", "ClientRecipeBookMixin", "DebugHudMixin", "ImageButtonMixin", "MainWindowMixin", "MinecraftClientMixin",
+    "SplashScreenMixin"
   ],
   "injectors": {
-	"defaultRequire": 1
+    "defaultRequire": 1
   },
   "minVersion": "0.8"
 }

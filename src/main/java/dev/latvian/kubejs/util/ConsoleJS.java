@@ -92,6 +92,12 @@ public class ConsoleJS {
 		}
 	}
 	
+	public void infoSlightly(Object message, Throwable throwable) {
+		if (shouldPrint()) {
+			logger.info(string(message) + ": " + throwable);
+		}
+	}
+	
 	public void infof(String message, Object... args) {
 		if (shouldPrint()) {
 			logger.info(string(message, args));
@@ -111,6 +117,12 @@ public class ConsoleJS {
 	public void warn(Object message, Throwable throwable) {
 		if (shouldPrint()) {
 			logger.warn(string(message), throwable);
+		}
+	}
+	
+	public void warnSlightly(Object message, Throwable throwable) {
+		if (shouldPrint()) {
+			logger.warn(string(message) + ": " + throwable);
 		}
 	}
 	

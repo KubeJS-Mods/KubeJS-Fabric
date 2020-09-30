@@ -104,7 +104,7 @@ public class RecipeEventJS extends ServerEventJS {
 				return recipe;
 			} catch (Exception ex) {
 				if (!(ex instanceof MissingRecipeFunctionException)) {
-					ScriptType.SERVER.console.warn("Failed to parse recipe for '" + recipeId + "'! Falling back to vanilla!", ex);
+					ScriptType.SERVER.console.infoSlightly("Failed to parse recipe for '" + recipeId + "'! Falling back to vanilla!", ex);
 				}
 				try {
 					return Objects.requireNonNull(fromJson(recipeId, GsonHelper.convertToJsonObject(entry.getValue(), "top element")));
@@ -154,7 +154,7 @@ public class RecipeEventJS extends ServerEventJS {
 						}
 						recipe.originalRecipe = resultRecipe;
 					} catch (Throwable ex) {
-						ScriptType.SERVER.console.warn("Error parsing recipe " + recipe + ": " + recipe.json, ex);
+						ScriptType.SERVER.console.warnSlightly("Error parsing recipe " + recipe + ": " + recipe.json, ex);
 						failed[0]++;
 					}
 					return recipe.originalRecipe;
@@ -190,7 +190,7 @@ public class RecipeEventJS extends ServerEventJS {
 						}
 						recipe.originalRecipe = resultRecipe;
 					} catch (Throwable ex) {
-						ScriptType.SERVER.console.warn("Error creating recipe " + recipe + ": " + recipe.json, ex);
+						ScriptType.SERVER.console.warnSlightly("Error creating recipe " + recipe + ": " + recipe.json, ex);
 						failed[0]++;
 					}
 					return recipe.originalRecipe;

@@ -16,13 +16,17 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author LatvianModder
  */
 public class TagIngredientJS implements IngredientJS {
-	private static final Map<String, TagIngredientJS> tagIngredientCache = new HashMap<>();
+	private static final Map<String, TagIngredientJS> tagIngredientCache = new ConcurrentHashMap<>();
 	
 	public static TagIngredientJS createTag(String tag) {
 		return tagIngredientCache.computeIfAbsent(tag, TagIngredientJS::new);

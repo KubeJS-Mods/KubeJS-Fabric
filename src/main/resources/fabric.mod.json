@@ -29,6 +29,9 @@
       "dev.latvian.kubejs.fluid.KubeJSFluidEventHandler",
       "dev.latvian.kubejs.compat.AstromineRecipeEventHandler",
       "dev.latvian.kubejs.compat.TechRebornRecipeEventHandler"
+    ],
+    "rei_plugins": [
+      "dev.latvian.kubejs.rei.REIPlugin"
     ]
   },
   "accessWidener": "kubejs.accessWidener",
