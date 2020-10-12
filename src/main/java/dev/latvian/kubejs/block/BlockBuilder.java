@@ -30,6 +30,7 @@ public class BlockBuilder extends BuilderBase {
 	public int harvestLevel;
 	public boolean opaque;
 	public boolean fullBlock;
+	public boolean requiresTool;
 	public String renderType;
 	public Int2IntOpenHashMap color;
 	public final JsonObject textures;
@@ -116,6 +117,11 @@ public class BlockBuilder extends BuilderBase {
 		return this;
 	}
 	
+	public BlockBuilder requiresTool(boolean f) {
+		requiresTool = f;
+		return this;
+	}
+	
 	public BlockBuilder renderType(String l) {
 		renderType = l;
 		return this;
@@ -194,6 +200,8 @@ public class BlockBuilder extends BuilderBase {
 		if (notSolid) {
 			properties.noOcclusion();
 		}
+		
+		properties.requiresCorrectToolForDrops = requiresTool;
 		
 		return properties;
 	}
