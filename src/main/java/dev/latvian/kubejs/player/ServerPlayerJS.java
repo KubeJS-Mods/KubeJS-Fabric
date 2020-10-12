@@ -103,6 +103,11 @@ public class ServerPlayerJS extends PlayerJS<ServerPlayer> {
 		return hasClientMod;
 	}
 	
+	public boolean isAdvancementDone(@ID String id) {
+		AdvancementJS a = ServerJS.instance.getAdvancement(id);
+		return a != null && minecraftPlayer.getAdvancements().getOrStartProgress(a.advancement).isDone();
+	}
+	
 	public void unlockAdvancement(@ID String id) {
 		AdvancementJS a = ServerJS.instance.getAdvancement(id);
 		
