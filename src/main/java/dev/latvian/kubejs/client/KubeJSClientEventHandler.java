@@ -124,8 +124,7 @@ public class KubeJSClientEventHandler {
 	}
 	
 	private void itemTooltip(ItemStack stack, TooltipFlag context, List<net.minecraft.network.chat.Component> lines) {
-		if (ClientProperties.get().showTagNames && Minecraft.getInstance().options.advancedItemTooltips && Screen.hasShiftDown()) //hasShiftDown
-		{
+		if (ClientProperties.get().showTagNames && Minecraft.getInstance().level != null && Minecraft.getInstance().options.advancedItemTooltips && Screen.hasShiftDown()) {
 			for (ResourceLocation tag : Minecraft.getInstance().level.getTagManager().getItems().getMatchingTags(stack.getItem())) {
 				lines.add(new TextComponent(" #" + tag).withStyle(ChatFormatting.DARK_GRAY));
 			}
