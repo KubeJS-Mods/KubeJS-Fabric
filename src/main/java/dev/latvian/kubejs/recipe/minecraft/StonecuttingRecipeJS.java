@@ -19,7 +19,7 @@ public class StonecuttingRecipeJS extends RecipeJS {
 	
 	@Override
 	public void deserialize() {
-		ItemStackJS result = ItemStackJS.resultFromRecipeJson(json.get("result"));
+		ItemStackJS result = ItemStackJS.resultFromRecipeJson(json.get("result")).count(json.get("count").getAsInt());
 		outputItems.add(result);
 		
 		IngredientJS ingredient = IngredientJS.ingredientFromRecipeJson(json.get("ingredient"));
