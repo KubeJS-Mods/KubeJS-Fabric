@@ -92,7 +92,7 @@ public abstract class RecipeJS {
 		for (int j = 0; j < outputItems.size(); j++) {
 			if (exact ? i.equals(outputItems.get(j)) : i.test(outputItems.get(j))) {
 				ItemStackJS replacement = with.getCopy();
-				replacement = replacement.count(Math.max(1, inputItems.get(j).getCount()));
+				replacement = replacement.count(Math.max(1, outputItems.get(j).getCount()));
 				outputItems.set(j, replacement);
 				changed = true;
 				save();
