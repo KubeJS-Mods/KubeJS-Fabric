@@ -8,7 +8,6 @@ import dev.latvian.kubejs.item.ItemStackJS;
 import net.fabricmc.fabric.api.tag.TagRegistry;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.SerializationTags;
 import net.minecraft.tags.SetTag;
 import net.minecraft.tags.Tag;
@@ -71,9 +70,9 @@ public class TagIngredientJS implements IngredientJS {
 	
 	@Override
 	public Set<ItemStackJS> getStacks() {
-		Tag<Item> t = ItemTags.getAllTags().getTag(tag);
+		Tag<Item> t = getActualTag();
 		
-		if (t != null && t.getValues().size() > 0) {
+		if (t.getValues().size() > 0) {
 			NonNullList<ItemStack> list = NonNullList.create();
 			
 			for (Item item : t.getValues()) {
@@ -98,9 +97,9 @@ public class TagIngredientJS implements IngredientJS {
 	
 	@Override
 	public ItemStackJS getFirst() {
-		Tag<Item> t = ItemTags.getAllTags().getTag(tag);
+		Tag<Item> t = getActualTag();
 		
-		if (t != null && t.getValues().size() > 0) {
+		if (t.getValues().size() > 0) {
 			NonNullList<ItemStack> list = NonNullList.create();
 			
 			for (Item item : t.getValues()) {
