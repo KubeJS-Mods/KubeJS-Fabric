@@ -264,12 +264,13 @@ public class RecipeEventJS extends ServerEventJS {
 	public int replaceInput(Object filter, Object ingredient, Object with, boolean exact) {
 		int[] count = new int[1];
 		IngredientJS i = IngredientJS.of(ingredient);
-		IngredientJS w = IngredientJS.of(with);
+		IngredientJS[] w = new IngredientJS[] { IngredientJS.of(with) };
 		String is = i.toString();
 		String ws = w.toString();
 		forEachRecipe(filter, r -> {
-			if (r.replaceInput(i, w, exact)) {
+			if (r.replaceInput(i, w[0], exact)) {
 				count[0]++;
+				w[0] = IngredientJS.of(with);
 				
 				if (ServerSettings.instance.logAddedRecipes || ServerSettings.instance.logRemovedRecipes) {
 					ScriptType.SERVER.console.info("~ " + r + ": OUT " + is + " -> " + ws);
@@ -290,12 +291,13 @@ public class RecipeEventJS extends ServerEventJS {
 	public int replaceOutput(Object filter, Object ingredient, Object with, boolean exact) {
 		int[] count = new int[1];
 		IngredientJS i = IngredientJS.of(ingredient);
-		ItemStackJS w = ItemStackJS.of(with);
+		ItemStackJS[] w = new ItemStackJS[] { ItemStackJS.of(with) };
 		String is = i.toString();
 		String ws = w.toString();
 		forEachRecipe(filter, r -> {
-			if (r.replaceOutput(i, w, exact)) {
+			if (r.replaceOutput(i, w[0], exact)) {
 				count[0]++;
+				w[0] = ItemStackJS.of(with);
 				
 				if (ServerSettings.instance.logAddedRecipes || ServerSettings.instance.logRemovedRecipes) {
 					ScriptType.SERVER.console.info("~ " + r + ": IN " + is + " -> " + ws);
