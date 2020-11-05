@@ -1,11 +1,10 @@
 package dev.latvian.kubejs.script;
 
-import dev.latvian.kubejs.util.FunctionBinding;
-import jdk.nashorn.api.scripting.JSObject;
+import dev.latvian.mods.rhino.*;
+import dev.latvian.mods.rhino.util.DynamicFunction;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 
-import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -19,13 +18,11 @@ public class BindingsEvent {
 	});
 	
 	public final ScriptType type;
-	private final Map<String, Object> map;
-	private final Map<String, Object> constantMap;
+	public Scriptable scope;
 	
-	public BindingsEvent(ScriptType t, Map<String, Object> m, Map<String, Object> cm) {
+	public BindingsEvent(ScriptType t, Scriptable s) {
 		type = t;
-		map = m;
-		constantMap = cm;
+		scope = s;
 	}
 	
 	public ScriptType getType() {
@@ -33,22 +30,22 @@ public class BindingsEvent {
 	}
 	
 	public void add(String name, Object value) {
-		map.put(name, value);
+		ScriptableObject.putProperty(scope, name, Context.javaToJS(value, scope));
 	}
 	
-	public void addFunction(String name, FunctionBinding.Handler handler) {
-		add(name, new FunctionBinding(handler));
+	public void addClass(String name, Class<?> clazz) {
+		add(name, new NativeJavaClass(scope, clazz));
 	}
 	
-	public void addFunction(String name, JSObject function) {
-		add(name, function);
+	public void addFunction(String name, DynamicFunction.Callback function) {
+		add(name, new DynamicFunction(function));
 	}
 	
 	public void addConstant(String name, Object value) {
-		constantMap.put(name, value);
+		add(name, value);
 	}
 	
-	public boolean isServer() {
-		return false;
+	public void addFunction(String name, BaseFunction function) {
+		add(name, function);
 	}
 }

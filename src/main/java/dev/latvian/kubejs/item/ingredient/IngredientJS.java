@@ -8,6 +8,7 @@ import dev.latvian.kubejs.item.BoundItemStackJS;
 import dev.latvian.kubejs.item.EmptyItemStackJS;
 import dev.latvian.kubejs.item.ItemStackJS;
 import dev.latvian.kubejs.util.*;
+import dev.latvian.mods.rhino.Wrapper;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 
@@ -24,6 +25,9 @@ import java.util.regex.Pattern;
 @FunctionalInterface
 public interface IngredientJS extends JsonSerializable, WrappedJS {
 	static IngredientJS of(@Nullable Object o) {
+		if (o instanceof Wrapper) {
+			o = ((Wrapper) o).unwrap();
+		}
 		if (o == null) {
 			return EmptyItemStackJS.INSTANCE;
 		} else if (o instanceof IngredientJS) {

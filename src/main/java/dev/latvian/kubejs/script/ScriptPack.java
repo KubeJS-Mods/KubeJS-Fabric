@@ -1,6 +1,8 @@
 package dev.latvian.kubejs.script;
 
-import javax.script.ScriptEngine;
+import dev.latvian.mods.rhino.Context;
+import dev.latvian.mods.rhino.Scriptable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +14,8 @@ public class ScriptPack {
 	public final ScriptPackInfo info;
 	public final List<ScriptFile> scripts;
 	
-	public ScriptEngine engine;
+	public Context context;
+	public Scriptable scope;
 	
 	public ScriptPack(ScriptManager m, ScriptPackInfo i) {
 		manager = m;

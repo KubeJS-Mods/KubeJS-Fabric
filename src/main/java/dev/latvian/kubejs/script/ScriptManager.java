@@ -7,31 +7,24 @@ import dev.latvian.kubejs.bindings.DefaultBindings;
 import dev.latvian.kubejs.event.EventJS;
 import dev.latvian.kubejs.event.EventsJS;
 import dev.latvian.kubejs.util.UtilsJS;
-import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
+import dev.latvian.mods.rhino.ClassShutter;
+import dev.latvian.mods.rhino.Context;
 import org.apache.commons.io.IOUtils;
 
-import javax.script.Bindings;
-import javax.script.ScriptContext;
 import javax.script.ScriptException;
-import javax.script.SimpleBindings;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author LatvianModder
  */
 public class ScriptManager {
-	private static final String[] BLOCKED_FUNCTIONS = {
-			"print",
-			"load",
-			"loadWithNewGlobal",
-			"exit",
-			"quit"
-	};
-	
 	public final ScriptType type;
 	public final Path directory;
 	public final String exampleScript;
@@ -40,7 +33,7 @@ public class ScriptManager {
 	public final List<String> errors;
 	
 	public ScriptFile currentFile;
-	public Map<String, Object> bindings, constants;
+	public Map<String, Object> bindings;
 	
 	public ScriptManager(ScriptType t, Path p, String e) {
 		type = t;
@@ -88,17 +81,11 @@ public class ScriptManager {
 	}
 	
 	public void load() {
-		BabelExecutor.init();
+		Context context = Context.enter();
+		context.setLanguageVersion(Context.VERSION_ES6);
+		context.setClassShutter((fullClassName, type) -> type != ClassShutter.TYPE_CLASS_IN_PACKAGE);
 		
 		errors.clear();
-		bindings = new HashMap<>();
-		constants = new HashMap<>();
-		BindingsEvent event = new BindingsEvent(type, bindings, constants);
-		BindingsEvent.EVENT.invoker().accept(event);
-		DefaultBindings.init(this, event);
-		Bindings b = new SimpleBindings();
-		b.putAll(constants);
-		b.putAll(bindings);
 		
 		int i = 0;
 		int t = 0;
@@ -108,26 +95,25 @@ public class ScriptManager {
 		packs.values().stream()
 				.flatMap(pack -> pack.scripts.stream())
 				.parallel()
-				.forEach(file -> file.babel.get());
+				.forEach(file -> file.content.get());
 		
 		System.out.println("Babel Transformer done in " + stopwatch.stop().toString());
 		stopwatch.reset().start();
 		
 		for (ScriptPack pack : packs.values()) {
-			pack.engine = new NashornScriptEngineFactory().getScriptEngine(s -> false);
+			pack.context = context;
+			pack.scope = context.initStandardObjects();
 			
-			ScriptContext context = pack.engine.getContext();
-			
-			for (String s : BLOCKED_FUNCTIONS) {
-				context.removeAttribute(s, context.getAttributesScope(s));
-			}
+			BindingsEvent event = new BindingsEvent(type, pack.scope);
+			BindingsEvent.EVENT.invoker().accept(event);
+			DefaultBindings.init(this, event);
 			
 			for (ScriptFile file : pack.scripts) {
 				t++;
 				currentFile = file;
 				Stopwatch fileStopwatch = Stopwatch.createStarted();
 				
-				if (file.getError() == null && file.load(b)) {
+				if (file.getError() == null && file.load()) {
 					i++;
 					type.console.info("Loaded script " + file.info.location + " in " + fileStopwatch.stop().toString());
 				} else if (file.getError() != null) {
@@ -149,6 +135,8 @@ public class ScriptManager {
 		} else {
 			type.console.error("Loaded " + i + "/" + t + " KubeJS " + type.name + " scripts in " + stopwatch.stop().toString());
 		}
+		
+		Context.exit();
 		
 		events.postToHandlers(KubeJSEvents.LOADED, events.handlers(KubeJSEvents.LOADED), new EventJS());
 		ScriptsLoadedEvent.EVENT.invoker().accept(new ScriptsLoadedEvent());

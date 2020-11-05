@@ -1,6 +1,5 @@
 package dev.latvian.kubejs.script;
 
-import net.fabricmc.api.EnvType;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;

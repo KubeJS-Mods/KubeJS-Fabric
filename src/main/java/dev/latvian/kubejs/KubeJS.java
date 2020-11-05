@@ -35,7 +35,6 @@ public class KubeJS implements ModInitializer {
 	public static final String MOD_ID = "kubejs";
 	public static final String MOD_NAME = "KubeJS";
 	public static final Logger LOGGER = LogManager.getLogger(MOD_NAME);
-	public static final boolean PRINT_PROCESSED_SCRIPTS = System.getProperty("kubejs.printprocessedscripts", "0").equals("1");
 	
 	public static KubeJS instance;
 	

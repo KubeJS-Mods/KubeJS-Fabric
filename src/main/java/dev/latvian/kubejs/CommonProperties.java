@@ -1,7 +1,5 @@
 package dev.latvian.kubejs;
 
-import net.fabricmc.loader.api.FabricLoader;
-
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
@@ -25,8 +23,6 @@ public class CommonProperties {
 	private final Properties properties;
 	private boolean writeProperties;
 	
-	public boolean enableES6;
-	
 	private CommonProperties() {
 		properties = new Properties();
 		
@@ -40,12 +36,7 @@ public class CommonProperties {
 				}
 			} else {
 				writeProperties = true;
-				if (Files.exists(FabricLoader.getInstance().getGameDir().resolve("kubejs/.disablebabel"))) {
-					properties.setProperty("enableES6", "false");
-				}
 			}
-			
-			enableES6 = get("enableES6", true);
 			
 			if (writeProperties) {
 				try (Writer writer = Files.newBufferedWriter(propertiesFile)) {

@@ -6,13 +6,11 @@ import com.google.gson.JsonParseException;
 import dev.latvian.kubejs.KubeJS;
 import dev.latvian.kubejs.docs.ID;
 import dev.latvian.kubejs.docs.MinecraftClass;
-import dev.latvian.kubejs.item.ingredient.IgnoreNBTIngredientJS;
-import dev.latvian.kubejs.item.ingredient.IngredientJS;
-import dev.latvian.kubejs.item.ingredient.IngredientStackJS;
-import dev.latvian.kubejs.item.ingredient.TagIngredientJS;
+import dev.latvian.kubejs.item.ingredient.*;
 import dev.latvian.kubejs.text.Text;
 import dev.latvian.kubejs.util.*;
 import dev.latvian.kubejs.world.BlockContainerJS;
+import dev.latvian.mods.rhino.Wrapper;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -33,6 +31,9 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 	private static ListJS cachedItemTypeListJS;
 	
 	public static ItemStackJS of(@Nullable Object o) {
+		if (o instanceof Wrapper) {
+			o = ((Wrapper) o).unwrap();
+		}
 		if (o == null) {
 			return EmptyItemStackJS.INSTANCE;
 		} else if (o instanceof ItemStackJS) {
@@ -49,10 +50,21 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 		} else if (o instanceof CharSequence) {
 			String s = o.toString();
 			
-			if (s.startsWith("#")) {
-				return TagIngredientJS.createTag(s.substring(1)).getFirst();
+			if (s.isEmpty() || s.equals("air")) {
+				return EmptyItemStackJS.INSTANCE;
 			}
 			
+			if (s.startsWith("#")) {
+				return TagIngredientJS.createTag(s.substring(1)).getFirst();
+			} else if (s.startsWith("@")) {
+				return new ModIngredientJS(s.substring(1)).getFirst();
+			} else if (s.startsWith("%")) {
+				CreativeModeTab group = ItemStackJS.findGroup(s.substring(1));
+				if (group == null) {
+					return EmptyItemStackJS.INSTANCE;
+				}
+				return new GroupIngredientJS(group).getFirst();
+			}
 			return new UnboundItemStackJS(new ResourceLocation(s));
 		}
 		
@@ -86,17 +98,7 @@ public abstract class ItemStackJS implements IngredientJS, NBTSerializable, Wrap
 			}
 		}
 		
-		String s = String.valueOf(o).trim();
-		
-		if (s.isEmpty() || s.equals("air")) {
-			return EmptyItemStackJS.INSTANCE;
-		}
-		
-		if (s.startsWith("#")) {
-			return TagIngredientJS.createTag(s.substring(1)).getFirst();
-		}
-		
-		return new UnboundItemStackJS(new ResourceLocation(s));
+		return EmptyItemStackJS.INSTANCE;
 	}
 	
 	public static ItemStackJS of(@Nullable Object o, @Nullable Object countOrNBT) {

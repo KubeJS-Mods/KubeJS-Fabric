@@ -4,7 +4,7 @@ plugins {
     id("maven")
 }
 
-apply from: 'https://raw.githubusercontent.com/MinecraftModDevelopment/Gradle-Collection/master/generic/markdown-git-changelog.gradle'
+apply from: 'https://files.latmod.com/public/markdown-git-changelog.gradle'
 
 def ENV = System.getenv()
 version = project.mod_version
@@ -19,6 +19,7 @@ minecraft {
 
 repositories {
     maven { url "https://mod-buildcraft.com/maven" }
+    maven { url "https://www.cursemaven.com" }
 }
 
 dependencies {
@@ -26,9 +27,10 @@ dependencies {
     mappings(minecraft.officialMojangMappings())
     modApi("net.fabricmc:fabric-loader:${project.fabric_version}")
     modApi("net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}")
+    modApi("curse.maven:rhino:${project.rhino_file}")
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
-    modCompileOnly("me.shedaniel:RoughlyEnoughItems-api:5.6.0")
-    modRuntime("me.shedaniel:RoughlyEnoughItems:5.6.0")
+    modCompileOnly("me.shedaniel:RoughlyEnoughItems-api:5.8.1")
+    modRuntime("me.shedaniel:RoughlyEnoughItems:5.8.1")
 }
 
 processResources {

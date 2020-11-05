@@ -22,7 +22,6 @@ import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
-import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

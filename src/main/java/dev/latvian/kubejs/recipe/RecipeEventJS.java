@@ -11,7 +11,10 @@ import dev.latvian.kubejs.recipe.filter.RecipeFilter;
 import dev.latvian.kubejs.script.ScriptType;
 import dev.latvian.kubejs.server.ServerEventJS;
 import dev.latvian.kubejs.server.ServerSettings;
-import dev.latvian.kubejs.util.*;
+import dev.latvian.kubejs.util.JsonUtilsJS;
+import dev.latvian.kubejs.util.ListJS;
+import dev.latvian.kubejs.util.UtilsJS;
+import dev.latvian.mods.rhino.util.DynamicMap;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
@@ -23,6 +26,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -41,25 +45,15 @@ public class RecipeEventJS extends ServerEventJS {
 	public final List<RecipeJS> originalRecipes = new ArrayList<>();
 	private final List<RecipeJS> addedRecipes = new ArrayList<>();
 	private final Set<RecipeJS> removedRecipes = new HashSet<>();
-	public final Map<ResourceLocation, RecipeFunction> functionMap;
+	private final Map<ResourceLocation, RecipeFunction> functionMap;
 	
-	private final DynamicMapJS<String, DynamicMapJS<String, RecipeFunction>> recipeFunctions;
+	private final DynamicMap<DynamicMap<RecipeFunction>> recipeFunctions;
 	
 	public RecipeEventJS(Map<ResourceLocation, RecipeTypeJS> t) {
 		typeMap = t;
 		ScriptType.SERVER.console.getLogger().info("Scanning recipes...");
-		functionMap = new DynamicConcurrentMapJS<>(id -> {
-			RecipeSerializer<?> serializer = Registry.RECIPE_SERIALIZER.get(id);
-			
-			if (serializer != null) {
-				RecipeTypeJS typeJS = typeMap.get(id);
-				return new RecipeFunction(this, id, typeJS != null ? typeJS : new CustomRecipeTypeJS(serializer));
-			} else {
-				return new RecipeFunction(this, id, null);
-			}
-		});
-		
-		recipeFunctions = new DynamicMapJS<>(n -> new DynamicMapJS<>(p -> functionMap.get(new ResourceLocation(n, p))));
+		functionMap = new ConcurrentHashMap<>();
+		recipeFunctions = new DynamicMap<>(n -> new DynamicMap<>(p -> getRecipeFunction(new ResourceLocation(n, p))));
 	}
 	
 	public void post(RecipeManager recipeManager, Map<ResourceLocation, JsonObject> jsonMap) {
@@ -78,7 +72,7 @@ public class RecipeEventJS extends ServerEventJS {
 			
 			try {
 				String type = GsonHelper.getAsString(json, "type");
-				RecipeFunction function = functionMap.get(new ResourceLocation(type));
+				RecipeFunction function = getRecipeFunction(new ResourceLocation(type));
 				if (function.type == null) {
 					throw new MissingRecipeFunctionException("Skipping loading recipe " + recipeId + " as it's type " + function.typeId + " is unknown!");
 				}
@@ -210,7 +204,7 @@ public class RecipeEventJS extends ServerEventJS {
 		ScriptType.SERVER.console.getLogger().info("Added {} recipes, removed {} recipes, modified {} recipes, with {} failed recipes and {} fall-backed recipes.", added[0], removed[0], modified[0], failed[0], fallbacked[0]);
 	}
 	
-	public DynamicMapJS<String, DynamicMapJS<String, RecipeFunction>> getRecipes() {
+	public DynamicMap<DynamicMap<RecipeFunction>> getRecipes() {
 		return recipeFunctions;
 	}
 	
@@ -313,28 +307,45 @@ public class RecipeEventJS extends ServerEventJS {
 		return replaceOutput(RecipeFilter.ALWAYS_TRUE, ingredient, with);
 	}
 	
+	public RecipeFunction getRecipeFunction(@Nullable ResourceLocation id) {
+		if (id == null) {
+			throw new NullPointerException("Recipe type is null!");
+		}
+		
+		return functionMap.computeIfAbsent(id, i -> {
+			RecipeSerializer<?> serializer = Registry.RECIPE_SERIALIZER.get(i);
+			
+			if (serializer != null) {
+				RecipeTypeJS typeJS = typeMap.get(i);
+				return new RecipeFunction(this, i, typeJS != null ? typeJS : new CustomRecipeTypeJS(serializer));
+			} else {
+				return new RecipeFunction(this, i, null);
+			}
+		});
+	}
+	
 	public RecipeFunction getShaped() {
-		return functionMap.get(Registry.RECIPE_SERIALIZER.getKey(RecipeSerializer.SHAPED_RECIPE));
+		return getRecipeFunction(Registry.RECIPE_SERIALIZER.getKey(RecipeSerializer.SHAPED_RECIPE));
 	}
 	
 	public RecipeFunction getShapeless() {
-		return functionMap.get(Registry.RECIPE_SERIALIZER.getKey(RecipeSerializer.SHAPELESS_RECIPE));
+		return getRecipeFunction(Registry.RECIPE_SERIALIZER.getKey(RecipeSerializer.SHAPELESS_RECIPE));
 	}
 	
 	public RecipeFunction getSmelting() {
-		return functionMap.get(Registry.RECIPE_SERIALIZER.getKey(RecipeSerializer.SMELTING_RECIPE));
+		return getRecipeFunction(Registry.RECIPE_SERIALIZER.getKey(RecipeSerializer.SMELTING_RECIPE));
 	}
 	
 	public RecipeFunction getBlasting() {
-		return functionMap.get(Registry.RECIPE_SERIALIZER.getKey(RecipeSerializer.BLASTING_RECIPE));
+		return getRecipeFunction(Registry.RECIPE_SERIALIZER.getKey(RecipeSerializer.BLASTING_RECIPE));
 	}
 	
 	public RecipeFunction getSmoking() {
-		return functionMap.get(Registry.RECIPE_SERIALIZER.getKey(RecipeSerializer.SMOKING_RECIPE));
+		return getRecipeFunction(Registry.RECIPE_SERIALIZER.getKey(RecipeSerializer.SMOKING_RECIPE));
 	}
 	
 	public RecipeFunction getCampfireCooking() {
-		return functionMap.get(Registry.RECIPE_SERIALIZER.getKey(RecipeSerializer.CAMPFIRE_COOKING_RECIPE));
+		return getRecipeFunction(Registry.RECIPE_SERIALIZER.getKey(RecipeSerializer.CAMPFIRE_COOKING_RECIPE));
 	}
 	
 	public void printTypes() {

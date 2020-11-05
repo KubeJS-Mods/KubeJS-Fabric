@@ -7,7 +7,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
-import java.io.File;
 
 /**
  * @author LatvianModder
