@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import dev.latvian.kubejs.item.BoundItemStackJS;
 import dev.latvian.kubejs.item.EmptyItemStackJS;
 import dev.latvian.kubejs.item.ItemStackJS;
-import net.fabricmc.fabric.api.tag.TagRegistry;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.SerializationTags;
@@ -60,12 +59,12 @@ public class TagIngredientJS implements IngredientJS {
 	
 	@Override
 	public boolean test(ItemStackJS stack) {
-		return !stack.isEmpty() && stack.getItem().is(TagRegistry.item(tag));
+		return !stack.isEmpty() && stack.getItem().is(getActualTag());
 	}
 	
 	@Override
 	public boolean testVanilla(ItemStack stack) {
-		return !stack.isEmpty() && stack.getItem().is(TagRegistry.item(tag));
+		return !stack.isEmpty() && stack.getItem().is(getActualTag());
 	}
 	
 	@Override
