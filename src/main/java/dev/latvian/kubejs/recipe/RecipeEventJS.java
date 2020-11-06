@@ -240,8 +240,10 @@ public class RecipeEventJS extends ServerEventJS {
 		
 		if (filter == RecipeFilter.ALWAYS_TRUE) {
 			originalRecipes.forEach(consumer);
+			addedRecipes.forEach(consumer);
 		} else if (filter != RecipeFilter.ALWAYS_FALSE) {
 			originalRecipes.stream().filter(filter).forEach(consumer);
+			addedRecipes.stream().filter(filter).forEach(consumer);
 		}
 	}
 	

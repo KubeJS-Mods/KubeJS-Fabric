@@ -31,7 +31,6 @@ public class ServerScriptManager {
 	
 	public void reloadScripts(SimpleReloadableResourceManager resourceManager) {
 		scriptManager.unload();
-		scriptManager.loadFromDirectory();
 		
 		Map<String, List<ResourceLocation>> packs = new HashMap<>();
 		
@@ -60,6 +59,8 @@ public class ServerScriptManager {
 			pack.scripts.sort(null);
 			scriptManager.packs.put(pack.info.namespace, pack);
 		}
+
+		scriptManager.loadFromDirectory();
 		
 		//Loading is required in prepare stage to allow virtual data pack overrides
 		virtualDataPackFirst.resetData();

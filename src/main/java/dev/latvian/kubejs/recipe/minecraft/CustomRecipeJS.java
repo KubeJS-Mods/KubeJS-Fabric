@@ -119,7 +119,7 @@ public class CustomRecipeJS extends RecipeJS {
 		outputKey = "";
 		outputType = -1;
 		
-		if (originalRecipe == null || originalRecipe.isSpecial()) {
+		if (originalRecipe != null && originalRecipe.isSpecial()) {
 			return;
 		}
 		
